@@ -1,6 +1,7 @@
 const express = require("express");
 const { protect } = require("../middleware/protect");
 const Groq = require("groq-sdk");
+const Trip = require("../models/Trip");
 
 console.log("🚀 [AI] Groq Itinerary Route Initialized");
 
@@ -30,35 +31,37 @@ Trip Context:
 STRICT INSTRUCTIONS:
 1. Incorporate ALL locked suggestions naturally into the itinerary.
 2. Provide a diverse range of activities (food, landmark, adventure, etc.).
-3. Return ONLY a valid JSON array of days.
+3. Return a valid JSON OBJECT with a key named "days" containing the array of itinerary days.
 4. DO NOT include markdown formatting like \`\`\`json. Return pure JSON.
 
 JSON Structure:
-[
-  {
-    "day": 1,
-    "date": "YYYY-MM-DD",
-    "label": "Day Title",
-    "theme": "explore",
-    "activities": [
-      {
-        "id": "unique_string",
-        "time": "HH:MM AM/PM",
-        "title": "Activity Name",
-        "location": "Location Name",
-        "notes": "Brief helpful note",
-        "type": "activity",
-        "order": 0,
-        "isAiGenerated": true
-      }
-    ]
-  }
-]
+{
+  "days": [
+    {
+      "day": 1,
+      "date": "YYYY-MM-DD",
+      "label": "Day Title",
+      "theme": "explore",
+      "activities": [
+        {
+          "id": "unique_string",
+          "time": "HH:MM AM/PM",
+          "title": "Activity Name",
+          "location": "Location Name",
+          "notes": "Brief helpful note",
+          "type": "activity",
+          "order": 0,
+          "isAiGenerated": true
+        }
+      ]
+    }
+  ]
+}
 `;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
-        { role: "system", content: "You are a professional travel planning assistant. Return JSON only." },
+        { role: "system", content: "You are a professional travel planning assistant. Return JSON object only with a 'days' key." },
         { role: "user", content: systemPrompt }
       ],
       model: "llama-3.3-70b-versatile",
@@ -68,10 +71,26 @@ JSON Structure:
     const content = chatCompletion.choices?.[0]?.message?.content;
     if (!content) throw new Error("Empty response from Groq");
 
-    const itinerary = JSON.parse(content);
-    const finalItinerary = Array.isArray(itinerary) ? itinerary : (itinerary.itinerary || itinerary.days || []);
+    console.log("DEBUG: Groq Response Content:", content);
+
+    const data = JSON.parse(content);
+    let finalItinerary = [];
+    
+    if (Array.isArray(data)) {
+      finalItinerary = data;
+    } else if (data.days && Array.isArray(data.days)) {
+      finalItinerary = data.days;
+    } else if (data.itinerary && Array.isArray(data.itinerary)) {
+      finalItinerary = data.itinerary;
+    }
 
     console.log(`✅ [AI] Successfully generated ${finalItinerary.length} days for ${destination}`);
+
+    // Persist to Database
+    if (tripId && finalItinerary.length > 0) {
+      await Trip.findByIdAndUpdate(tripId, { itinerary: finalItinerary });
+      console.log(`💾 [AI] Saved itinerary to database for trip: ${tripId}`);
+    }
 
     const io = req.app.get("io");
     if (io) {

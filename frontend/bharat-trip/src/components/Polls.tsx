@@ -17,8 +17,9 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog"; // Verified import
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -304,6 +305,9 @@ function CreatePollDialog({ tripId, onCreated, trigger }: { tripId?: string; onC
       <DialogContent className="rounded-3xl max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Start a Crew Poll</DialogTitle>
+          <DialogDescription>
+            Decide your next adventure with your crew. Everyone's vote counts!
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

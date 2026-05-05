@@ -25,7 +25,6 @@ const daySchema = new mongoose.Schema({
   label: String,
   theme: {
     type: String,
-    enum: ['arrival', 'explore', 'beach', 'adventure', 'departure', 'free'],
     default: 'explore'
   },
   activities: [{
@@ -40,7 +39,6 @@ const daySchema = new mongoose.Schema({
     },
     type: {
       type: String,
-      enum: ['food', 'transport', 'stay', 'activity', 'landmark'],
       default: 'activity'
     },
     order: Number

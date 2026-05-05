@@ -36,6 +36,11 @@ export const fetchReviews = async () => {
   return res.data;
 };
 
+export const postReview = async (reviewData: { rating: number; comment: string; name: string }) => {
+  const res = await api.post("/reviews", reviewData);
+  return res.data;
+};
+
 export const fetchVibeSuggestions = async (vibe: { adventure: number, modern: number, social: number }) => {
   const res = await api.get("/plan/vibe-suggestions", { params: vibe });
   return res.data.suggestions;

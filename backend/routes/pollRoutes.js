@@ -8,36 +8,46 @@ const { protect } = require("../middleware/protect");
 
 // Create a new poll (Authenticated only)
 router.post("/create", protect, async (req, res) => {
+  console.log("DEBUG: Entered /api/polls/create");
   console.time(`Poll Creation: ${req.body.tripName}`);
   try {
     const { tripName, options, groupSize, totalMembers, tripId } = req.body;
+    console.log("DEBUG: Request body:", { tripName, groupSize, totalMembers, tripId });
+
     if (!tripName || !options || options.length < 2) {
       return res.status(400).json({ error: "Trip name and at least 2 options are required." });
     }
 
     const pollId = uuidv4().substring(0, 8);
+    console.log("DEBUG: Creating poll with ID:", pollId);
+
     const newPoll = new Poll({
       pollId,
-      tripId,
+      tripId: tripId || undefined,
       tripName,
+      question: tripName,
       groupSize: groupSize === "" ? undefined : groupSize,
       totalMembers: parseInt(totalMembers) || 1,
-      options: options.map(opt => ({ 
-        name: typeof opt === 'string' ? opt : opt.name,
-        city: typeof opt === 'string' ? opt : opt.city,
-        tags: opt.tags || [],
-        vibe: opt.vibe || "",
-        votes: 0 
-      })),
-      createdBy: req.user.firebaseUid || req.user._id
+      options: options.map(opt => {
+        const optName = typeof opt === 'string' ? opt : opt.name;
+        return { 
+          name: optName,
+          text: optName,
+          city: typeof opt === 'string' ? opt : opt.city,
+          tags: opt.tags || [],
+          vibe: opt.vibe || "",
+          votes: 0 
+        };
+      }),
+      createdBy: req.user._id
     });
 
-    console.log(`DEBUG: Saving new poll: ${pollId}`);
-    await newPoll.save();
-    console.log(`DEBUG: Poll saved successfully: ${pollId}`);
-    res.status(201).json({ pollId });
+    console.log("DEBUG: Attempting to save poll...");
+    const savedPoll = await newPoll.save();
+    console.log("DEBUG: Poll saved successfully:", savedPoll.pollId);
+    res.status(201).json({ pollId: savedPoll.pollId });
   } catch (error) {
-    console.error("Poll Creation Error:", error);
+    console.error("POLL CREATION ERROR DETECTED:", error);
     res.status(500).json({ error: error.message || "Server error creating poll." });
   } finally {
     console.timeEnd(`Poll Creation: ${req.body.tripName}`);

@@ -6,6 +6,7 @@ import { Checklist } from "@/components/Checklist";
 import BudgetTracker from "@/components/collabRoom/BudgetTracker";
 import DestinationBoard from "@/components/collabRoom/DestinationBoard";
 import ItineraryBuilder from "@/components/collabRoom/ItineraryBuilder";
+import { useSocket } from "@/context/SocketContext";
 import { 
   Send, 
   Plus, 
@@ -61,6 +62,7 @@ interface TripRoom {
   image?: string;
   members: any[];
   userId: string; // Owner ID
+  type?: string;
 }
 
 export default function Collaborate() {
@@ -75,6 +77,7 @@ function Collab() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const tripId = searchParams.get("tripId");
+  const socket = useSocket();
   
   const [rooms, setRooms] = useState<TripRoom[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
@@ -92,7 +95,6 @@ function Collab() {
   const fetchRooms = async () => {
     try {
       const res = await api.get("/trips", { params: { type: "room" } });
-      // Ensure we only show rooms even if the API returns more
       const onlyRooms = res.data.filter((r: any) => r.type === "room");
       setRooms(onlyRooms);
     } catch (err) {
@@ -181,11 +183,35 @@ function Collab() {
       fetchTrip();
       fetchMessages();
       joinTrip();
+
+      if (socket && user) {
+        socket.connect();
+        socket.emit('join:room', { tripId, userId: user.uid });
+
+        socket.on('message:receive', (msg: Message) => {
+          setMessages(prev => [...prev, msg]);
+        });
+
+        socket.on('itinerary:aiRegenerated', (newItinerary: any) => {
+          setCurrentTrip((prev: any) => prev ? ({ ...prev, itinerary: newItinerary }) : null);
+        });
+
+        socket.on('itinerary:updated', (newItinerary: any) => {
+          setCurrentTrip((prev: any) => prev ? ({ ...prev, itinerary: newItinerary }) : null);
+        });
+
+        return () => {
+          socket.emit('leave:room', { tripId, userId: user.uid });
+          socket.off('message:receive');
+          socket.off('itinerary:aiRegenerated');
+          socket.off('itinerary:updated');
+        };
+      }
     } else {
       setCurrentTrip(null);
       setMessages([]);
     }
-  }, [tripId]);
+  }, [tripId, socket, user]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -199,11 +225,24 @@ function Collab() {
 
     setSending(true);
     try {
-      const res = await api.post("/group-chat/send", {
+      // Use socket for real-time messaging
+      if (socket) {
+        socket.emit('message:send', {
+          tripId,
+          senderId: user.uid,
+          text: newMessage,
+          userName: user.displayName || "Traveller",
+          initials: (user.displayName || "T")[0].toUpperCase(),
+          color: "bg-primary"
+        });
+      }
+
+      // Also persist to DB via API
+      await api.post("/group-chat/send", {
         tripId,
         text: newMessage
       });
-      setMessages([...messages, res.data]);
+      
       setNewMessage("");
     } catch (err: any) {
       toast.error("Failed to send message. Please try again.");

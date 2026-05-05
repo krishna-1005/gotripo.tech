@@ -10,24 +10,24 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const socketRef = useRef<Socket>(null);
+  const [socket, setSocket] = React.useState<Socket | null>(null);
 
   useEffect(() => {
-    // Replace with your backend URL
     const backendUrl = (import.meta as any).env.VITE_API_URL || 'http://localhost:5000';
-    socketRef.current = io(backendUrl, {
+    const socketInstance = io(backendUrl, {
       autoConnect: false,
+      transports: ['websocket', 'polling']
     });
 
+    setSocket(socketInstance);
+
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      socketInstance.disconnect();
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={socketRef.current as any}>
+    <SocketContext.Provider value={socket as any}>
       {children}
     </SocketContext.Provider>
   );

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarketingNav } from "@/components/MarketingNav";
 import { HeroCarousel } from "@/components/HeroCarousel";
+import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
 import { FadeUp, StaggerGroup, StaggerItem, HoverLift, dur, ease } from "@/components/motion/primitives";
 import {
@@ -704,6 +705,7 @@ function Landing() {
         </FadeUp>
       </section>
 
+      <ReviewSection />
       <Footer />
     </div>
   );

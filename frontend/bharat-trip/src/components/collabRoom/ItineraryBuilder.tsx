@@ -27,8 +27,8 @@ const TYPE_ICONS: Record<string, any> = {
 };
 
 const ItineraryBuilder = ({ trip }: { trip: any }) => {
-  const [itinerary, setItinerary] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [itinerary, setItinerary] = useState<any[]>(trip.itinerary || []);
+  const [loading, setLoading] = useState(!trip.itinerary);
   const [aiGenerating, setAiGenerating] = useState(false);
   const { user } = useAuth();
   const socket = useSocket();
@@ -45,29 +45,32 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
   }, [trip._id]);
 
   useEffect(() => {
-    if (user) fetchItinerary();
+    if (trip.itinerary) {
+      setItinerary(trip.itinerary);
+      setLoading(false);
+    } else {
+      if (user) fetchItinerary();
+    }
+  }, [trip.itinerary, user, fetchItinerary]);
 
+  useEffect(() => {
     if (socket) {
       socket.on('itinerary:updated', (updatedItinerary: any) => {
         setItinerary(updatedItinerary);
       });
       socket.on('itinerary:activityAdded', ({ dayIndex, activity }: any) => {
-        setItinerary(prev => {
-          const next = [...prev];
-          if (next[dayIndex]) {
-            next[dayIndex].activities = [...next[dayIndex].activities, activity];
-          }
-          return next;
-        });
+        setItinerary(prev => prev.map((day, i) => 
+          i === dayIndex 
+            ? { ...day, activities: [...(day.activities || []), activity] }
+            : day
+        ));
       });
       socket.on('itinerary:activityDeleted', ({ dayIndex, activityId }: any) => {
-        setItinerary(prev => {
-          const next = [...prev];
-          if (next[dayIndex]) {
-            next[dayIndex].activities = next[dayIndex].activities.filter((a: any) => (a._id || a.id) !== activityId);
-          }
-          return next;
-        });
+        setItinerary(prev => prev.map((day, i) => 
+          i === dayIndex 
+            ? { ...day, activities: (day.activities || []).filter((a: any) => (a._id || a.id) !== activityId) }
+            : day
+        ));
       });
       socket.on('itinerary:aiRegenerated', (newItinerary: any) => {
         setItinerary(newItinerary);
@@ -85,7 +88,9 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
 
   const handleAddDay = async () => {
     try {
-      await api.post(`/trips/${trip._id}/itinerary/day`);
+      const res = await api.post(`/trips/${trip._id}/itinerary/day`);
+      // Update local state immediately for the current user
+      setItinerary(prev => [...prev, res.data]);
       toast.success('Day added');
     } catch (err) {
       toast.error('Failed to add day');
@@ -175,14 +180,35 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
         )}
 
         {itinerary.map((day, idx) => (
-          <DaySection key={idx} day={day} dayIndex={idx} tripId={trip._id} />
+          <DaySection 
+            key={idx} 
+            day={day} 
+            dayIndex={idx} 
+            tripId={trip._id} 
+            onRemoveDay={async () => {
+              try {
+                const res = await api.delete(`/trips/${trip._id}/itinerary/day/${idx}`);
+                setItinerary(res.data);
+                toast.success('Day removed');
+              } catch (err) {
+                toast.error('Failed to remove day');
+              }
+            }}
+            onActivityDeleted={(activityId) => {
+              setItinerary(prev => prev.map((d, i) => 
+                i === idx 
+                  ? { ...d, activities: (d.activities || []).filter((a: any) => (a._id || a.id) !== activityId) }
+                  : d
+              ));
+            }}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const DaySection = ({ day, dayIndex, tripId }: { day: any, dayIndex: number, tripId: string }) => {
+const DaySection = ({ day, dayIndex, tripId, onActivityDeleted, onRemoveDay }: { day: any, dayIndex: number, tripId: string, onActivityDeleted: (id: string) => void, onRemoveDay: () => void }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleAddActivity = async () => {
@@ -202,14 +228,14 @@ const DaySection = ({ day, dayIndex, tripId }: { day: any, dayIndex: number, tri
   return (
     <div className="flex flex-col gap-4 relative z-10">
       {/* DAY HEADER */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 group/day">
         <div 
           className="w-11 h-11 rounded-2xl flex items-center justify-center border-4 border-card relative z-20 shadow-sm"
           style={{ backgroundColor: THEME_COLORS[day.theme] || '#1d9e75' }}
         >
           <span className="text-white font-black text-sm">{day.day}</span>
         </div>
-        <div className="flex flex-1 items-center justify-between group">
+        <div className="flex flex-1 items-center justify-between">
            <div className="flex items-center gap-3">
               <h3 className="text-lg font-bold uppercase tracking-tight">{day.label}</h3>
               <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
@@ -217,24 +243,37 @@ const DaySection = ({ day, dayIndex, tripId }: { day: any, dayIndex: number, tri
                 {day.date ? new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : 'Date TBD'}
               </span>
            </div>
-           <button 
-             onClick={() => setIsCollapsed(!isCollapsed)}
-             className="size-8 flex items-center justify-center hover:bg-secondary rounded-lg transition-colors text-muted-foreground"
-           >
-             {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
-           </button>
+           <div className="flex items-center gap-2">
+             <button 
+               onClick={(e) => {
+                 e.stopPropagation();
+                 if (window.confirm(`Are you sure you want to remove ${day.label}?`)) onRemoveDay();
+               }}
+               className="size-8 flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-all opacity-0 group-hover/day:opacity-100"
+               title="Remove Day"
+             >
+               <Trash2 size={16} />
+             </button>
+             <button 
+               onClick={() => setIsCollapsed(!isCollapsed)}
+               className="size-8 flex items-center justify-center hover:bg-secondary rounded-lg transition-colors text-muted-foreground"
+             >
+               {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+             </button>
+           </div>
         </div>
       </div>
 
       {/* ACTIVITIES */}
       {!isCollapsed && (
         <div className="flex flex-col gap-3 ml-12">
-          {day.activities?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((activity: any, aIdx: number) => (
+          {[...(day.activities || [])].sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((activity: any, aIdx: number) => (
             <ActivityItem 
               key={activity._id || activity.id || aIdx} 
               activity={activity} 
               dayIndex={dayIndex} 
               tripId={tripId} 
+              onDelete={onActivityDeleted}
             />
           ))}
           
@@ -251,7 +290,7 @@ const DaySection = ({ day, dayIndex, tripId }: { day: any, dayIndex: number, tri
   );
 };
 
-const ActivityItem = ({ activity, dayIndex, tripId }: { activity: any, dayIndex: number, tripId: string }) => {
+const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any, dayIndex: number, tripId: string, onDelete: (id: string) => void }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(activity.title);
   const [time, setTime] = useState(activity.time);
@@ -272,6 +311,7 @@ const ActivityItem = ({ activity, dayIndex, tripId }: { activity: any, dayIndex:
   const handleDelete = async () => {
     try {
       await api.delete(`/trips/${tripId}/itinerary/day/${dayIndex}/activity/${activityId}`);
+      onDelete(activityId);
       toast.success('Activity deleted');
     } catch (err) {
       toast.error('Failed to delete');

@@ -798,6 +798,45 @@ router.post("/:tripId/itinerary/day", protect, async (req, res) => {
   }
 });
 
+/* SHARED ITINERARY: DELETE DAY */
+router.delete("/:tripId/itinerary/day/:dayIndex", protect, async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    const dayIndex = parseInt(req.params.dayIndex);
+
+    console.log(`[DELETE DAY] Trip: ${tripId}, Index: ${dayIndex}`);
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) return res.status(404).json({ error: "Trip not found" });
+
+    if (isNaN(dayIndex) || !trip.itinerary || !trip.itinerary[dayIndex]) {
+      console.error(`[DELETE DAY ERROR] Invalid day index: ${dayIndex}`);
+      return res.status(400).json({ error: "Invalid day index" });
+    }
+
+    trip.itinerary.splice(dayIndex, 1);
+    
+    // Re-index days
+    trip.itinerary.forEach((day, i) => {
+      day.day = i + 1;
+      day.label = `Day ${i + 1}`;
+    });
+
+    trip.markModified('itinerary');
+    await trip.save();
+
+    console.log(`[DELETE DAY SUCCESS] Remaining days: ${trip.itinerary.length}`);
+
+    const io = req.app.get("io");
+    if (io) io.to(tripId).emit("itinerary:updated", trip.itinerary);
+
+    res.json(trip.itinerary);
+  } catch (error) {
+    console.error(`[DELETE DAY CRASH] ${error.message}`, error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+});
+
 /* SHARED ITINERARY: ADD ACTIVITY */
 router.post("/:tripId/itinerary/day/:dayIndex/activity", protect, async (req, res) => {
   try {
