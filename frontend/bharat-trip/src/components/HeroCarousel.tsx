@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Sparkles } from "lucide-react";
+import api from "@/lib/api";
 import ladakh from "@/assets/dest-ladakh.jpg";
 import varanasi from "@/assets/dest-varanasi.jpg";
 import kerala from "@/assets/dest-kerala.jpg";
@@ -16,7 +17,7 @@ type Slide = {
   subheading: string;
 };
 
-const slides: Slide[] = [
+const defaultSlides: Slide[] = [
   { img: ladakh, region: "Ladakh, North India", heading: "Leh Ladakh", subheading: "Where the Himalayas hold the silence of the world." },
   { img: varanasi, region: "Uttar Pradesh", heading: "Varanasi Ghats", subheading: "A thousand lamps drifting on the oldest living river." },
   { img: kerala, region: "Kerala", heading: "Kerala Backwaters", subheading: "Slow houseboats, coconut palms, and emerald lagoons." },
@@ -25,10 +26,33 @@ const slides: Slide[] = [
   { img: jaipur, region: "Rajasthan", heading: "Jaipur Pink City", subheading: "Rose-stone palaces and bazaars that hum at golden hour." },
 ];
 
-const INTERVAL = 5000; // Adjusted to 5 seconds as per user's latest mention
+const INTERVAL = 5000;
 
 export function HeroCarousel() {
   const [index, setIndex] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await api.get("/admin/config/public");
+        const customImages = res.data.homepage_images;
+        
+        if (Array.isArray(customImages) && customImages.length > 0) {
+          const mergedSlides = customImages.map((img, i) => ({
+            img,
+            region: defaultSlides[i % defaultSlides.length].region,
+            heading: defaultSlides[i % defaultSlides.length].heading,
+            subheading: defaultSlides[i % defaultSlides.length].subheading
+          }));
+          setSlides(mergedSlides);
+        }
+      } catch (err) {
+        console.error("Failed to fetch carousel config:", err);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   // High-reliability auto-play interval
   useEffect(() => {
@@ -36,7 +60,7 @@ export function HeroCarousel() {
       setIndex((prev) => (prev + 1) % slides.length);
     }, INTERVAL);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const next = () => setIndex((prev) => (prev + 1) % slides.length);
   const prev = () => setIndex((prev) => (prev - 1 + slides.length) % slides.length);

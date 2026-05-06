@@ -6,25 +6,46 @@ import { useNavigate } from "react-router-dom";
 
 export default function YatraPlanner() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    destination: "",
-    date: "",
-    budget: "Medium",
-    mode: "Train"
+  
+  // Initialize state from localStorage if available
+  const [step, setStep] = useState(() => {
+    const saved = localStorage.getItem("yatra_planner_step");
+    return saved ? parseInt(saved) : 1;
   });
+  
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem("yatra_planner_formData");
+    return saved ? JSON.parse(saved) : {
+      destination: "",
+      date: "",
+      budget: "Medium",
+      mode: "Train"
+    };
+  });
+
+  // Persist state to localStorage
+  useEffect(() => {
+    localStorage.setItem("yatra_planner_step", step.toString());
+  }, [step]);
+
+  useEffect(() => {
+    localStorage.setItem("yatra_planner_formData", JSON.stringify(formData));
+  }, [formData]);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
 
   const resetPlanner = () => {
     setStep(1);
-    setFormData({
+    const initialData = {
       destination: "",
       date: "",
       budget: "Medium",
       mode: "Train"
-    });
+    };
+    setFormData(initialData);
+    localStorage.removeItem("yatra_planner_step");
+    localStorage.removeItem("yatra_planner_formData");
   };
 
   const handleViewPlan = () => {
@@ -41,14 +62,14 @@ export default function YatraPlanner() {
 
   return (
     <YatraLayout>
-      <div className="max-w-4xl mx-auto px-6 py-20">
-        <div className="text-center mb-16">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-[#E67E22] text-xs font-bold uppercase tracking-widest mb-6">
             <Sparkles className="size-3" />
             <span>AI Sacred Planner</span>
           </div>
-          <h1 className="font-display text-5xl font-bold text-foreground mb-4">Design your pilgrimage.</h1>
-          <p className="text-muted-foreground text-lg">Tell us your preferences, and let the spiritual journey unfold.</p>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Design your pilgrimage.</h1>
+          <p className="text-muted-foreground text-base">Tell us your preferences, and let the spiritual journey unfold.</p>
         </div>
 
         <div className="bg-card rounded-[40px] p-8 md:p-12 shadow-pop border border-border relative overflow-hidden">
@@ -69,7 +90,7 @@ export default function YatraPlanner() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <h3 className="text-2xl font-display font-bold text-foreground mb-8">Where does the soul lead?</h3>
+                <h3 className="text-xl font-display font-bold text-foreground mb-8">Where does the soul lead?</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <OptionCard 
                     selected={formData.destination === "Chardham"} 
@@ -114,7 +135,7 @@ export default function YatraPlanner() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <h3 className="text-2xl font-display font-bold text-foreground mb-8">When and how much?</h3>
+                <h3 className="text-xl font-display font-bold text-foreground mb-8">When and how much?</h3>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Planned Month</label>
@@ -159,7 +180,7 @@ export default function YatraPlanner() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <h3 className="text-2xl font-display font-bold text-foreground mb-8">Mode of Travel</h3>
+                <h3 className="text-xl font-display font-bold text-foreground mb-8">Mode of Travel</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <ModeOption selected={formData.mode === "Air"} onClick={() => setFormData({...formData, mode: "Air"})} icon={<Plane />} label="Air" />
                   <ModeOption selected={formData.mode === "Train"} onClick={() => setFormData({...formData, mode: "Train"})} icon={<Train />} label="Train" />

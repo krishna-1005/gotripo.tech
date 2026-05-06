@@ -1,7 +1,8 @@
 const Trip = require("../models/Trip");
+const SystemConfig = require("../models/SystemConfig");
 
 /**
- * AI Planner Service (Refined via Groq Llama 3.3)
+ * AI Planner Service (Refined via Groq or OpenAI)
  * Provides high-precision itinerary optimization.
  */
 async function analyzeAndRefinePlan({
@@ -33,6 +34,40 @@ async function analyzeAndRefinePlan({
   };
 
   try {
+    const config = await SystemConfig.findOne({ key: "use_gpt4" });
+    const useGPT4 = config && (config.value === "true" || config.value === true);
+
+    if (useGPT4 && process.env.OPENAI_API_KEY) {
+      const OpenAI = require("openai");
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      const systemPrompt = `
+You are the GoTripo Itinerary Optimizer powered by GPT-4o.
+STRICT RULE: ONLY suggest attractions, landmarks, and activities located within ${city}.
+Return ONLY valid JSON.
+`;
+
+      const userPrompt = `
+Destination: ${city}
+Days: ${days}
+Budget: ${budget}
+Interests: ${interests.join(", ")}
+Available Candidates: ${candidates.map(c => c.name).join(", ")}
+`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" }
+      });
+
+      const content = response.choices[0].message.content;
+      return JSON.parse(content);
+    }
+
     const Groq = require("groq-sdk");
     if (!process.env.GROQ_API_KEY) {
       console.warn("⚠️ GROQ_API_KEY missing. Falling back to local logic.");

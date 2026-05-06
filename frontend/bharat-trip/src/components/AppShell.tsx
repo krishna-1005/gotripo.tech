@@ -38,9 +38,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const loc = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/explore-india?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
 
   useEffect(() => {
     // Show text (expand) only for explore pages, collapse by default for others
@@ -183,6 +191,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 placeholder="Search destinations, trips, ideas..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 className="w-full h-10 pl-10 pr-4 rounded-xl bg-secondary border border-transparent focus:border-ring focus:bg-surface outline-none text-sm transition"
               />
             </div>

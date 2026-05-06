@@ -35,6 +35,7 @@ const groupChatRoutes = require("./routes/groupChatRoutes");
 const budgetRoutes = require("./routes/budget");
 const destinationRoutes = require("./routes/destinations");
 const aiRoutes = require("./routes/aiRoutes");
+const yatraRoutes = require("./routes/yatraRoutes");
 
 const app = express();
 const maintenanceMode = require("./middleware/maintenance");
@@ -111,6 +112,7 @@ app.use("/api/places", placeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/yatra", yatraRoutes);
 
 // Specific trip sub-routes first (handled via tripRoutes)
 app.use("/api/trips", tripRoutes);

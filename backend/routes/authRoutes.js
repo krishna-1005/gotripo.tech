@@ -24,6 +24,14 @@ const signToken = (id) => {
 /* ── SIGNUP ── */
 router.post("/signup", authLimiter, signupValidation, async (req, res) => {
   try {
+    // Check if signups are allowed
+    const SystemConfig = require("../models/SystemConfig");
+    const signupConfig = await SystemConfig.findOne({ key: "allow_signup" });
+    if (signupConfig && signupConfig.value === "false") {
+      return res.status(403).json({ 
+        error: "New registrations are currently disabled by the administrator." 
+      });
+    }
 
     const { name, email, password } = req.body;
 

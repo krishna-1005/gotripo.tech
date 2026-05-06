@@ -35,9 +35,8 @@ import AdminJobApplicationsPage from "./routes/admin/job-applications";
 import AdminChatbotPage from "./routes/admin/chatbot";
 
 import YatraHub from "./routes/yatra/index";
-import YatraDetail from "./routes/yatra/detail";
-import YatraWishlist from "./routes/yatra/wishlist";
-import YatraPlanner from "./routes/yatra/planner";
+import YatraDetail from "./routes/yatra/details";
+import YatraPlanner from "./routes/yatra/plan";
 import { Chatbot } from "./components/Chatbot";
 import { useTracking } from "./hooks/useTracking";
 
@@ -75,8 +74,7 @@ export default function App() {
       {/* Yatra Module */}
       <Route path="/yatra" element={<YatraHub />} />
       <Route path="/yatra/:id" element={<YatraDetail />} />
-      <Route path="/yatra/wishlist" element={<YatraWishlist />} />
-      <Route path="/yatra/planner" element={<YatraPlanner />} />
+      <Route path="/yatra/plan" element={<YatraPlanner />} />
       
       {/* Admin Routes */}
       <Route path="/admin">

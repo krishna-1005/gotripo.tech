@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { destinations } from "@/lib/sample-data";
 import { Search, SlidersHorizontal, MapPin, Star, ImageOff, X, Sparkles, Award } from "lucide-react";
@@ -51,8 +51,10 @@ function DestinationImage({ src, alt }: { src?: string; alt: string }) {
 }
 
 export default function Explore({ isInternational = false }: { isInternational?: boolean }) {
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
   const [cat, setCat] = useState("All");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [featuredTrips, setFeaturedTrips] = useState<any[]>([]);
   
   // Filter States
