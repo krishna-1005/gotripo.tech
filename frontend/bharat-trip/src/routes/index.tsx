@@ -251,7 +251,7 @@ function MoodSearch() {
 
         <motion.div 
           animate={{ background: getVibeGradient(vibe) }}
-          className="bg-card rounded-[40px] p-8 md:p-12 border border-border shadow-pop relative overflow-hidden min-h-[450px] flex flex-col transition-colors duration-1000"
+          className="bg-card rounded-[40px] p-8 md:p-12 border border-border shadow-pop relative overflow-hidden min-h-[550px] flex flex-col transition-colors duration-1000 select-none"
         >
           <div className="absolute top-0 right-0 p-10 opacity-5">
             <Sparkles className="size-32 text-accent" />
@@ -260,7 +260,7 @@ function MoodSearch() {
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AI Personalized Suggestions</h3>
             {recommended.length > 0 && (
-              <div className="text-[10px] font-bold text-accent px-2 py-1 rounded-md bg-accent/10 border border-accent/20">
+              <div className="text-[11px] font-bold text-accent px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 shadow-sm">
                 {recommended.length} Matches Found
               </div>
             )}
@@ -280,7 +280,7 @@ function MoodSearch() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="flex flex-col space-y-4 md:space-y-6"
                 >
                   {recommended.map((item, index) => {
                     const score = getMatchScore(vibe, item);
@@ -289,35 +289,35 @@ function MoodSearch() {
                       <div
                         key={item.name}
                         onClick={() => setActiveIndex(index)}
-                        className={`flex items-start gap-5 p-5 rounded-[24px] bg-card/40 backdrop-blur-sm border transition-all cursor-pointer relative overflow-hidden group ${
-                          isActive ? "border-accent ring-1 ring-accent/20 bg-accent/5 shadow-lg" : "border-border/50 hover:bg-accent/5 hover:border-accent/20"
+                        className={`flex items-start gap-4 md:gap-6 p-4 md:p-6 rounded-[28px] md:rounded-[32px] bg-card/40 backdrop-blur-sm border transition-all cursor-pointer relative overflow-hidden group w-full ${
+                          isActive ? "border-accent ring-1 ring-accent/20 bg-accent/5 shadow-xl" : "border-border/50 hover:bg-accent/5 hover:border-accent/20 shadow-sm"
                         }`}
                       >
-                        <div className="size-16 rounded-2xl bg-card border border-border flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 shadow-sm mt-1 z-10">
-                          <VibeIcon name={item.icon} className={`size-8 ${isActive ? 'text-accent' : 'text-muted-foreground'}`} />
+                        <div className="size-12 md:size-20 rounded-xl md:rounded-3xl bg-card border border-border flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 shadow-md mt-1 z-10">
+                          <VibeIcon name={item.icon} className={`size-6 md:size-10 ${isActive ? 'text-accent' : 'text-muted-foreground'}`} />
                         </div>
                         <div className="flex-1 min-w-0 z-10">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className={`font-display font-bold text-xl transition-colors leading-tight truncate ${isActive ? 'text-accent' : 'text-foreground group-hover:text-accent'}`}>
+                          <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                            <div className={`font-display font-bold text-lg md:text-2xl transition-colors leading-tight ${isActive ? 'text-accent' : 'text-foreground group-hover:text-accent'}`}>
                               {item.name}
                             </div>
-                            <div className={`shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[10px] font-black ${
-                              isActive ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-muted border-border/50 text-muted-foreground"
+                            <div className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[9px] md:text-[11px] font-bold ${
+                              isActive ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-sm" : "bg-muted border-border/50 text-muted-foreground"
                             }`}>
                               {score}% MATCH
                             </div>
                           </div>
-                          <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] flex items-center gap-1.5 mt-1">
-                             <MapPin className="size-3 opacity-50" /> {item.region}
+                          <div className="text-[9px] md:text-[11px] text-muted-foreground font-bold uppercase tracking-wider flex items-center gap-1.5 mt-1">
+                             <MapPin className="size-3 md:size-3.5 opacity-60" /> {item.region}
                           </div>
                           <div className="mt-3">
-                            <span className="inline-block text-[10px] font-black text-accent uppercase tracking-[0.12em] px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 shadow-sm leading-relaxed">
+                            <div className="text-xs md:text-sm font-medium text-accent/80 leading-relaxed bg-accent/5 border border-accent/10 rounded-xl md:rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm italic">
                               {item.vibe}
-                            </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="shrink-0 ml-2 mt-1 z-10">
-                          <div className={`size-10 rounded-full bg-accent/10 text-accent flex items-center justify-center transition-all shadow-sm ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1'}`}>
+                        <div className="shrink-0 ml-1 mt-1 z-10 hidden sm:block">
+                          <div className={`size-10 rounded-full bg-accent/10 text-accent flex items-center justify-center transition-all shadow-md ${isActive ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1'}`}>
                             <ArrowRight className="size-5" />
                           </div>
                         </div>

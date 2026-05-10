@@ -281,8 +281,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-border">
-        <ul className="grid grid-cols-5 h-16">
-          {mobileNav.map((n) => {
+        <ul className="grid grid-cols-6 h-16">
+          {mobileNav.slice(0, 2).map((n) => {
+            const active = loc.pathname.startsWith(n.to);
+            return (
+              <li key={n.to}>
+                <Link
+                  to={n.to}
+                  className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-medium ${
+                    active ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  <n.icon className="size-5" />
+                  {n.label}
+                </Link>
+              </li>
+            );
+          })}
+          <li className="flex flex-col items-center justify-center">
+            <ThemeToggle className="scale-75 !bg-transparent !border-none" />
+            <span className="text-[10px] font-medium text-muted-foreground -mt-1">Theme</span>
+          </li>
+          {mobileNav.slice(2).map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (
               <li key={n.to}>
