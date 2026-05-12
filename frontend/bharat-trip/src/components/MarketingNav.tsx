@@ -34,14 +34,14 @@ export function MarketingNav() {
               <div className="flex items-center gap-3">
                 <Link
                   to="/profile"
-                  className="size-10 rounded-xl bg-secondary dark:bg-white/10 border border-border dark:border-white/10 flex items-center justify-center font-bold text-sm hover:bg-secondary/80 dark:hover:bg-white/20 transition shadow-sm"
+                  className="size-10 rounded-xl bg-secondary dark:bg-white/10 border border-border dark:border-white/10 flex items-center justify-center font-bold text-sm text-foreground dark:text-white hover:bg-secondary/80 dark:hover:bg-white/20 transition shadow-sm"
                   title="My Profile"
                 >
                   {(user.displayName as string | undefined)?.charAt(0) || user.email?.charAt(0).toUpperCase() || "P"}
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="text-sm font-semibold px-5 py-2.5 rounded-xl bg-primary text-primary-foreground dark:bg-white/10 dark:border-white/10 hover:opacity-90 transition flex items-center gap-2 shadow-sm"
+                  className="text-sm font-semibold px-5 py-2.5 rounded-xl bg-primary text-primary-foreground dark:bg-white/10 dark:text-white dark:border-white/10 hover:opacity-90 transition flex items-center gap-2 shadow-sm"
                 >
                   Dashboard <ArrowRight className="size-4" />
                 </Link>
@@ -89,7 +89,7 @@ export function MarketingNav() {
           ) : (
             <div className="pt-2 space-y-2">
               <Link to="/profile" onClick={() => setOpen(false)} className="block py-3 px-4 rounded-xl hover:bg-secondary dark:hover:bg-white/10 transition font-semibold border-b border-border dark:border-white/5">My Profile</Link>
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="block py-3 px-4 rounded-xl bg-primary text-primary-foreground dark:bg-white/10 dark:hover:bg-white/20 transition font-bold text-center">Dashboard</Link>
+              <Link to="/dashboard" onClick={() => setOpen(false)} className="block py-3 px-4 rounded-xl bg-primary text-primary-foreground dark:bg-white/10 dark:text-white dark:hover:bg-white/20 transition font-bold text-center">Dashboard</Link>
             </div>
           )}
         </div>

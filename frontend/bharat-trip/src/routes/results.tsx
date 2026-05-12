@@ -531,26 +531,26 @@ export default function Results() {
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
-              <h1 className="font-display font-bold text-4xl md:text-5xl tracking-tight text-foreground dark:text-white">{plan?.title || `${destinationName} AI Plan`}</h1>
-              <div className="mt-4 flex flex-wrap gap-3">
-                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-foreground dark:text-white">
-                    <Calendar className="size-3.5 text-primary" /> {plan?.days || 5} days
+              <h1 className="font-display font-bold text-3xl md:text-5xl tracking-tight text-foreground dark:text-white">{plan?.title || `${destinationName} AI Plan`}</h1>
+              <div className="mt-4 flex flex-wrap gap-2 md:gap-3">
+                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold text-foreground dark:text-white">
+                    <Calendar className="size-3 md:size-3.5 text-primary" /> {plan?.days || 5} days
                  </div>
-                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-foreground dark:text-white">
-                    <MapPin className="size-3.5 text-primary" /> {destinationName}
+                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold text-foreground dark:text-white">
+                    <MapPin className="size-3 md:size-3.5 text-primary" /> {destinationName}
                  </div>
-                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-foreground dark:text-white">
-                    <Wallet className="size-3.5 text-primary" /> ₹{Number(costLabel).toLocaleString("en-IN")}
+                 <div className="flex items-center gap-1.5 bg-secondary dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold text-foreground dark:text-white">
+                    <Wallet className="size-3 md:size-3.5 text-primary" /> ₹{Number(costLabel).toLocaleString("en-IN")}
                  </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-               <button className="h-11 px-6 rounded-2xl bg-secondary dark:bg-white/10 border border-border dark:border-white/10 text-sm font-bold flex items-center gap-2 hover:bg-border dark:hover:bg-white/20 transition text-foreground dark:text-white"><Check className="size-4" /> Saved</button>
-               <button onClick={() => setIsPdfModalOpen(true)} className="h-11 px-6 rounded-2xl bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 shadow-cta hover:opacity-90 transition">
-                  <Download className="size-4" /> Export PDF
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+               <button className="h-10 md:h-11 px-4 md:px-6 rounded-xl md:rounded-2xl bg-secondary dark:bg-white/10 border border-border dark:border-white/10 text-xs md:text-sm font-bold flex items-center gap-2 hover:bg-border dark:hover:bg-white/20 transition text-foreground dark:text-white"><Check className="size-3.5 md:size-4" /> Saved</button>
+               <button onClick={() => setIsPdfModalOpen(true)} className="flex-1 sm:flex-none h-10 md:h-11 px-4 md:px-6 rounded-xl md:rounded-2xl bg-primary text-primary-foreground text-xs md:text-sm font-bold flex items-center justify-center gap-2 shadow-cta hover:opacity-90 transition whitespace-nowrap">
+                  <Download className="size-3.5 md:size-4" /> Export PDF
                </button>
-               <button onClick={handleShare} className="size-11 rounded-2xl bg-emerald-500 text-white grid place-items-center shadow-soft hover:opacity-90 transition">
-                  <Share2 className="size-4" />
+               <button onClick={handleShare} className="size-10 md:size-11 rounded-xl md:rounded-2xl bg-emerald-500 text-white grid place-items-center shadow-soft hover:opacity-90 transition">
+                  <Share2 className="size-3.5 md:size-4" />
                </button>
             </div>
           </div>

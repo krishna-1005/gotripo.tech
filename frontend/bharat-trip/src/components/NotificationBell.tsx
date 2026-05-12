@@ -51,11 +51,11 @@ export function NotificationBell() {
     <div className="relative">
       <button 
         onClick={() => setOpen(!open)}
-        className="size-10 grid place-items-center rounded-xl border border-border hover:bg-secondary transition relative"
+        className="size-9 sm:size-10 grid place-items-center rounded-xl border border-border hover:bg-secondary transition relative"
       >
         <Bell className="size-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-2 right-2 size-2 bg-primary rounded-full ring-2 ring-background animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 size-1.5 sm:top-2 sm:right-2 sm:size-2 bg-primary rounded-full ring-2 ring-background animate-pulse" />
         )}
       </button>
 
