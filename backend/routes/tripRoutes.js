@@ -492,6 +492,67 @@ router.delete("/:id/checklist/:itemId", protect, async (req, res) => {
   }
 });
 
+/* UPDATE TRIP */
+router.patch("/:id", protect, async (req, res) => {
+  try {
+    const trip = await Trip.findById(req.params.id);
+    if (!trip) return res.status(404).json({ error: "Trip not found" });
+
+    // Authorization: Only owner or organizer can update
+    const isOwner = trip.userId.toString() === req.user._id.toString();
+    const isOrganizer = trip.members.some(m => m.userId && m.userId.toString() === req.user._id.toString() && m.role === 'organizer');
+
+    if (!isOwner && !isOrganizer) {
+      return res.status(403).json({ error: "Not authorized to update this trip" });
+    }
+
+    const { startDate, title, destination } = req.body;
+    
+    if (startDate) {
+      trip.startDate = new Date(startDate);
+      // 1. Update Trip.itinerary dates
+      if (trip.itinerary && trip.itinerary.length > 0) {
+        trip.itinerary.forEach((day, idx) => {
+          const newDate = new Date(trip.startDate);
+          newDate.setDate(newDate.getDate() + idx);
+          day.date = newDate.toISOString();
+        });
+        trip.markModified('itinerary');
+      }
+
+      // 2. ALSO update separate Itinerary collection dates if it exists
+      try {
+        const Itinerary = require("../models/Itinerary");
+        const standaloneItinerary = await Itinerary.findOne({ tripId: trip._id });
+        if (standaloneItinerary && standaloneItinerary.days) {
+          standaloneItinerary.days.forEach((day, idx) => {
+            const newDate = new Date(trip.startDate);
+            newDate.setDate(newDate.getDate() + idx);
+            day.date = newDate;
+          });
+          await standaloneItinerary.save();
+          console.log(`[SYNC] Updated dates for standalone Itinerary ${standaloneItinerary._id}`);
+        }
+      } catch (err) {
+        console.warn("[SYNC ERROR] Could not sync standalone itinerary:", err.message);
+      }
+    }
+    
+    if (title) trip.title = title;
+    if (destination) trip.destination = destination;
+
+    await trip.save();
+    
+    const io = req.app.get("io");
+    if (io) io.to(req.params.id).emit("trip:updated", trip);
+
+    res.json(trip);
+  } catch (error) {
+    console.error("Update Trip Error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 /* DELETE TRIP */
 router.delete("/:id", protect, async (req, res) => {
   try {

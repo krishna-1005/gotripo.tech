@@ -35,6 +35,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
+import ProactiveAlerts from "@/components/collabRoom/ProactiveAlerts";
 
 /* ── CONSTANTS & TYPES ── */
 
@@ -170,6 +171,10 @@ function CollaborativeContent() {
 
     socket.on("itinerary:receive", (itinerary: any) => {
       setTrip((prev: any) => ({ ...prev, itinerary }));
+    });
+
+    socket.on("trip:updated", (updatedTrip: any) => {
+      setTrip(updatedTrip);
     });
 
     socket.on("member:typing", ({ userName, isTyping }) => {
@@ -339,6 +344,15 @@ function CollaborativeContent() {
           <div className="flex-1 overflow-y-auto p-10">
             <div className="max-w-4xl mx-auto">
               
+              {/* PROACTIVE ALERTS */}
+              {tripId && trip?.destination && (
+                <ProactiveAlerts 
+                  key={`${trip.destination}-${trip.startDate || ''}`} 
+                  tripId={tripId} 
+                  destination={trip.destination} 
+                />
+              )}
+
               {/* TABS */}
               <div className="flex gap-2 p-1.5 bg-[#141416] border border-[#2a2a2e] rounded-2xl w-fit mb-10">
                 {["Suggestions", "Itinerary", "Polls"].map(tab => (

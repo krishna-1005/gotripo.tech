@@ -3,7 +3,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppShell } from "@/components/AppShell";
 import { Polls } from "@/components/Polls";
 import { Checklist } from "@/components/Checklist";
-import BudgetTracker from "@/components/collabRoom/BudgetTracker";
+import ExpensePanel from "@/components/collabRoom/ExpensePanel";
+import ProactiveAlerts from "@/components/collabRoom/ProactiveAlerts";
 import DestinationBoard from "@/components/collabRoom/DestinationBoard";
 import ItineraryBuilder from "@/components/collabRoom/ItineraryBuilder";
 import { useSocket } from "@/context/SocketContext";
@@ -492,9 +493,10 @@ function Collab() {
                 <div className="h-full max-w-7xl mx-auto grid lg:grid-cols-[1fr_380px] gap-8 p-4 lg:p-8 overflow-y-auto lg:overflow-hidden">
                   {/* Left Column: Discussion Features */}
                   <div className={cn(
-                    "space-y-8 pb-10 lg:pb-0 lg:overflow-y-auto pr-0 lg:pr-2 scrollbar-hide",
+                    "space-y-8 pb-32 lg:overflow-y-auto pr-0 lg:pr-2",
                     activeTab === 'board' ? "block" : "hidden lg:block"
                   )}>
+                  {currentTrip && <ProactiveAlerts tripId={tripId} destination={currentTrip.destination} />}
                   {currentTrip && (
                     <DestinationBoard 
                       tripId={tripId} 
@@ -504,9 +506,8 @@ function Collab() {
                   {currentTrip && <ItineraryBuilder trip={currentTrip} />}
                   <Checklist tripId={tripId} />
                   <Polls tripId={tripId} />
-                  {currentTrip && <BudgetTracker tripId={tripId} members={currentTrip.members} />}
+                  {currentTrip && <ExpensePanel trip={currentTrip} />}
                   </div>
-
                   {/* Right Column: Chat */}
                   <div className={cn(
                     "rounded-3xl bg-card border border-border shadow-soft flex flex-col h-[500px] lg:h-full sticky top-6 lg:relative lg:top-0 transition-all",

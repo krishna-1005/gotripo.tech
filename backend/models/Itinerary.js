@@ -7,6 +7,15 @@ const itinerarySchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
+  clonedFrom: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Itinerary",
+    default: null
+  },
   days: [{
     date: { type: Date, required: true },
     events: [{

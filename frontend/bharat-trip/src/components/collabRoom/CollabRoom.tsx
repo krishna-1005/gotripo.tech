@@ -278,7 +278,7 @@ const CollabRoom = () => {
               members={trip.members}
             />
           ) : activeTab === 'expenses' ? (
-            <BudgetTracker key={`budget-${trip._id}`} tripId={trip._id} members={trip.members} />
+            <ExpensePanel key={`budget-${trip._id}`} trip={trip} />
           ) : activeTab === 'polls' ? (            <PollsPanel key={`polls-${trip._id}`} trip={trip} />
           ) : activeTab === 'checklist' ? (
             <Checklist tripId={trip._id} />

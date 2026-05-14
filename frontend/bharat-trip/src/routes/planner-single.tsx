@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppShell } from "@/components/AppShell";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { 
   MapPin, 
   Calendar, 

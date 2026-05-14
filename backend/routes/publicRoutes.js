@@ -3,6 +3,7 @@ const router = express.Router();
 const UsageLog = require("../models/UsageLog");
 const Trip = require("../models/Trip");
 const JobApplication = require("../models/JobApplication");
+const Itinerary = require("../models/Itinerary");
 const Announcement = require("../models/Announcement");
 const { db } = require("../firebaseAdmin");
 const { sendJobApplicationNotification } = require("../services/emailService");

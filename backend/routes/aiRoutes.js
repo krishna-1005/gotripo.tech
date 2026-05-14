@@ -105,4 +105,44 @@ JSON Structure:
   }
 });
 
+router.post("/swap", protect, async (req, res) => {
+  try {
+    const { activityName, destination, currentItinerary, dayIndex, activityId } = req.body;
+
+    if (!groq) {
+      return res.status(500).json({ error: "AI Service not configured" });
+    }
+
+    const prompt = `
+      Suggest ONE alternative for the activity "${activityName}" in ${destination}. 
+      The current itinerary for this day is: ${JSON.stringify(currentItinerary)}.
+      Return a JSON object for the NEW activity with the following fields: 
+      {
+        "time": "Keep the same as ${activityName}",
+        "title": "New Activity Name",
+        "location": "New Location",
+        "notes": "Short tip",
+        "type": "activity",
+        "isAiGenerated": true
+      }
+    `;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a professional travel assistant. Return JSON only." },
+        { role: "user", content: prompt }
+      ],
+      model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" }
+    });
+
+    const content = chatCompletion.choices?.[0]?.message?.content;
+    const newActivity = JSON.parse(content);
+    res.json(newActivity);
+  } catch (error) {
+    console.error("AI Swap Error:", error);
+    res.status(500).json({ error: "Failed to suggest alternative" });
+  }
+});
+
 module.exports = router;

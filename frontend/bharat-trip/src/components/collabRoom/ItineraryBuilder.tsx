@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { 
-  Loader2, Plus, Sparkles, Calendar, Clock, 
+  Loader2, Plus, Sparkles, Calendar as CalendarIcon, Clock, 
   Trash2, GripVertical, Utensils, MapPin, 
   Navigation, Bed, Flag, Coffee, ChevronDown, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { useSocket } from '@/context/SocketContext';
 import { toast } from 'sonner';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 const THEME_COLORS: Record<string, string> = {
   arrival: '#534AB7',
@@ -30,6 +37,7 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
   const [itinerary, setItinerary] = useState<any[]>(trip.itinerary || []);
   const [loading, setLoading] = useState(!trip.itinerary);
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>(trip.startDate ? new Date(trip.startDate) : undefined);
   const { user } = useAuth();
   const socket = useSocket();
 
@@ -51,12 +59,19 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
     } else {
       if (user) fetchItinerary();
     }
-  }, [trip.itinerary, user, fetchItinerary]);
+    if (trip.startDate) {
+      setStartDate(new Date(trip.startDate));
+    }
+  }, [trip.itinerary, trip.startDate, user, fetchItinerary]);
 
   useEffect(() => {
     if (socket) {
       socket.on('itinerary:updated', (updatedItinerary: any) => {
         setItinerary(updatedItinerary);
+      });
+      socket.on('trip:updated', (updatedTrip: any) => {
+        if (updatedTrip.itinerary) setItinerary(updatedTrip.itinerary);
+        if (updatedTrip.startDate) setStartDate(new Date(updatedTrip.startDate));
       });
       socket.on('itinerary:activityAdded', ({ dayIndex, activity }: any) => {
         setItinerary(prev => prev.map((day, i) => 
@@ -79,12 +94,24 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
 
       return () => {
         socket.off('itinerary:updated');
+        socket.off('trip:updated');
         socket.off('itinerary:activityAdded');
         socket.off('itinerary:activityDeleted');
         socket.off('itinerary:aiRegenerated');
       };
     }
   }, [trip._id, user, socket, fetchItinerary]);
+
+  const handleUpdateStartDate = async (date: Date | undefined) => {
+    if (!date) return;
+    try {
+      setStartDate(date);
+      await api.patch(`/trips/${trip._id}`, { startDate: date.toISOString() });
+      toast.success('Trip dates updated!');
+    } catch (err) {
+      toast.error('Failed to update trip dates');
+    }
+  };
 
   const handleAddDay = async () => {
     try {
@@ -127,11 +154,32 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="size-9 md:size-10 rounded-xl bg-purple-500/10 text-purple-500 grid place-items-center shrink-0">
-            <Calendar className="size-5" />
+            <CalendarIcon className="size-5" />
           </div>
           <div>
             <h2 className="font-display font-bold text-lg md:text-xl">Trip Itinerary</h2>
-            <p className="text-[10px] md:text-xs text-muted-foreground">{itinerary.length} days planned</p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] md:text-xs text-muted-foreground">{itinerary.length} days planned</p>
+              <span className="text-muted-foreground text-[10px]">•</span>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-[10px] md:text-xs font-bold text-purple-500 hover:text-purple-400 flex items-center gap-1 transition-colors">
+                    {startDate ? format(startDate, "PPP") : "Set Start Date"}
+                    <ChevronDown size={12} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={handleUpdateStartDate}
+                    initialFocus
+                    className="rounded-xl border border-border"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
 

@@ -112,6 +112,20 @@ app.get("/api/ping", (req, res) => {
   res.status(200).json({ message: "GoTripo API alive 🚀" });
 });
 
+// Direct Public Itineraries Route
+app.get("/api/public/itineraries", async (req, res) => {
+  try {
+    const Itinerary = require("./models/Itinerary");
+    const itineraries = await Itinerary.find({ isPublic: true })
+      .populate("tripId")
+      .populate("days.events.ownerId", "name photo")
+      .sort({ createdAt: -1 });
+    res.json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.get("/ping", (req, res) => {
   res.status(200).send("GoTripo server alive 🚀");
 });
@@ -133,6 +147,8 @@ app.use("/api/orders", orderRoutes);
 // Specific trip sub-routes first (handled via tripRoutes)
 app.use("/api/trips", tripRoutes);
 app.use("/api/trips", availabilityRoutes);
+
+app.use("/api/itineraries", itineraryRoutes);
 
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);

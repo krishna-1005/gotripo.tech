@@ -10,17 +10,19 @@ router.get("/", protect, async (req, res) => {
     if (!trip) return res.status(404).json({ error: "Trip not found" });
 
     const expenses = trip.expenses || [];
+    const members = trip.members || [];
     
     // Calculate simple summary
     const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
     
-    // Settlement summary (re-using settle logic for summary)
-    const settlements = calculateSettlements(expenses);
+    // Settlement summary
+    const { transactions, netBalances } = calculateSettlements(expenses, members);
 
     res.json({
       expenses,
       totalSpent,
-      settlements
+      settlements: transactions,
+      netBalances
     });
   } catch (error) {
     console.error("Fetch Budget Error:", error);
@@ -36,7 +38,7 @@ router.post("/expense", protect, async (req, res) => {
     if (!trip) return res.status(404).json({ error: "Trip not found" });
 
     const newExpense = {
-      id: Math.random().toString(36).substr(2, 9), // Simple unique ID
+      id: Math.random().toString(36).substr(2, 9),
       title,
       amount,
       currency: currency || "INR",
@@ -49,6 +51,8 @@ router.post("/expense", protect, async (req, res) => {
     trip.expenses.push(newExpense);
     await trip.save();
 
+    const { transactions, netBalances } = calculateSettlements(trip.expenses, trip.members);
+
     // Socket emission
     const io = req.app.get("io");
     if (io) {
@@ -56,7 +60,8 @@ router.post("/expense", protect, async (req, res) => {
       io.to(req.params.tripId).emit("budget:updated", {
         expenses: trip.expenses,
         totalSpent: trip.expenses.reduce((sum, exp) => sum + exp.amount, 0),
-        settlements: calculateSettlements(trip.expenses)
+        settlements: transactions,
+        netBalances
       });
     }
 
@@ -80,6 +85,8 @@ router.delete("/expense/:id", protect, async (req, res) => {
     trip.expenses.splice(expenseIndex, 1);
     await trip.save();
 
+    const { transactions, netBalances } = calculateSettlements(trip.expenses, trip.members);
+
     // Socket emission
     const io = req.app.get("io");
     if (io) {
@@ -87,7 +94,8 @@ router.delete("/expense/:id", protect, async (req, res) => {
       io.to(req.params.tripId).emit("budget:updated", {
         expenses: trip.expenses,
         totalSpent: trip.expenses.reduce((sum, exp) => sum + exp.amount, 0),
-        settlements: calculateSettlements(trip.expenses)
+        settlements: transactions,
+        netBalances
       });
     }
 
@@ -104,30 +112,38 @@ router.get("/settle", protect, async (req, res) => {
     const trip = await Trip.findById(req.params.tripId);
     if (!trip) return res.status(404).json({ error: "Trip not found" });
 
-    const settlements = calculateSettlements(trip.expenses);
-    res.json(settlements);
+    const { transactions, netBalances } = calculateSettlements(trip.expenses, trip.members);
+    res.json({ transactions, netBalances });
   } catch (error) {
     console.error("Settle Error:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// Greedy Settlement Algorithm
-function calculateSettlements(expenses) {
+// Enhanced Settlement Algorithm
+function calculateSettlements(expenses, members) {
   const netBalances = {};
 
+  // Initialize with all trip members
+  members.forEach(m => {
+    const userId = (m.userId._id || m.userId).toString();
+    const name = m.userId.name || m.userName || m.name || "Unknown";
+    netBalances[userId] = { balance: 0, name };
+  });
+
   expenses.forEach(exp => {
-    const payerId = exp.paidBy.userId;
+    const payerId = exp.paidBy.userId.toString();
     const payerName = exp.paidBy.name;
 
     // Add what they paid
-    netBalances[payerId] = netBalances[payerId] || { balance: 0, name: payerName };
+    if (!netBalances[payerId]) netBalances[payerId] = { balance: 0, name: payerName };
     netBalances[payerId].balance += exp.amount;
 
     // Subtract what they owe (their share)
     exp.splitBetween.forEach(split => {
-      netBalances[split.userId] = netBalances[split.userId] || { balance: 0, name: split.name };
-      netBalances[split.userId].balance -= split.share;
+      const splitId = split.userId.toString();
+      if (!netBalances[splitId]) netBalances[splitId] = { balance: 0, name: split.name };
+      netBalances[splitId].balance -= split.share;
     });
   });
 
@@ -148,25 +164,29 @@ function calculateSettlements(expenses) {
   debtors.sort((a, b) => b.balance - a.balance);
 
   const transactions = [];
-  let i = 0, j = 0;
+  const tempCreditors = creditors.map(c => ({ ...c }));
+  const tempDebtors = debtors.map(d => ({ ...d }));
 
-  while (i < creditors.length && j < debtors.length) {
-    const amount = Math.min(creditors[i].balance, debtors[j].balance);
+  let i = 0, j = 0;
+  while (i < tempCreditors.length && j < tempDebtors.length) {
+    const amount = Math.min(tempCreditors[i].balance, tempDebtors[j].balance);
     
     transactions.push({
-      from: debtors[j].name,
-      to: creditors[i].name,
+      fromId: tempDebtors[j].userId,
+      from: tempDebtors[j].name,
+      toId: tempCreditors[i].userId,
+      to: tempCreditors[i].name,
       amount: parseFloat(amount.toFixed(2))
     });
 
-    creditors[i].balance -= amount;
-    debtors[j].balance -= amount;
+    tempCreditors[i].balance -= amount;
+    tempDebtors[j].balance -= amount;
 
-    if (creditors[i].balance < 0.01) i++;
-    if (debtors[j].balance < 0.01) j++;
+    if (tempCreditors[i].balance < 0.01) i++;
+    if (tempDebtors[j].balance < 0.01) j++;
   }
 
-  return transactions;
+  return { transactions, netBalances };
 }
 
 module.exports = router;

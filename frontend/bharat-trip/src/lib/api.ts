@@ -131,7 +131,28 @@ export const voteAvailability = async (tripId: string, voteData: { dateOptionId:
 };
 
 export const lockAvailabilityDates = async (tripId: string, dates: { startDate: Date, endDate: Date }) => {
-  const res = await api.put(`/trips/${tripId}/availability/lock`, dates);
+  const res = await api.put(`/availability/lock`, dates);
+  return res.data;
+};
+
+// Itinerary Remix API
+export const fetchPublicItineraries = async () => {
+  const res = await api.get("/public/itineraries");
+  return res.data;
+};
+
+export const remixItinerary = async (itineraryId: string) => {
+  const res = await api.post(`/itineraries/${itineraryId}/remix`);
+  return res.data;
+};
+
+export const remixItineraryByTrip = async (tripId: string) => {
+  const res = await api.post(`/itineraries/remix/trip/${tripId}`);
+  return res.data;
+};
+
+export const fetchTripAlerts = async (tripId: string) => {
+  const res = await api.get(`/itineraries/trip/${tripId}/alerts`);
   return res.data;
 };
 

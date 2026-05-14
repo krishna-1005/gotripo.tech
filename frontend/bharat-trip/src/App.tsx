@@ -22,6 +22,7 @@ import Trips from "./routes/trips";
 import CollaborativeTrip from "./routes/collaborative-trip";
 import JoinTrip from "./routes/join-trip";
 import CollabRoom from "@/components/collabRoom/CollabRoom";
+import PublicGallery from "./components/PublicGallery";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import PassportPage from "./routes/passport";
 import AdminDashboardPage from "./routes/admin/index";
@@ -58,6 +59,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/community" element={<PublicGallery />} />
       <Route path="/collaborate" element={<Collaborate />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/explore" element={<Navigate to="/explore-india" replace />} />

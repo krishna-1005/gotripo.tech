@@ -23,6 +23,7 @@ export function MarketingNav() {
           <a href="#voices" className="hover:text-foreground dark:hover:text-white transition">Stories</a>
           <Link to="/pricing" className="hover:text-foreground dark:hover:text-white transition">Pricing</Link>
           <Link to="/explore-india" className="hover:text-foreground dark:hover:text-white transition">Explore</Link>
+          <Link to="/community" className="hover:text-foreground dark:hover:text-white transition font-bold text-accent">Community</Link>
           <Link to="/yatra" className="hover:text-foreground dark:hover:text-white transition">Yatra</Link>
         </nav>
 

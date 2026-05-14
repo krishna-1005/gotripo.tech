@@ -65,6 +65,7 @@ function distance(lat1, lon1, lat2, lon2) {
 }
 
 const fetchOSMPlaces = require("../services/osmPlaces");
+const { searchIndoorPlaces } = require("../services/googlePlaces");
 
 const REGION_TO_CITY = {
   "himalayas": "Shimla",
@@ -77,7 +78,7 @@ const REGION_TO_CITY = {
 
 router.post("/", async (req, res) => {
   try {
-    let { lat, lng, city, radius = 10, category, travelerType } = req.body;
+    let { lat, lng, city, radius = 10, category, travelerType, indoorOnly } = req.body;
     
     // Ensure numeric types for coordinates and radius
     lat = lat ? parseFloat(lat) : null;
@@ -86,17 +87,15 @@ router.post("/", async (req, res) => {
 
     // If city name is provided, geocode it first
     if (city && (!lat || !lng)) {
-      // 1. Map common regions to representative cities
+      // ... (existing geocoding logic)
       const normalizedInput = city.toLowerCase().trim();
       const lookupCity = REGION_TO_CITY[normalizedInput] || city;
 
-      // 2. Try our local high-speed map first
       const normalizedCity = lookupCity.toLowerCase();
       if (cityCoordsMap[normalizedCity]) {
         lat = cityCoordsMap[normalizedCity].lat;
         lng = cityCoordsMap[normalizedCity].lng;
       } else {
-        // 2. Try Nominatim (External)
         try {
           const geo = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`, {
             headers: { "User-Agent": "GoTripo/1.0" }
@@ -108,6 +107,14 @@ router.post("/", async (req, res) => {
         } catch (e) {
           console.error("Geocoding failed for:", city);
         }
+      }
+    }
+
+    // NEW: Handle indoorOnly request using Google Places API
+    if (indoorOnly && city && lat && lng) {
+      const googleResults = await searchIndoorPlaces(city, lat, lng, radius * 1000); // radius in meters
+      if (googleResults && googleResults.length > 0) {
+        return res.json(googleResults);
       }
     }
 
@@ -162,6 +169,16 @@ router.post("/", async (req, res) => {
       localMatches = localMatches.filter(p => p.category.toLowerCase() === category.toLowerCase());
     }
 
+    // NEW: Apply indoor filtering to local data if requested
+    if (indoorOnly) {
+      const OUTDOOR_CATEGORIES = ['nature', 'park', 'trek', 'garden', 'lake', 'mountain', 'zoo', 'safari'];
+      localMatches = localMatches.filter(p => {
+        const cat = p.category.toLowerCase();
+        const name = p.name.toLowerCase();
+        return !OUTDOOR_CATEGORIES.some(kw => cat.includes(kw) || name.includes(kw));
+      });
+    }
+
     localMatches = localMatches.sort((a, b) => a.distance - b.distance);
 
     if (localMatches.length > 2) {
@@ -175,24 +192,38 @@ router.post("/", async (req, res) => {
       filteredOsm = osmPlaces.filter(p => p.category.toLowerCase() === category.toLowerCase());
     }
 
+    // Apply indoor filtering to OSM data
+    if (indoorOnly) {
+      const OUTDOOR_CATEGORIES = ['nature', 'park', 'trek', 'garden', 'lake', 'mountain', 'zoo', 'safari'];
+      filteredOsm = filteredOsm.filter(p => {
+        const cat = p.category.toLowerCase();
+        const name = p.name.toLowerCase();
+        return !OUTDOOR_CATEGORIES.some(kw => cat.includes(kw) || name.includes(kw));
+      });
+    }
+
     if (filteredOsm.length > 0) {
       return res.json(filteredOsm.slice(0, 10));
     }
 
     // Final fallback
-    const fallbacks = [
-      { name: "City Center", category: "Landmark" },
-      { name: "Historical Monument", category: "Culture" },
-      { name: "Local Food Street", category: "Food" },
-      { name: "Central Park", category: "Nature" },
-      { name: "Famous Market", category: "Shopping" }
-    ].map(f => ({
+    let fallbacks = [
+      { name: "Museum", category: "Culture" },
+      { name: "Art Gallery", category: "Culture" },
+      { name: "Local Cafe", category: "Food" },
+      { name: "Shopping Mall", category: "Shopping" },
+      { name: "Central Library", category: "Culture" }
+    ];
+
+    if (!indoorOnly) {
+      fallbacks.push({ name: "Central Park", category: "Nature" });
+    }
+
+    res.json(fallbacks.map(f => ({
       ...f,
       name: city ? `${city} ${f.name}` : f.name,
       distance: 0
-    }));
-
-    res.json(fallbacks);
+    })));
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
