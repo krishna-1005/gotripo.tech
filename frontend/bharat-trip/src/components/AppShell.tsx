@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const loc = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const { cart } = useCart();
 
   const cartItemCount = cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
@@ -87,6 +87,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isAdmin = user && ADMIN_EMAILS.includes(user.email?.toLowerCase() || "");
   const isYatraPage = loc.pathname.startsWith("/yatra");
 
+  // Filter nav based on auth
+  const filteredNav = nav.filter(n => {
+    const authRequired = ["/dashboard", "/profile", "/settings", "/orders", "/trips", "/collaborate", "/passport"].includes(n.to);
+    return !authRequired || user;
+  });
+
+  const filteredMobileNav = mobileNav.filter(n => {
+    const authRequired = ["/dashboard", "/profile", "/orders"].includes(n.to);
+    return !authRequired || user;
+  });
+
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar (desktop) */}
@@ -109,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 px-3 py-5 space-y-1">
-          {nav.map((n) => {
+          {filteredNav.map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (
               <Link
@@ -229,51 +240,62 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen((o) => !o)}
-                className="size-9 sm:size-10 rounded-xl bg-primary-soft text-primary grid place-items-center font-semibold text-xs sm:text-sm hover:opacity-90 transition"
-                aria-label="Account menu"
-              >
-                {userInitials}
-              </button>
-              {menuOpen && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-                  <div className="absolute right-0 top-12 z-40 w-56 rounded-xl bg-surface border border-border shadow-pop p-1.5">
-                    <div className="px-3 py-2 border-b border-border">
-                      <div className="text-sm font-semibold truncate">
-                        {(user?.displayName as string | undefined) || user?.email?.split("@")[0]}
+            {!loading && (
+              user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setMenuOpen((o) => !o)}
+                    className="size-9 sm:size-10 rounded-xl bg-primary-soft text-primary grid place-items-center font-semibold text-xs sm:text-sm hover:opacity-90 transition"
+                    aria-label="Account menu"
+                  >
+                    {userInitials}
+                  </button>
+                  {menuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
+                      <div className="absolute right-0 top-12 z-40 w-56 rounded-xl bg-surface border border-border shadow-pop p-1.5">
+                        <div className="px-3 py-2 border-b border-border">
+                          <div className="text-sm font-semibold truncate">
+                            {(user?.displayName as string | undefined) || user?.email?.split("@")[0]}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+                        </div>
+                        <Link
+                          to="/profile"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-secondary transition"
+                        >
+                          <User className="size-4" /> Profile
+                        </Link>
+                        <Link
+                          to="/settings"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-secondary transition"
+                        >
+                          <Settings className="size-4" /> Settings
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setMenuOpen(false);
+                            handleSignOut();
+                          }}
+                          className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition"
+                        >
+                          <LogOut className="size-4" /> Sign out
+                        </button>
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
-                    </div>
-                    <Link
-                      to="/profile"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-secondary transition"
-                    >
-                      <User className="size-4" /> Profile
-                    </Link>
-                    <Link
-                      to="/settings"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-secondary transition"
-                    >
-                      <Settings className="size-4" /> Settings
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        handleSignOut();
-                      }}
-                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition"
-                    >
-                      <LogOut className="size-4" /> Sign out
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="hidden sm:inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-sm hover:opacity-90 transition"
+                >
+                  Sign in
+                </Link>
+              )
+            )}
           </div>
         </header>
 
@@ -283,7 +305,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-border">
         <ul className="grid grid-cols-6 h-16">
-          {mobileNav.slice(0, 2).map((n) => {
+          {filteredMobileNav.slice(0, 2).map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (
               <li key={n.to}>
@@ -303,7 +325,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle className="scale-[0.65] sm:scale-75 !bg-transparent !border-none" />
             <span className="text-[9px] sm:text-[10px] font-medium text-muted-foreground -mt-2">Theme</span>
           </li>
-          {mobileNav.slice(2).map((n) => {
+          {filteredMobileNav.slice(2).map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (
               <li key={n.to}>
@@ -331,7 +353,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Logo className="scale-90 origin-left" />
             </Link>
             <nav className="space-y-1">
-              {nav.map((n) => (
+              {filteredNav.map((n) => (
                 <Link
                   key={n.to}
                   to={n.to}

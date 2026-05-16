@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const User = require("../models/User");
+const { admin, initialized } = require("../firebaseAdmin");
 
 async function promoteToAdmin(emails) {
   try {
@@ -14,27 +15,53 @@ async function promoteToAdmin(emails) {
 
     for (const email of emails) {
       let user = await User.findOne({ email });
+      const defaultPassword = "AdminPassword123";
       
       if (!user) {
         console.log(`User with email ${email} not found. Creating new admin account...`);
         user = new User({
           name: email.split('@')[0],
           email: email,
-          password: "AdminPassword123", // Default password, should be changed
+          password: defaultPassword,
           role: "admin",
           userType: "user"
         });
         await user.save();
-        console.log(`Created new admin: ${email}`);
+        console.log(`Created new admin in MongoDB: ${email}`);
       } else {
-        console.log(`User found: ${email}. Current role: ${user.role}`);
+        console.log(`User found in MongoDB: ${email}. Current role: ${user.role}`);
         if (user.role !== "admin") {
           user.role = "admin";
           await user.save();
-          console.log(`Updated user ${email} to admin.`);
+          console.log(`Updated user ${email} to admin in MongoDB.`);
         } else {
-          console.log(`User ${email} is already an admin.`);
+          console.log(`User ${email} is already an admin in MongoDB.`);
         }
+      }
+
+      // Sync with Firebase
+      if (initialized) {
+        try {
+          const fbUser = await admin.auth().getUserByEmail(email);
+          await admin.auth().updateUser(fbUser.uid, {
+            password: defaultPassword,
+            displayName: user.name
+          });
+          console.log(`✅ Firebase credentials synced for ${email}`);
+        } catch (fbErr) {
+          if (fbErr.code === 'auth/user-not-found') {
+            await admin.auth().createUser({
+              email: email,
+              password: defaultPassword,
+              displayName: user.name
+            });
+            console.log(`✅ Created new Firebase user for ${email}`);
+          } else {
+            console.error(`Firebase sync error for ${email}:`, fbErr.message);
+          }
+        }
+      } else {
+        console.warn("⚠️ Firebase Admin not initialized. Skipping Firebase sync.");
       }
     }
 

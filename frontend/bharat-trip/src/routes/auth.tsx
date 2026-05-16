@@ -11,7 +11,8 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile, 
   GoogleAuthProvider, 
-  signInWithPopup 
+  signInWithPopup,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { useAuth } from "@/components/AuthProvider";
 import { Logo } from "@/components/Logo";
@@ -77,17 +78,35 @@ export default function AuthPage() {
         toast.success("Welcome back!");
       }
     } catch (err: any) {
+      console.error("Auth error:", err);
       let friendly = "Something went wrong";
       if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-        friendly = "Invalid email or password";
+        friendly = "Invalid email or password. If you usually use Google, try that instead.";
       } else if (err.code === "auth/email-already-in-use") {
         friendly = "An account with this email already exists. Sign in instead.";
+      } else if (err.code === "auth/too-many-requests") {
+        friendly = "Too many failed attempts. Please try again later or reset your password.";
       } else {
         friendly = err.message;
       }
       toast.error(friendly);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      toast.error("Please enter your email address first to reset your password.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, emailResult.data);
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email");
     }
   };
 
@@ -184,10 +203,18 @@ export default function AuthPage() {
                     className="w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-surface focus:border-ring outline-none text-sm transition"
                   />
                 </div>
-                {mode === "signup" && (
+                {mode === "signup" ? (
                   <span className="text-xs text-muted-foreground mt-1.5 block">
                     Minimum 8 characters
                   </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs text-primary font-medium mt-1.5 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
                 )}
               </label>
 
