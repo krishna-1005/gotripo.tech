@@ -510,8 +510,8 @@ function Collab() {
                   </div>
                   {/* Right Column: Chat */}
                   <div className={cn(
-                    "rounded-3xl bg-card border border-border shadow-soft flex flex-col h-[500px] lg:h-full sticky top-6 lg:relative lg:top-0 transition-all",
-                    activeTab === 'chat' ? "flex h-[calc(100vh-210px)]" : "hidden lg:flex"
+                    "rounded-3xl bg-card border border-border shadow-soft flex flex-col sticky top-6 lg:relative lg:top-0 transition-all overflow-hidden",
+                    activeTab === 'chat' ? "flex h-[calc(100vh-210px)]" : "hidden lg:flex lg:h-[calc(100vh-160px)]"
                   )}>
                     <div className="p-4 lg:p-5 border-b border-border bg-secondary/20 shrink-0">
                       <div className="font-display font-bold text-base lg:text-lg">Crew chat</div>
@@ -521,15 +521,16 @@ function Collab() {
                       </div>
                     </div>
                     
-                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4 scroll-smooth">
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4 scroll-smooth min-h-0">
                       {messages.length === 0 && (
                         <div className="text-center py-10 opacity-50 space-y-2">
                           <p className="text-sm">No messages yet.</p>
                           <p className="text-xs italic">"Drop a message to start the brainstorm!"</p>
                         </div>
                       )}
-                      {messages.map((m, i) => {
+                      {messages.map((m: any, i) => {
                         const isMe = m.userId === user?.uid;
+                        const date = m.timestamp || m.createdAt;
                         return (
                           <div key={i} className={`flex gap-2 lg:gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
                             <div className={`size-7 lg:size-8 rounded-full ${isMe ? 'bg-warm-gradient' : 'bg-primary-soft text-primary'} grid place-items-center text-[10px] lg:text-xs font-bold shrink-0`}>
@@ -537,7 +538,7 @@ function Collab() {
                             </div>
                             <div className={`flex-1 ${isMe ? 'text-right' : ''}`}>
                               <div className="text-[10px] lg:text-xs text-muted-foreground">
-                                <b className="text-foreground">{isMe ? 'You' : m.userName}</b> · {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <b className="text-foreground">{isMe ? 'You' : m.userName}</b> · {date ? new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
                               </div>
                               <div className={`mt-1 rounded-2xl px-3 lg:px-4 py-2 lg:py-2.5 text-xs lg:text-sm w-fit shadow-sm inline-block ${
                                 isMe 

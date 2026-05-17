@@ -46,7 +46,8 @@ module.exports = (io) => {
           initials: initials || "?",
           text,
           color: color || "bg-primary",
-          timestamp: new Date()
+          timestamp: new Date(),
+          createdAt: new Date()
         });
       } catch (error) {
         console.error("Socket message error:", error);

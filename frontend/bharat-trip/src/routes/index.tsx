@@ -17,7 +17,13 @@ import goa from "@/assets/dest-goa.jpg";
 import jaipur from "@/assets/dest-jaipur.jpg";
 import rishikesh from "@/assets/dest-rishikesh.jpg";
 import kerala from "@/assets/dest-kerala.jpg";
-import { getNextThreeMonths } from "@/lib/utils";
+import hampi from "@/assets/dest-hampi.jpg";
+import coorg from "@/assets/dest-coorg.jpg";
+import himalayas from "@/assets/dest-himalayas.jpg";
+import ladakh from "@/assets/dest-ladakh.jpg";
+import munnar from "@/assets/dest-munnar.jpg";
+import varanasi from "@/assets/dest-varanasi.jpg";
+import { getNextThreeMonths, cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { fetchVibeSuggestions } from "@/lib/api";
 
@@ -172,11 +178,38 @@ function MoodSearch() {
     social: 50,
   });
   const [recommended, setRecommended] = useState<any[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const persona = getPersona(vibe);
+  
+  // Map destination names to imported images
+  const imageMap: Record<string, string> = {
+    "Jaipur": jaipur,
+    "Goa": goa,
+    "Rishikesh": rishikesh,
+    "Kerala": kerala,
+    "Hampi": hampi,
+    "Coorg": coorg,
+    "Munnar": munnar,
+    "Varanasi": varanasi,
+    "Ladakh": ladakh,
+    "Himalayas": himalayas,
+    "Dharamshala": rishikesh,
+    "Gokarna": goa
+  };
+
+  const getDestinationImage = (name: string) => {
+    // 1. Check direct map
+    if (imageMap[name]) return imageMap[name];
+    
+    // 2. Check case-insensitive match
+    const key = Object.keys(imageMap).find(k => k.toLowerCase() === name.toLowerCase());
+    if (key) return imageMap[key];
+    
+    // 3. Dynamic Unsplash fallback as a last resort
+    return `https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800&q=80&sig=${encodeURIComponent(name)}`;
+  };
 
   const updateSuggestions = useCallback(async (currentVibe: any) => {
     setIsLoading(true);
@@ -184,7 +217,6 @@ function MoodSearch() {
       const suggestions = await fetchVibeSuggestions(currentVibe);
       if (suggestions && suggestions.length > 0) {
         setRecommended(suggestions);
-        setActiveIndex(0); // Reset to first item when vibe changes
       }
     } catch (err) {
       console.error(err);
@@ -201,158 +233,141 @@ function MoodSearch() {
   }, [vibe, updateSuggestions]);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="text-sm font-semibold text-accent uppercase tracking-widest">Vibe-Based Discovery</div>
-            <div className="h-px flex-1 bg-border" />
-          </div>
+    <section className="relative py-40 overflow-hidden bg-white dark:bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
+        <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-start">
           
-          <AnimatePresence mode="wait">
-            <motion.div
+          {/* LEFT: ELEGANT CONTROLS */}
+          <div className="lg:col-span-5 lg:sticky lg:top-32">
+            <div className="space-y-2 mb-12">
+               <div className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Personalized Discovery</div>
+               <h2 className="font-display font-medium text-6xl md:text-7xl tracking-tighter text-foreground leading-[0.85]">
+                 Tune your <br />
+                 <span className="italic font-serif text-muted-foreground/40">journey.</span>
+               </h2>
+            </div>
+
+            <p className="text-muted-foreground text-lg mb-16 leading-relaxed max-w-sm">
+              Travel is an extension of your mood. Slide to find the destination that resonates with your current state of mind.
+            </p>
+
+            <div className="space-y-16">
+              <MoodSlider 
+                label={["Peace", "Adventure"]} 
+                value={vibe.adventure} 
+                onChange={(v) => setVibe({...vibe, adventure: v})} 
+              />
+              <MoodSlider 
+                label={["Heritage", "Modern"]} 
+                value={vibe.modern} 
+                onChange={(v) => setVibe({...vibe, modern: v})} 
+              />
+              <MoodSlider 
+                label={["Quiet", "Vibrant"]} 
+                value={vibe.social} 
+                onChange={(v) => setVibe({...vibe, social: v})} 
+              />
+            </div>
+
+            <motion.div 
               key={persona.name}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-8 inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-accent/5 border border-accent/20"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mt-20 p-8 rounded-[32px] bg-secondary/30 border border-border/50 flex items-center gap-6"
             >
-              <VibeIcon name={persona.icon} className="size-6 text-accent" />
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-accent">Your Persona</div>
-                <div className="text-sm font-bold">{persona.name}</div>
-              </div>
+               <div className="size-14 rounded-2xl bg-white dark:bg-black shadow-lg flex items-center justify-center">
+                  <VibeIcon name={persona.icon} className="size-7 text-accent" />
+               </div>
+               <div>
+                  <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Current Soul Match</div>
+                  <div className="text-xl font-display font-bold">{persona.name}</div>
+               </div>
             </motion.div>
-          </AnimatePresence>
-
-          <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-6">
-            How do you want to feel?
-          </h2>
-          <p className="text-muted-foreground text-lg mb-10 text-balance">
-            {persona.desc} Let our AI suggest the perfect destination for your soul.
-          </p>
-
-          <div className="space-y-10">
-            <MoodSlider 
-              label={["Peace", "Adventure"]} 
-              value={vibe.adventure} 
-              onChange={(v) => setVibe({...vibe, adventure: v})} 
-            />
-            <MoodSlider 
-              label={["Ancient", "Modern"]} 
-              value={vibe.modern} 
-              onChange={(v) => setVibe({...vibe, modern: v})} 
-            />
-            <MoodSlider 
-              label={["Solitude", "Social"]} 
-              value={vibe.social} 
-              onChange={(v) => setVibe({...vibe, social: v})} 
-            />
           </div>
-        </div>
 
-        <motion.div 
-          animate={{ background: getVibeGradient(vibe) }}
-          className="bg-card rounded-[40px] p-8 md:p-12 border border-border shadow-pop relative overflow-hidden min-h-[550px] flex flex-col transition-colors duration-1000 select-none"
-        >
-          <div className="absolute top-0 right-0 p-10 opacity-5">
-            <Sparkles className="size-32 text-accent" />
-          </div>
-          
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AI Personalized Suggestions</h3>
-            {recommended.length > 0 && (
-              <div className="text-[11px] font-bold text-accent px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 shadow-sm">
-                {recommended.length} Matches Found
-              </div>
-            )}
-          </div>
-          
-          <div className="space-y-6 flex-1 relative">
-            {isLoading && (
-              <div className="absolute inset-0 z-10 bg-card/50 backdrop-blur-[2px] flex items-center justify-center">
-                <Loader2 className="size-8 text-accent animate-spin" />
-              </div>
-            )}
-            
+          {/* RIGHT: THE GALLERY STAGE */}
+          <div className="lg:col-span-7 space-y-12">
             <AnimatePresence mode="wait">
-              {recommended.length > 0 ? (
-                <motion.div
-                  key={recommended[0]?.name || "loading"}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="flex flex-col space-y-4 md:space-y-6"
+              {isLoading ? (
+                <motion.div 
+                  key="loading"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="aspect-[4/5] w-full flex flex-col items-center justify-center gap-6"
                 >
-                  {recommended.map((item, index) => {
-                    const score = getMatchScore(vibe, item);
-                    const isActive = activeIndex === index;
-                    return (
-                      <div
-                        key={item.name}
-                        onClick={() => setActiveIndex(index)}
-                        className={`flex items-start gap-4 md:gap-6 p-4 md:p-6 rounded-[28px] md:rounded-[32px] bg-card/40 backdrop-blur-sm border transition-all cursor-pointer relative overflow-hidden group w-full ${
-                          isActive ? "border-accent ring-1 ring-accent/20 bg-accent/5 shadow-xl" : "border-border/50 hover:bg-accent/5 hover:border-accent/20 shadow-sm"
-                        }`}
-                      >
-                        <div className="size-12 md:size-20 rounded-xl md:rounded-3xl bg-card border border-border flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 shadow-md mt-1 z-10">
-                          <VibeIcon name={item.icon} className={`size-6 md:size-10 ${isActive ? 'text-accent' : 'text-muted-foreground'}`} />
-                        </div>
-                        <div className="flex-1 min-w-0 z-10">
-                          <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                            <div className={`font-display font-bold text-lg md:text-2xl transition-colors leading-tight ${isActive ? 'text-accent' : 'text-foreground group-hover:text-accent'}`}>
-                              {item.name}
-                            </div>
-                            <div className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[9px] md:text-[11px] font-bold ${
-                              isActive ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-sm" : "bg-muted border-border/50 text-muted-foreground"
-                            }`}>
-                              {score}% MATCH
-                            </div>
-                          </div>
-                          <div className="text-[9px] md:text-[11px] text-muted-foreground font-bold uppercase tracking-wider flex items-center gap-1.5 mt-1">
-                             <MapPin className="size-3 md:size-3.5 opacity-60" /> {item.region}
-                          </div>
-                          <div className="mt-3">
-                            <div className="text-xs md:text-sm font-medium text-accent/80 leading-relaxed bg-accent/5 border border-accent/10 rounded-xl md:rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm italic">
-                              {item.vibe}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="shrink-0 ml-1 mt-1 z-10 hidden sm:block">
-                          <div className={`size-10 rounded-full bg-accent/10 text-accent flex items-center justify-center transition-all shadow-md ${isActive ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1'}`}>
-                            <ArrowRight className="size-5" />
-                          </div>
-                        </div>
-                        
-                        {/* Progress bar match indicator */}
-                        <div className="absolute bottom-0 left-0 h-1 bg-emerald-500/20 w-full">
-                           <motion.div 
-                             initial={{ width: 0 }}
-                             animate={{ width: `${score}%` }}
-                             className={`h-full ${isActive ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`} 
-                           />
-                        </div>
-                      </div>
-                    );
-                  })}
+                   <div className="size-20 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Synthesizing Matches</span>
                 </motion.div>
               ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground italic">
-                  Move the sliders to see magic...
+                <div className="grid gap-12">
+                  {recommended.slice(0, 3).map((item, idx) => (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="group relative"
+                    >
+                      <div className="grid md:grid-cols-2 gap-8 items-center">
+                         {/* Image Frame */}
+                         <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden shadow-2xl bg-secondary">
+                            <img 
+                              src={getDestinationImage(item.name)} 
+                              alt={item.name} 
+                              className="size-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute top-6 left-6 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest">
+                               {getMatchScore(vibe, item)}% Match
+                            </div>
+                         </div>
+                         
+                         {/* Content */}
+                         <div className="py-4">
+                            <div className="inline-flex items-center gap-2 mb-4">
+                               <MapPin className="size-3 text-accent" />
+                               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{item.region}</span>
+                            </div>
+                            <h3 className="font-display font-medium text-5xl mb-6 tracking-tighter leading-none group-hover:text-accent transition-colors">
+                               {item.name}
+                            </h3>
+                            <p className="text-muted-foreground text-lg leading-relaxed mb-10 italic font-serif">
+                               "{item.vibe}"
+                            </p>
+                            <div className="flex items-center gap-6">
+                               <button 
+                                 onClick={() => navigate(`/planner-single?dest=${encodeURIComponent(item.name)}`)}
+                                 className="h-14 px-8 rounded-2xl bg-foreground text-background font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+                               >
+                                 Start Planning <ArrowRight className="size-4" />
+                               </button>
+                               <div className="size-12 rounded-2xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-accent transition-all cursor-pointer">
+                                  <VibeIcon name={item.icon} className="size-5" />
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                      
+                      {/* Divider for non-last items */}
+                      {idx < 2 && (
+                        <div className="absolute -bottom-6 left-0 w-full h-px bg-border/40" />
+                      )}
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </AnimatePresence>
+            
+            {!isLoading && recommended.length > 0 && (
+              <div className="pt-10 flex justify-center lg:justify-start">
+                 <button className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40 hover:text-accent transition-colors">
+                   View more suggestions
+                 </button>
+              </div>
+            )}
           </div>
-          
-          {recommended.length > 0 && (
-            <button 
-              onClick={() => navigate(`/planner-single?dest=${encodeURIComponent(recommended[activeIndex].name)}`)}
-              className="w-full mt-10 py-4 rounded-2xl bg-primary text-primary-foreground font-bold hover:scale-[1.02] transition-all shadow-lg active:scale-[0.98] z-10"
-            >
-              Plan a {recommended[activeIndex].name} Trip
-            </button>
-          )}
-        </motion.div>
+
+        </div>
       </div>
     </section>
   );
@@ -360,29 +375,43 @@ function MoodSearch() {
 
 function MoodSlider({ label, value, onChange }: { label: [string, string], value: number, onChange: (v: number) => void }) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest">
-        <span className={value < 40 ? "text-accent" : "text-muted-foreground"}>{label[0]}</span>
-        <span className={value > 60 ? "text-accent" : "text-muted-foreground"}>{label[1]}</span>
+    <div className="group relative pt-4">
+      <div className="flex justify-between items-center mb-6 px-1">
+        <span className={cn(
+          "text-[10px] font-black uppercase tracking-[0.3em] transition-all",
+          value < 40 ? "text-accent scale-110" : "text-muted-foreground/40"
+        )}>{label[0]}</span>
+        <span className={cn(
+          "text-[10px] font-black uppercase tracking-[0.3em] transition-all",
+          value > 60 ? "text-accent scale-110" : "text-muted-foreground/40"
+        )}>{label[1]}</span>
       </div>
-      <div className="relative h-2 w-full bg-muted rounded-full group">
+      
+      <div className="relative h-1 w-full bg-secondary rounded-full">
+        {/* Track Progress */}
+        <motion.div 
+          animate={{ width: `${value}%` }}
+          className="absolute inset-y-0 left-0 bg-accent/30 rounded-full" 
+        />
+        
+        {/* Input */}
         <input 
           type="range"
           min="0"
           max="100"
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          className="absolute -inset-y-4 inset-x-0 w-full opacity-0 cursor-pointer z-20"
         />
+        
+        {/* Elegant Thumb */}
         <motion.div 
-          className="absolute top-0 left-0 h-full bg-accent rounded-full"
-          animate={{ width: `${value}%` }}
-        />
-        <motion.div 
-          className="absolute top-1/2 -translate-y-1/2 size-6 bg-white border-4 border-accent rounded-full shadow-lg z-20 group-hover:scale-110 transition-transform"
           animate={{ left: `calc(${value}% - 12px)` }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        />
+          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+          className="absolute top-1/2 -translate-y-1/2 size-6 rounded-full bg-white dark:bg-black shadow-[0_4px_20px_rgba(0,0,0,0.2)] border-[1px] border-border z-10 flex items-center justify-center pointer-events-none group-hover:scale-125 transition-transform"
+        >
+           <div className="size-1.5 rounded-full bg-accent" />
+        </motion.div>
       </div>
     </div>
   );
@@ -528,27 +557,59 @@ function Landing() {
       </div>
 
       {/* FEATURES */}
-      <section id="features" className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <div className="max-w-2xl">
-          <div className="text-sm font-semibold text-accent uppercase tracking-widest">Why GoTripo</div>
-          <h2 className="mt-3 font-display font-bold text-4xl md:text-5xl tracking-tight text-balance">
-            The travel agent that fits in your pocket.
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
-            Three quiet superpowers that make every trip feel handcrafted.
-          </p>
-        </div>
-
-        <div className="mt-14 grid md:grid-cols-3 gap-5">
-          {features.map((f) => (
-            <div key={f.title} className="group rounded-3xl border border-border bg-card p-7 shadow-soft hover:shadow-pop hover:-translate-y-1 transition-all">
-              <div className="size-12 rounded-2xl bg-primary-soft text-primary grid place-items-center group-hover:bg-warm-gradient group-hover:text-white transition">
-                <f.icon className="size-5" />
-              </div>
-              <h3 className="mt-5 font-display font-bold text-xl">{f.title}</h3>
-              <p className="mt-2 text-muted-foreground">{f.desc}</p>
+      <section id="features" className="max-w-7xl mx-auto px-6 lg:px-10 py-32">
+        <div className="grid lg:grid-cols-12 gap-16 items-center">
+          <div className="lg:col-span-5">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-accent/5 border border-accent/10 mb-6">
+              <span className="size-2 rounded-full bg-accent animate-pulse" />
+              <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">The GoTripo Edge</span>
             </div>
-          ))}
+            <h2 className="font-display font-bold text-5xl md:text-6xl tracking-tighter text-balance mb-6">
+              The travel agent that <br />
+              <span className="italic text-muted-foreground/40">fits in your pocket.</span>
+            </h2>
+            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed text-balance mb-10">
+              We've replaced the stress of planning with the joy of discovery. Experience three quiet superpowers that make every trip feel handcrafted.
+            </p>
+            <div className="flex items-center gap-6">
+               <div className="flex -space-x-3">
+                 {[1,2,3,4].map(i => (
+                   <div key={i} className="size-10 rounded-full border-2 border-background bg-secondary grid place-items-center overflow-hidden">
+                     <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="" className="size-full object-cover" />
+                   </div>
+                 ))}
+               </div>
+               <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                 Joined by <span className="text-foreground">15k+</span> explorers
+               </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 grid gap-6">
+            {features.map((f, idx) => (
+              <motion.div 
+                key={f.title}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="group relative p-8 rounded-[32px] border border-border bg-card hover:border-accent/30 hover:shadow-pop transition-all duration-500 overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <f.icon className="size-24" />
+                </div>
+                <div className="flex items-start gap-8">
+                  <div className="shrink-0 size-16 rounded-2xl bg-secondary group-hover:bg-warm-gradient text-muted-foreground group-hover:text-white flex items-center justify-center transition-all duration-500 shadow-inner">
+                    <f.icon className="size-7" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-display font-bold text-2xl mb-2 group-hover:text-accent transition-colors">{f.title}</h3>
+                    <p className="text-muted-foreground text-lg leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -720,19 +781,71 @@ function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="px-6 lg:px-10 pb-24">
-        <FadeUp className="max-w-7xl mx-auto rounded-3xl bg-hero-gradient text-white p-10 md:p-16 relative overflow-hidden shadow-pop">
-          <div className="absolute inset-0 bg-mesh opacity-50" />
-          <div className="relative max-w-2xl">
-            <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight text-balance">Your next trip is one prompt away.</h2>
-            <p className="mt-4 text-white/80 text-lg">Start free. Plan in minutes. Travel like you finally have time.</p>
-            <motion.div whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: dur.xs, ease }} className="inline-block mt-8">
-              <Link to="/trip-type" className="inline-flex items-center gap-2 h-12 px-7 rounded-xl bg-warm-gradient font-semibold shadow-cta">
-                <Plane className="size-4" /> Plan my trip
-              </Link>
-            </motion.div>
-          </div>
-        </FadeUp>
+      <section className="px-6 lg:px-10 pb-32">
+        <div className="max-w-7xl mx-auto relative group">
+          {/* Background Glows */}
+          <div className="absolute -top-12 -left-12 size-64 bg-accent/20 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="absolute -bottom-12 -right-12 size-64 bg-primary/20 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+          <FadeUp className="relative rounded-[48px] bg-slate-900 border border-white/10 p-12 md:p-24 overflow-hidden shadow-2xl">
+            {/* Mesh & Grain */}
+            <div className="absolute inset-0 bg-mesh opacity-30 mix-blend-overlay" />
+            <div className="absolute inset-0 bg-black/40" />
+            
+            {/* Decorative Elements */}
+            <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
+               <Plane className="size-64 text-white" />
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8">
+                <Sparkles className="size-4 text-accent" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Join the future of travel</span>
+              </div>
+              
+              <h2 className="font-display font-bold text-5xl md:text-7xl tracking-tighter text-white mb-8 leading-[0.9]">
+                Your next trip is <br />
+                <span className="bg-warm-gradient bg-clip-text text-transparent italic">one prompt away.</span>
+              </h2>
+              
+              <p className="text-white/60 text-lg md:text-xl mb-12 text-balance leading-relaxed">
+                Start for free. Plan in minutes. Travel like you finally have the time to see the world properly.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <motion.div whileHover={{ y: -4, scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link to="/trip-type" className="flex items-center gap-3 h-16 px-10 rounded-2xl bg-warm-gradient text-white font-bold text-lg shadow-[0_20px_40px_-15px_rgba(245,158,11,0.5)] group/btn">
+                    <Plane className="size-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> 
+                    Start Planning Now
+                  </Link>
+                </motion.div>
+                
+                <Link to="/auth" className="flex items-center gap-2 h-16 px-10 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-lg backdrop-blur-md border border-white/10 transition-all">
+                  Create Account
+                </Link>
+              </div>
+
+              <div className="mt-16 pt-12 border-t border-white/10 w-full grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">24/7</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">AI Concierge</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">100%</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Free to Start</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">15k+</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Happy Travellers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">0</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Hidden Fees</div>
+                </div>
+              </div>
+            </div>
+          </FadeUp>
+        </div>
       </section>
 
       <ReviewSection />
