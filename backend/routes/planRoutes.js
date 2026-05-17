@@ -267,8 +267,22 @@ router.post("/generate", planValidation, async (req, res) => {
     res.json({ plan: responsePlan });
 
   } catch (err) {
-    console.error("Plan generation error:", err);
-    res.status(500).json({ error: "Failed to generate plan" });
+    console.error("❌ Plan generation error:", err);
+    
+    // Check if it's a known error (e.g., location not found)
+    if (err.message && err.message.includes("Location not found")) {
+      return res.status(404).json({ 
+        error: "Location not found", 
+        message: err.message,
+        details: "We couldn't find coordinates for this destination. Please try a major city."
+      });
+    }
+
+    res.status(500).json({ 
+      error: "Failed to generate plan", 
+      message: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+    });
   }
 });
 

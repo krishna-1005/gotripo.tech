@@ -32,27 +32,70 @@ router.get("/search", async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ error: "Query required" });
 
+  const query = q.toLowerCase().trim();
+
   try {
     const response = await axios.get(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&addressdetails=1&limit=5`,
-      { headers: { "User-Agent": "GoTripo/1.0" } }
+      { 
+        headers: { "User-Agent": "GoTripo-Travel-App/2.0 (contact@gotripo.com)" },
+        timeout: 5000 
+      }
     );
 
-    const places = response.data.map(p => ({
-      id: p.place_id,
-      name: p.display_name.split(',')[0],
-      fullName: p.display_name,
-      lat: Number(p.lat),
-      lng: Number(p.lon),
-      category: p.type || "Place",
-      rating: getRating(p.display_name),
-      address: p.address
-    }));
+    if (response.data && response.data.length > 0) {
+      const places = response.data.map(p => ({
+        id: p.place_id,
+        name: p.display_name.split(',')[0],
+        fullName: p.display_name,
+        lat: Number(p.lat),
+        lng: Number(p.lon),
+        category: p.type || "Place",
+        rating: getRating(p.display_name),
+        address: p.address
+      }));
+      return res.json(places);
+    }
+    
+    // Fallback if Nominatim returns nothing but didn't error
+    throw new Error("No results from Nominatim");
 
-    res.json(places);
   } catch (err) {
-    console.error("Search API Error:", err.message);
-    res.status(500).json({ error: "Search failed" });
+    console.warn("⚠️ Nominatim Search failed, using local fallback:", err.message);
+    
+    try {
+      const indiaPlaces = require("../data/indiaPlaces.json");
+      const localMatches = indiaPlaces
+        .filter(c => c.city.toLowerCase().includes(query))
+        .map(c => ({
+          id: `local-${c.city.toLowerCase()}`,
+          name: c.city,
+          fullName: `${c.city}, India`,
+          lat: c.coordinates.lat,
+          lng: c.coordinates.lng,
+          category: "City",
+          rating: "4.8",
+          address: { city: c.city, country: "India" }
+        }));
+
+      if (localMatches.length > 0) {
+        return res.json(localMatches);
+      }
+
+      // If still no results and it was an actual error
+      if (err.response) {
+        console.error("Nominatim Response Error:", err.response.status, err.response.data);
+      }
+      
+      res.status(err.response?.status || 500).json({ 
+        error: "Search failed", 
+        message: err.message,
+        details: "Nominatim service unavailable and no local match found."
+      });
+    } catch (fallbackErr) {
+      console.error("Fallback search error:", fallbackErr.message);
+      res.status(500).json({ error: "Search failed completely" });
+    }
   }
 });
 

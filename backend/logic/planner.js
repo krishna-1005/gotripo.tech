@@ -694,11 +694,27 @@ async function getCityCoords(city) {
   };
 
   const cleanCity = city.trim().toLowerCase();
-  if (map[cleanCity]) return map[cleanCity];
+  
+  // Handle region names by mapping them to primary cities
+  const REGION_TO_CITY = {
+    "rajasthan": "Jaipur",
+    "kerala": "Kochi",
+    "himachal": "Shimla",
+    "himalayas": "Leh",
+    "uttarakhand": "Rishikesh",
+    "karnataka": "Bengaluru",
+    "tamil nadu": "Chennai",
+    "maharashtra": "Mumbai"
+  };
+
+  const lookupCity = REGION_TO_CITY[cleanCity] || cleanCity;
+  const finalLookup = lookupCity.toLowerCase();
+
+  if (map[finalLookup]) return map[finalLookup];
 
   try {
     const indiaPlaces = require("../data/indiaPlaces.json");
-    const found = indiaPlaces.find(c => c.city.toLowerCase() === cleanCity);
+    const found = indiaPlaces.find(c => c.city.toLowerCase() === finalLookup);
     if (found) return found.coordinates;
   } catch (e) {}
 
@@ -706,18 +722,25 @@ async function getCityCoords(city) {
     const res = await axios.get(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanCity)}&limit=1`,
       { 
-        headers: { "User-Agent": "GoTripo/1.0" },
+        headers: { "User-Agent": "GoTripo-Travel-App/2.0 (contact@gotripo.com)" },
         timeout: 5000 // 5 second timeout for geocoding
       }
     );
     if (res.data && res.data.length > 0) {
+      console.log(`📍 Geocoding success for [${cleanCity}]:`, res.data[0].lat, res.data[0].lon);
       return {
         lat: Number(res.data[0].lat),
         lng: Number(res.data[0].lon)
       };
+    } else {
+      console.warn(`⚠️ Geocoding returned no results for: ${cleanCity}`);
     }
   } catch (err) {
-    console.error("Geocoding failed for:", cleanCity, err.message);
+    console.error(`❌ Geocoding failed for [${cleanCity}]:`, err.message);
+    if (err.response) {
+      console.error("  - Status:", err.response.status);
+      console.error("  - Data:", err.response.data);
+    }
   }
 
   return null; // Return null instead of defaulting to Bengaluru

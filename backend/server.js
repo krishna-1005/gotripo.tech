@@ -28,6 +28,22 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   console.error("❌ EMAIL_USER or EMAIL_PASS missing in .env file. Emails will NOT be sent.");
 }
 
+// Explicitly check for AI API keys on startup
+if (process.env.GROQ_API_KEY) {
+  console.log("🤖 Groq AI configuration detected.");
+} else if (process.env.OPENAI_API_KEY) {
+  console.log("🤖 OpenAI configuration detected.");
+} else {
+  console.warn("⚠️ No AI API keys detected (GROQ_API_KEY or OPENAI_API_KEY). AI features will use fallbacks.");
+}
+
+// Explicitly check for MongoDB URI
+if (process.env.MONGO_URI) {
+  console.log("💾 MongoDB URI detected.");
+} else {
+  console.error("❌ MONGO_URI missing in .env file. Database connection will fail.");
+}
+
 // Bind to 0.0.0.0 to ensure the service is reachable on Render/Cloud environments
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 GoTripo backend running on port ${PORT}`);
