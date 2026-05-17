@@ -1,5 +1,7 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+const Notification = require("../models/Notification");
+const Trip = require("../models/Trip");
 
 // Store online presence as a Map: tripId -> Set of userIds
 const onlineUsers = new Map();
@@ -39,8 +41,7 @@ module.exports = (io) => {
 
     socket.on("message:send", async ({ tripId, senderId, text, userName, initials, color }) => {
       try {
-        // Broadcast the message instantly
-        io.to(tripId).emit("message:receive", {
+        const payload = {
           userId: senderId,
           userName: userName || "Traveller",
           initials: initials || "?",
@@ -48,7 +49,52 @@ module.exports = (io) => {
           color: color || "bg-primary",
           timestamp: new Date(),
           createdAt: new Date()
-        });
+        };
+
+        // Broadcast the message instantly
+        io.to(tripId).emit("message:receive", payload);
+
+        // Handle notifications for offline/inactive users
+        const trip = await Trip.findById(tripId).populate('members.userId');
+        if (!trip) return;
+
+        const onlineSet = onlineUsers.get(tripId) || new Set();
+        
+        // Identify members who are NOT currently in the room
+        const offlineMembers = trip.members.filter(m => 
+          m.userId && 
+          m.userId._id.toString() !== senderId && 
+          !onlineSet.has(m.userId._id.toString())
+        );
+
+        if (offlineMembers.length > 0) {
+          const notifications = offlineMembers.map(m => ({
+            userId: m.userId._id,
+            title: `New message in ${trip.title || 'Trip Room'}`,
+            message: `${userName || 'A teammate'}: ${text.length > 50 ? text.substring(0, 47) + '...' : text}`,
+            type: 'chat',
+            link: `/collaborate/${tripId}`,
+            meta: {
+              tripId,
+              senderId,
+              senderName: userName || "Teammate"
+            }
+          }));
+
+          await Notification.insertMany(notifications);
+          
+          // Optionally emit to those users if they are connected to other rooms or general socket
+          offlineMembers.forEach(m => {
+            // We'd need a way to find the user's general socket ID if they are elsewhere on the site
+            // For now, they'll see it when the NotificationBell polls or via Browser Notifications if we add a global event
+            io.emit(`user:notification:${m.userId._id}`, {
+              type: 'chat',
+              tripId,
+              senderName: userName,
+              text
+            });
+          });
+        }
       } catch (error) {
         console.error("Socket message error:", error);
       }
