@@ -26,6 +26,7 @@ const protect = async (req, res, next) => {
         user = await User.findOne({ email });
 
         if (!user) {
+          console.log(`👤 Syncing new Firebase user to MongoDB: ${email}`);
           user = await User.create({
             firebaseUid: decoded.uid,
             email: email,
@@ -34,6 +35,7 @@ const protect = async (req, res, next) => {
           });
 
           // Send welcome email (background)
+          console.log(`📧 Triggering welcome email for new user: ${email}`);
           sendWelcomeEmail(user.email, user.name).catch(e => console.error("Social welcome email error:", e.message));
         }
       } else {

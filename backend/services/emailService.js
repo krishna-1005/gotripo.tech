@@ -79,9 +79,11 @@ async function sendUpdateEmail(emails, subject, content) {
  * Send a welcome email to a new user
  */
 async function sendWelcomeEmail(email, name) {
+  console.log(`📧 Attempting to send welcome email to: ${email}`);
+  
   const currentTransporter = getTransporter();
   if (!currentTransporter) {
-    console.log("⚠️ skipping welcome email: transporter not ready");
+    console.warn(`⚠️ Skipping welcome email for ${email}: Transporter not initialized. Check EMAIL_USER/PASS.`);
     return;
   }
 

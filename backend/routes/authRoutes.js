@@ -82,6 +82,7 @@ router.post("/signup", authLimiter, signupValidation, async (req, res) => {
     const token = signToken(user._id);
 
     // Send welcome email (background)
+    console.log(`📧 Triggering welcome email for new signup: ${user.email}`);
     sendWelcomeEmail(user.email, user.name).catch(e => console.error("Welcome email error:", e.message));
 
     res.status(201).json({

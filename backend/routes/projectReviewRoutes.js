@@ -3,6 +3,7 @@ const router = express.Router();
 const ProjectReview = require("../models/ProjectReview");
 const User = require("../models/User");
 const { admin } = require("../firebaseAdmin");
+const { sendWelcomeEmail } = require("../services/emailService");
 const { reviewValidation } = require("../middleware/validator");
 
 // Public route to get all project reviews
@@ -41,6 +42,9 @@ router.post("/", reviewValidation, async (req, res) => {
         name: decoded.name || "User",
         photo: decoded.picture || ""
       });
+
+      // Send welcome email (background)
+      sendWelcomeEmail(user.email, user.name).catch(e => console.error("Review sync welcome email error:", e.message));
     }
 
     const newReview = new ProjectReview({

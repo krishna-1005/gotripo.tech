@@ -6,6 +6,7 @@ const UsageLog     = require("../models/UsageLog");
 const { admin } = require("../firebaseAdmin");
 const User         = require("../models/User");
 const jwt          = require("jsonwebtoken");
+const { sendWelcomeEmail } = require("../services/emailService");
 const { planValidation } = require("../middleware/validator");
 const { getVibeSuggestions, getDreamWeaverSuggestions } = require("../services/aiPlanner");
 const { getSavingsInsights } = require("../services/costService");
@@ -89,6 +90,9 @@ router.post("/generate", planValidation, async (req, res) => {
             firebaseUid: decoded.uid,
             role: "user"
           });
+
+          // Send welcome email (background)
+          sendWelcomeEmail(userObj.email, userObj.name).catch(e => console.error("Plan sync welcome email error:", e.message));
         }
 
         loggedUserId = userObj._id;
