@@ -11,7 +11,14 @@ import {
   ChevronLeft,
   Menu,
   Bell,
-  Database
+  Database,
+  Code2,
+  Server,
+  Megaphone,
+  TestTube,
+  Library,
+  Cpu,
+  Sparkles
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -29,6 +36,14 @@ const adminNav = [
   { to: "/admin/notifications", label: "Announcements", icon: Bell },
   { to: "/admin/chatbot", label: "Chatbot AI", icon: MessageSquare },
   { to: "/admin/config", label: "System Config", icon: Settings },
+];
+
+const aiNav = [
+  { to: "/admin/ai/frontend-agent", label: "Frontend Agent", icon: Code2 },
+  { to: "/admin/ai/backend-agent", label: "Backend Agent", icon: Server },
+  { to: "/admin/ai/marketing-agent", label: "Marketing Agent", icon: Megaphone },
+  { to: "/admin/ai/testing-agent", label: "Testing Agent", icon: TestTube },
+  { to: "/admin/ai/prompt-library", label: "Prompt Library", icon: Library },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -65,24 +80,56 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-5 space-y-1">
-          {adminNav.map((n) => {
-            const active = loc.pathname === n.to;
-            return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                  active
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
-              >
-                <n.icon className="size-[18px] shrink-0" />
-                {!collapsed && <span>{n.label}</span>}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto custom-scrollbar">
+          <div className="space-y-1">
+            {adminNav.map((n) => {
+              const active = loc.pathname === n.to;
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                    active
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <n.icon className="size-[18px] shrink-0" />
+                  {!collapsed && <span>{n.label}</span>}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="pt-4 pb-2">
+            {!collapsed ? (
+              <div className="px-3 mb-2 flex items-center gap-2">
+                <Sparkles className="size-3 text-primary" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">AI Workspace</span>
+              </div>
+            ) : (
+              <div className="border-t border-border mx-4 my-2" />
+            )}
+            <div className="space-y-1">
+              {aiNav.map((n) => {
+                const active = loc.pathname === n.to;
+                return (
+                  <Link
+                    key={n.to}
+                    to={n.to}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                      active
+                        ? "bg-primary/10 text-primary border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    <n.icon className="size-[18px] shrink-0" />
+                    {!collapsed && <span>{n.label}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-border">
@@ -126,12 +173,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" />
-          <aside className="absolute top-0 left-0 h-full w-72 bg-card p-5 shadow-2xl">
+          <aside className="absolute top-0 left-0 h-full w-72 bg-card p-5 shadow-2xl flex flex-col">
             <div className="flex items-center gap-2 mb-8">
                <div className="size-9 rounded-xl bg-primary grid place-items-center text-primary-foreground font-bold">A</div>
                <span className="font-display font-bold text-lg">GoTripo Admin</span>
             </div>
-            <nav className="space-y-1">
+            <nav className="space-y-1 flex-1 overflow-y-auto">
               {adminNav.map((n) => (
                 <Link
                   key={n.to}
@@ -143,9 +190,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   {n.label}
                 </Link>
               ))}
+              
+              <div className="pt-6 px-3 mb-2 flex items-center gap-2">
+                <Sparkles className="size-3 text-primary" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">AI Workspace</span>
+              </div>
+              {aiNav.map((n) => (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary"
+                >
+                  <n.icon className="size-[18px]" />
+                  {n.label}
+                </Link>
+              ))}
+              
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 mt-4"
+                className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 mt-6"
               >
                 <LogOut className="size-[18px]" />
                 Sign Out

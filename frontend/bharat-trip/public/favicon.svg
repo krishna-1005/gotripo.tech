@@ -1,9 +1,0 @@
-<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M50 96C65 96 92 75 92 45C92 25 78 18 68 22L45 80C40 90 40 96 50 96Z" fill="#FF8A00" />
-  <path d="M72 24C45 10 12 30 12 60C12 85 42 92 58 82L68 38L72 24Z" fill="#003B95" />
-  <g transform="translate(62, 38) rotate(-28)">
-    <path d="M-40 0C-40-2 0-12 45 0C45 2 0 12-40 0Z" fill="#00A1E4" />
-    <path d="M5 0L-18 -35L12 0L-18 35Z" fill="#00A1E4" />
-    <path d="M-30 0L-45 -18L-38 0L-45 18Z" fill="#00A1E4" />
-  </g>
-</svg>

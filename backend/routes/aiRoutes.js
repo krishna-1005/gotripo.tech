@@ -2,13 +2,18 @@ const express = require("express");
 const { protect } = require("../middleware/protect");
 const Groq = require("groq-sdk");
 const Trip = require("../models/Trip");
+const marketingAiController = require("../controllers/marketingAiController");
 
-console.log("🚀 [AI] Groq Itinerary Route Initialized");
+console.log("🚀 [AI] Groq AI Routes Initialized");
 
 const router = express.Router();
 
 // Initialize Groq
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
+
+// Marketing Routes
+router.post("/marketing", protect, marketingAiController.generateMarketingContent);
+router.get("/marketing/campaigns", protect, marketingAiController.getSavedCampaigns);
 
 router.post("/itinerary", protect, async (req, res) => {
   console.log("🤖 [AI] Itinerary Request Received for:", req.body.destination);

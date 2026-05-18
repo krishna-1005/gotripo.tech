@@ -35,6 +35,11 @@ import AdminNotificationsPage from "./routes/admin/notifications";
 import AdminConfigPage from "./routes/admin/config";
 import AdminJobApplicationsPage from "./routes/admin/job-applications";
 import AdminChatbotPage from "./routes/admin/chatbot";
+import AdminFrontendAgentPage from "./routes/admin/ai/frontend-agent";
+import AdminBackendAgentPage from "./routes/admin/ai/backend-agent";
+import AdminMarketingAgentPage from "./routes/admin/ai/marketing-agent";
+import AdminTestingAgentPage from "./routes/admin/ai/testing-agent";
+import AdminPromptLibraryPage from "./routes/admin/ai/prompt-library";
 
 import YatraHub from "./routes/yatra/index";
 import YatraDetail from "./routes/yatra/details";
@@ -108,6 +113,13 @@ export default function App() {
         <Route path="notifications" element={<AdminNotificationsPage />} />
         <Route path="chatbot" element={<AdminChatbotPage />} />
         <Route path="config" element={<AdminConfigPage />} />
+        <Route path="ai">
+          <Route path="frontend-agent" element={<AdminFrontendAgentPage />} />
+          <Route path="backend-agent" element={<AdminBackendAgentPage />} />
+          <Route path="marketing-agent" element={<AdminMarketingAgentPage />} />
+          <Route path="testing-agent" element={<AdminTestingAgentPage />} />
+          <Route path="prompt-library" element={<AdminPromptLibraryPage />} />
+        </Route>
       </Route>
     </Routes>
     <Chatbot />
