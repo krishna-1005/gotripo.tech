@@ -17,8 +17,16 @@ api.interceptors.request.use(async (config) => {
 });
 
 export const generatePlan = async (data: any) => {
-  const res = await api.post("/plan/generate", data);
-  return res.data.plan ?? res.data;
+  try {
+    const res = await api.post("/plan/generate", data);
+    return res.data.plan ?? res.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      const { error: errorTitle, message, details } = error.response.data;
+      throw new Error(message || errorTitle || "Failed to generate plan");
+    }
+    throw error;
+  }
 };
 
 export const askAI = async (message: string, history: any[]) => {

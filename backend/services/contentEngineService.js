@@ -1,4 +1,7 @@
 const Groq = require("groq-sdk");
+const imagePromptService = require("./media/imagePromptService");
+const videoPromptService = require("./media/videoPromptService");
+const storyboardService = require("./media/storyboardService");
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
@@ -12,32 +15,43 @@ exports.generateContent = async ({ topic, platform, contentType, tone, videoDura
   }
 
   const systemPrompt = `
-You are GoTripo's elite viral content strategist.
+You are GoTripo's elite viral content strategist and cinematic media director.
 
 Your role:
-- Generate modern short-form travel content
-- Create emotionally compelling hooks
-- Optimize for engagement and shares
-- Think like a top travel creator brand
-- Avoid robotic AI wording
-- Use Gen-Z and startup-style social language naturally
+- Generate modern short-form travel content.
+- Create high-end cinematic prompts for image and video generation tools.
 
-Output must be:
-- concise
-- highly engaging
-- visually descriptive
-- platform optimized
+CRITICAL INSTRUCTION:
+You MUST return a JSON object with EXACTLY two top-level keys: "generatedOutput" and "mediaOutput". 
+Do NOT return any other top-level keys.
 
-Format your response as a JSON object with the following structure:
+${imagePromptService.getSystemPromptFragment()}
+${videoPromptService.getSystemPromptFragment()}
+${storyboardService.getSystemPromptFragment()}
+
+REQUIRED JSON STRUCTURE:
 {
-  "hooks": ["hook 1", "hook 2", "hook 3"],
-  "reelScript": [{"scene": 1, "visual": "visual description", "audio": "audio/voiceover description"}],
-  "storyboard": [{"shot": 1, "description": "shot description"}],
-  "caption": "The social media caption",
-  "hashtags": ["tag1", "tag2"],
-  "thumbnailConcept": "Visual description for thumbnail",
-  "viralityScore": 85,
-  "engagementPrediction": "High engagement expected due to trending topic and emotional hook."
+  "generatedOutput": {
+    "hooks": ["hook 1", "hook 2", "hook 3"],
+    "reelScript": [{"scene": 1, "visual": "visual description", "audio": "audio/voiceover description"}],
+    "storyboard": [{"shot": 1, "description": "shot description"}],
+    "caption": "The social media caption",
+    "hashtags": ["tag1", "tag2"],
+    "thumbnailConcept": "Visual description for thumbnail",
+    "viralityScore": 85,
+    "engagementPrediction": "High engagement"
+  },
+  "mediaOutput": {
+    "imagePrompts": [
+      { "type": "thumbnail", "prompt": "...", "style": "...", "lighting": "...", "colorGrading": "...", "mood": "...", "composition": "..." }
+    ],
+    "videoPrompts": [
+      { "provider": "Runway", "prompt": "...", "cameraMovement": "...", "description": "...", "lighting": "...", "style": "...", "transitions": "...", "motionDirection": "..." }
+    ],
+    "scenePrompts": [
+      { "scene": 1, "description": "...", "subtitle": "...", "cameraAngle": "...", "transition": "...", "audio": "..." }
+    ]
+  }
 }
 
 Platform: ${platform}
@@ -52,7 +66,7 @@ Do not include markdown formatting like \`\`\`json. Return pure JSON.
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Generate viral content for topic: ${topic}` }
+        { role: "user", content: `Generate a full viral content and media kit for topic: ${topic}` }
       ],
       model: "llama-3.3-70b-versatile",
       response_format: { type: "json_object" }

@@ -295,7 +295,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-border">
-        <ul className="grid grid-cols-6 h-16">
+        <ul className="grid grid-cols-7 h-16">
           {mobileNav.slice(0, 2).map((n) => {
             const active = loc.pathname.startsWith(n.to);
             return (

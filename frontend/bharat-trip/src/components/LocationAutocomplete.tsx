@@ -6,12 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 interface LocationAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
+  onSelectSuggestion?: (suggestion: any) => void;
   placeholder?: string;
   className?: string;
   icon?: React.ReactNode;
 }
 
-export function LocationAutocomplete({ value, onChange, placeholder, className, icon }: LocationAutocompleteProps) {
+export function LocationAutocomplete({ value, onChange, onSelectSuggestion, placeholder, className, icon }: LocationAutocompleteProps) {
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,9 @@ export function LocationAutocomplete({ value, onChange, placeholder, className, 
     const cityName = suggestion.name;
     setQuery(cityName);
     onChange(cityName);
+    if (onSelectSuggestion) {
+      onSelectSuggestion(suggestion);
+    }
     setIsOpen(false);
     setSuggestions([]);
   };

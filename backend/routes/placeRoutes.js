@@ -50,19 +50,15 @@ router.get("/search", async (req, res) => {
         address: { city: c.city, country: "India" }
       }));
 
-    // If we have strong local matches, we can still try OSM in background or just return local
-    // For a smooth UI, if we have local matches, return them immediately
-    if (localMatches.length >= 3) {
-      return res.json(localMatches);
-    }
-
+    // If we have strong local matches, we can still try OSM to get more variety
+    
     // 2. EXTERNAL SEARCH (OSM)
     try {
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&addressdetails=1&limit=5`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&addressdetails=1&limit=10&countrycodes=in`,
         { 
           headers: { "User-Agent": "GoTripo-Travel-App/2.0 (contact@gotripo.com)" },
-          timeout: 3000 // Shorter timeout for faster UI feel
+          timeout: 4000
         }
       );
 

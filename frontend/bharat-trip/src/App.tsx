@@ -7,6 +7,7 @@ import Dashboard from "./routes/dashboard";
 import Explore from "./routes/explore";
 import PlannerMulti from "./routes/planner-multi";
 import PlannerSingle from "./routes/planner-single";
+import WeekendTrips from "./routes/weekend-trips";
 import Profile from "./routes/profile";
 import SettingsPage from "./routes/settings";
 import Results from "./routes/results";
@@ -78,6 +79,7 @@ export default function App() {
       <Route path="/careers" element={<Careers />} />
       <Route path="/planner-multi" element={<PlannerMulti />} />
       <Route path="/planner-single" element={<PlannerSingle />} />
+      <Route path="/weekend-trips" element={<WeekendTrips />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/results" element={<Results />} />

@@ -249,6 +249,14 @@
     100% { transform: scaleX(1); }
   }
   .animate-progress-bar { animation: progress-bar linear forwards; }
+
+  .cinematic-image {
+    filter: contrast(1.05) brightness(0.95) saturate(1.1);
+    transition: filter 0.5s ease;
+  }
+  .cinematic-image:hover {
+    filter: contrast(1.1) brightness(1) saturate(1.2);
+  }
 }
 
 @media print {

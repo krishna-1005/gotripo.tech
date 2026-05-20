@@ -165,5 +165,115 @@
       { "name": "Mattupetty Dam", "category": "Nature", "avgCost": 100, "timeHours": 2, "lat": 10.1060, "lng": 77.1240, "rating": 4.5, "reviews": 10000, "tags": ["Lake", "Boating", "Elephants"] },
       { "name": "Top Station", "category": "Nature", "avgCost": 0, "timeHours": 3, "lat": 10.1224, "lng": 77.2443, "rating": 4.7, "reviews": 15000, "tags": ["Viewpoint", "Clouds", "Hills"] }
     ]
+  },
+  {
+    "city": "Kochi",
+    "coordinates": { "lat": 9.9312, "lng": 76.2673 },
+    "places": [
+      { "name": "Fort Kochi", "category": "Culture", "avgCost": 0, "timeHours": 3, "lat": 9.9658, "lng": 76.2421, "rating": 4.6, "reviews": 25000, "tags": ["Heritage", "Coastal", "History"] },
+      { "name": "Mattancherry Palace", "category": "Culture", "avgCost": 5, "timeHours": 1.5, "lat": 9.9583, "lng": 76.2594, "rating": 4.4, "reviews": 12000, "tags": ["Palace", "Murals", "History"] },
+      { "name": "Chinese Fishing Nets", "category": "Culture", "avgCost": 0, "timeHours": 1, "lat": 9.9688, "lng": 76.2412, "rating": 4.5, "reviews": 18000, "tags": ["Iconic", "Fishing", "Sunset"] },
+      { "name": "Marine Drive Kochi", "category": "Nature", "avgCost": 0, "timeHours": 2, "lat": 9.9800, "lng": 76.2760, "rating": 4.5, "reviews": 30000, "tags": ["Promenade", "Backwaters", "Walkway"] },
+      { "name": "Jewish Synagogue", "category": "Spiritual", "avgCost": 5, "timeHours": 1, "lat": 9.9575, "lng": 76.2598, "rating": 4.4, "reviews": 10000, "tags": ["Heritage", "Religious", "History"] }
+    ]
+  },
+  {
+    "city": "Amritsar",
+    "coordinates": { "lat": 31.6340, "lng": 74.8723 },
+    "places": [
+      { "name": "Golden Temple", "category": "Spiritual", "avgCost": 0, "timeHours": 3, "lat": 31.6200, "lng": 74.8765, "rating": 4.9, "reviews": 100000, "tags": ["Sikhism", "Iconic", "Peaceful"] },
+      { "name": "Wagah Border", "category": "Culture", "avgCost": 0, "timeHours": 4, "lat": 31.6050, "lng": 74.5710, "rating": 4.7, "reviews": 45000, "tags": ["Patriotic", "Ceremony", "Border"] },
+      { "name": "Jallianwala Bagh", "category": "Culture", "avgCost": 0, "timeHours": 1.5, "lat": 31.6214, "lng": 74.8791, "rating": 4.6, "reviews": 35000, "tags": ["Memorial", "History", "Tragedy"] },
+      { "name": "Partition Museum", "category": "Culture", "avgCost": 250, "timeHours": 2.5, "lat": 31.6256, "lng": 74.8785, "rating": 4.7, "reviews": 10000, "tags": ["History", "Museum", "Emotional"] },
+      { "name": "Gobindgarh Fort", "category": "Culture", "avgCost": 200, "timeHours": 3, "lat": 31.6276, "lng": 74.8643, "rating": 4.5, "reviews": 15000, "tags": ["Fort", "History", "Shows"] }
+    ]
+  },
+  {
+    "city": "Udaipur",
+    "coordinates": { "lat": 24.5854, "lng": 73.7125 },
+    "places": [
+      { "name": "City Palace Udaipur", "category": "Culture", "avgCost": 300, "timeHours": 3, "lat": 24.5764, "lng": 73.6835, "rating": 4.7, "reviews": 40000, "tags": ["Palace", "Royal", "History"] },
+      { "name": "Lake Pichola", "category": "Nature", "avgCost": 400, "timeHours": 2, "lat": 24.5724, "lng": 73.6790, "rating": 4.8, "reviews": 25000, "tags": ["Lake", "Boating", "Scenic"] },
+      { "name": "Jagdish Temple", "category": "Spiritual", "avgCost": 0, "timeHours": 1, "lat": 24.5791, "lng": 73.6841, "rating": 4.6, "reviews": 12000, "tags": ["Temple", "Architecture", "Spiritual"] },
+      { "name": "Saheliyon-ki-Bari", "category": "Nature", "avgCost": 50, "timeHours": 1.5, "lat": 24.6006, "lng": 73.6836, "rating": 4.4, "reviews": 18000, "tags": ["Garden", "Fountains", "History"] },
+      { "name": "Fateh Sagar Lake", "category": "Nature", "avgCost": 200, "timeHours": 2, "lat": 24.6000, "lng": 73.6700, "rating": 4.6, "reviews": 20000, "tags": ["Lake", "Scenic", "Relaxing"] }
+    ]
+  },
+  {
+    "city": "Hampi",
+    "coordinates": { "lat": 15.3350, "lng": 76.4600 },
+    "places": [
+      { "name": "Virupaksha Temple", "category": "Spiritual", "avgCost": 0, "timeHours": 2, "lat": 15.3353, "lng": 76.4593, "rating": 4.8, "reviews": 30000, "tags": ["Ancient", "Temple", "Heritage"] },
+      { "name": "Vittala Temple", "category": "Culture", "avgCost": 40, "timeHours": 3, "lat": 15.3391, "lng": 76.4716, "rating": 4.9, "reviews": 25000, "tags": ["Stone Chariot", "Architecture", "Heritage"] },
+      { "name": "Lotus Mahal", "category": "Culture", "avgCost": 40, "timeHours": 1.5, "lat": 15.3283, "lng": 76.4700, "rating": 4.6, "reviews": 15000, "tags": ["Palace", "Architecture", "History"] },
+      { "name": "Matanga Hill", "category": "Nature", "avgCost": 0, "timeHours": 2.5, "lat": 15.3320, "lng": 76.4630, "rating": 4.7, "reviews": 10000, "tags": ["Viewpoint", "Sunset", "Trekking"] },
+      { "name": "Elephant Stables", "category": "Culture", "avgCost": 40, "timeHours": 1, "lat": 15.3292, "lng": 76.4725, "rating": 4.6, "reviews": 12000, "tags": ["History", "Architecture", "Royal"] }
+    ]
+  },
+  {
+    "city": "Leh",
+    "coordinates": { "lat": 34.1526, "lng": 77.5771 },
+    "places": [
+      { "name": "Leh Palace", "category": "Culture", "avgCost": 300, "timeHours": 2, "lat": 34.1658, "lng": 77.5864, "rating": 4.4, "reviews": 12000, "tags": ["Palace", "History", "Viewpoint"] },
+      { "name": "Shanti Stupa", "category": "Spiritual", "avgCost": 0, "timeHours": 1.5, "lat": 34.1727, "lng": 77.5683, "rating": 4.7, "reviews": 15000, "tags": ["Peace", "Viewpoint", "Buddhist"] },
+      { "name": "Magnetic Hill", "category": "Nature", "avgCost": 0, "timeHours": 1, "lat": 34.1700, "lng": 77.2000, "rating": 4.2, "reviews": 20000, "tags": ["Mystery", "Nature", "Scenic"] },
+      { "name": "Pangong Lake", "category": "Nature", "avgCost": 500, "timeHours": 8, "lat": 33.7595, "lng": 78.6674, "rating": 4.9, "reviews": 30000, "tags": ["High Altitude", "Blue Water", "Iconic"] },
+      { "name": "Thiksey Monastery", "category": "Spiritual", "avgCost": 50, "timeHours": 2, "lat": 34.0560, "lng": 77.6667, "rating": 4.8, "reviews": 10000, "tags": ["Monastery", "Buddhism", "Architecture"] }
+    ]
+  },
+  {
+    "city": "Tirupati",
+    "coordinates": { "lat": 13.6288, "lng": 79.4192 },
+    "places": [
+      { "name": "Venkateswara Temple", "category": "Spiritual", "avgCost": 300, "timeHours": 6, "lat": 13.6833, "lng": 79.3500, "rating": 4.9, "reviews": 150000, "tags": ["Pilgrimage", "Iconic", "Richest Temple"] },
+      { "name": "Silathoranam", "category": "Nature", "avgCost": 0, "timeHours": 1, "lat": 13.6917, "lng": 79.3458, "rating": 4.5, "reviews": 15000, "tags": ["Natural Arch", "Geology", "History"] },
+      { "name": "Swami Pushkarini Lake", "category": "Spiritual", "avgCost": 0, "timeHours": 1, "lat": 13.6840, "lng": 79.3490, "rating": 4.6, "reviews": 20000, "tags": ["Holy Lake", "Temple Pond", "Peaceful"] },
+      { "name": "Akasaganga Teertham", "category": "Nature", "avgCost": 0, "timeHours": 1.5, "lat": 13.7120, "lng": 79.3410, "rating": 4.4, "reviews": 12000, "tags": ["Waterfall", "Religious", "Nature"] },
+      { "name": "Sri Venkateswara National Park", "category": "Nature", "avgCost": 50, "timeHours": 4, "lat": 13.6500, "lng": 79.3500, "rating": 4.3, "reviews": 8000, "tags": ["Wildlife", "Nature", "Trekking"] }
+    ]
+  },
+  {
+    "city": "Kolkata",
+    "coordinates": { "lat": 22.5726, "lng": 88.3639 },
+    "places": [
+      { "name": "Victoria Memorial", "category": "Culture", "avgCost": 30, "timeHours": 3, "lat": 22.5448, "lng": 88.3426, "rating": 4.7, "reviews": 60000, "tags": ["Heritage", "Museum", "Architecture"] },
+      { "name": "Howrah Bridge", "category": "Culture", "avgCost": 0, "timeHours": 1, "lat": 22.5851, "lng": 88.3468, "rating": 4.7, "reviews": 50000, "tags": ["Iconic", "Engineering", "River"] },
+      { "name": "Dakshineswar Kali Temple", "category": "Spiritual", "avgCost": 0, "timeHours": 2, "lat": 22.6548, "lng": 88.3575, "rating": 4.8, "reviews": 45000, "tags": ["Temple", "River", "Spiritual"] },
+      { "name": "Indian Museum", "category": "Culture", "avgCost": 50, "timeHours": 3, "lat": 22.5579, "lng": 88.3511, "rating": 4.5, "reviews": 20000, "tags": ["Museum", "History", "Largest"] },
+      { "name": "Park Street", "category": "Entertainment", "avgCost": 500, "timeHours": 3, "lat": 22.5491, "lng": 88.3531, "rating": 4.5, "reviews": 35000, "tags": ["Food", "Nightlife", "Vibe"] }
+    ]
+  },
+  {
+    "city": "Chandigarh",
+    "coordinates": { "lat": 30.7333, "lng": 76.7794 },
+    "places": [
+      { "name": "Rock Garden", "category": "Culture", "avgCost": 30, "timeHours": 3, "lat": 30.7525, "lng": 76.8011, "rating": 4.6, "reviews": 40000, "tags": ["Art", "Recycled", "Unique"] },
+      { "name": "Sukhna Lake", "category": "Nature", "avgCost": 0, "timeHours": 2, "lat": 30.7422, "lng": 76.8144, "rating": 4.6, "reviews": 50000, "tags": ["Lake", "Boating", "Relaxing"] },
+      { "name": "Rose Garden", "category": "Nature", "avgCost": 0, "timeHours": 1.5, "lat": 30.7461, "lng": 76.7825, "rating": 4.5, "reviews": 25000, "tags": ["Flowers", "Garden", "Asia's Largest"] },
+      { "name": "Elante Mall", "category": "Shopping", "avgCost": 500, "timeHours": 4, "lat": 30.7061, "lng": 76.8011, "rating": 4.5, "reviews": 45000, "tags": ["Shopping", "Food", "Entertainment"] },
+      { "name": "Sector 17 Market", "category": "Shopping", "avgCost": 200, "timeHours": 3, "lat": 30.7400, "lng": 76.7800, "rating": 4.4, "reviews": 30000, "tags": ["Shopping", "Plaza", "Hub"] }
+    ]
+  },
+  {
+    "city": "Pondicherry",
+    "coordinates": { "lat": 11.9416, "lng": 79.8083 },
+    "places": [
+      { "name": "Promenade Beach", "category": "Nature", "avgCost": 0, "timeHours": 2, "lat": 11.9338, "lng": 79.8356, "rating": 4.7, "reviews": 40000, "tags": ["Beach", "Ocean", "Iconic"] },
+      { "name": "Sri Aurobindo Ashram", "category": "Spiritual", "avgCost": 0, "timeHours": 1.5, "lat": 11.9366, "lng": 79.8338, "rating": 4.6, "reviews": 25000, "tags": ["Peace", "Spiritual", "Meditation"] },
+      { "name": "Auroville", "category": "Spiritual", "avgCost": 0, "timeHours": 4, "lat": 12.0068, "lng": 79.8105, "rating": 4.5, "reviews": 30000, "tags": ["Community", "Matrimandir", "Peace"] },
+      { "name": "French Quarter", "category": "Culture", "avgCost": 0, "timeHours": 3, "lat": 11.9333, "lng": 79.8333, "rating": 4.6, "reviews": 20000, "tags": ["Heritage", "Architecture", "Cafes"] },
+      { "name": "Paradise Beach", "category": "Nature", "avgCost": 300, "timeHours": 3, "lat": 11.8875, "lng": 79.8167, "rating": 4.5, "reviews": 15000, "tags": ["Beach", "Ferry Ride", "Clean"] }
+    ]
+  },
+  {
+    "city": "Mysore",
+    "coordinates": { "lat": 12.2958, "lng": 76.6394 },
+    "places": [
+      { "name": "Mysore Palace", "category": "Culture", "avgCost": 100, "timeHours": 3, "lat": 12.3051, "lng": 76.6551, "rating": 4.9, "reviews": 80000, "tags": ["Palace", "Iconic", "Heritage"] },
+      { "name": "Chamundi Hill", "category": "Spiritual", "avgCost": 0, "timeHours": 2, "lat": 12.2747, "lng": 76.6667, "rating": 4.7, "reviews": 40000, "tags": ["Temple", "Viewpoint", "Hill"] },
+      { "name": "Brindavan Gardens", "category": "Nature", "avgCost": 50, "timeHours": 3, "lat": 12.4228, "lng": 76.5725, "rating": 4.5, "reviews": 50000, "tags": ["Garden", "Fountain", "Dam"] },
+      { "name": "Mysore Zoo", "category": "Nature", "avgCost": 100, "timeHours": 4, "lat": 12.3023, "lng": 76.6644, "rating": 4.6, "reviews": 35000, "tags": ["Wildlife", "Animals", "One of India's Best"] },
+      { "name": "St. Philomena's Church", "category": "Spiritual", "avgCost": 0, "timeHours": 1, "lat": 12.3211, "lng": 76.6586, "rating": 4.6, "reviews": 15000, "tags": ["Church", "Architecture", "History"] }
+    ]
   }
 ]

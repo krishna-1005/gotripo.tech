@@ -1,5 +1,5 @@
 const express = require("express");
-const { protect } = require("../middleware/protect");
+const { protect, adminOnly } = require("../middleware/protect");
 const Groq = require("groq-sdk");
 const Trip = require("../models/Trip");
 const marketingAiController = require("../controllers/marketingAiController");
@@ -17,10 +17,18 @@ router.post("/marketing", protect, marketingAiController.generateMarketingConten
 router.get("/marketing/campaigns", protect, marketingAiController.getSavedCampaigns);
 
 // Content Engine Routes
+router.get("/content-engine/media/saved", protect, adminOnly, aiContentEngineController.getSavedMedia);
+router.patch("/content-engine/:id/media/:mediaId/toggle-save", protect, adminOnly, aiContentEngineController.toggleMediaSavedStatus);
+
 router.post("/content-engine", protect, aiContentEngineController.generateContent);
 router.get("/content-engine", protect, aiContentEngineController.getAllContent);
 router.patch("/content-engine/:id", protect, aiContentEngineController.updateContentStatus);
 router.delete("/content-engine/:id", protect, aiContentEngineController.deleteContent);
+
+// Real Media Generation Routes
+router.post("/content-engine/media/generate", protect, aiContentEngineController.generateMedia);
+router.get("/content-engine/media/status", protect, aiContentEngineController.getMediaStatus);
+router.patch("/content-engine/:id/image/:imageId/generate", protect, adminOnly, aiContentEngineController.generateImage);
 
 router.post("/itinerary", protect, async (req, res) => {
   console.log("🤖 [AI] Itinerary Request Received for:", req.body.destination);

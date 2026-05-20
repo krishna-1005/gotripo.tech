@@ -52,7 +52,7 @@ export default function YatraDetailPage() {
     <AppShell>
       <div className="bg-background min-h-screen pb-24 transition-colors">
         {/* Banner - Cinematic & High-End */}
-        <div className="h-[65vh] relative overflow-hidden">
+        <div className="h-[50vh] md:h-[65vh] relative overflow-hidden">
           <img src={yatra.imageUrl} alt={yatra.name} className="size-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent" />
           
@@ -71,7 +71,7 @@ export default function YatraDetailPage() {
                     <MapPin className="size-3" /> {yatra.location}
                   </div>
                 </div>
-                <h1 className="text-5xl md:text-8xl font-display font-bold text-white tracking-tight leading-[1.1] mb-8">
+                <h1 className="text-4xl sm:text-5xl md:text-8xl font-display font-bold text-white tracking-tight leading-[1.1] mb-8">
                   {yatra.name}
                 </h1>
                 

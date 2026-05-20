@@ -310,7 +310,7 @@ function PlannerSingleContent() {
 
             <div>
               <div className="text-sm font-medium mb-3">Dietary preference</div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-2">
                 {[
                   { id: "any", label: "Any" },
                   { id: "veg", label: "Veg Only (Save ~20%)" },

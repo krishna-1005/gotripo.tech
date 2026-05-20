@@ -709,7 +709,7 @@ export default function YatraPlannerPage() {
                                         onClick={() => toggleActivity(i, j)}
                                         whileHover={{ x: 10 }}
                                         whileActive={{ scale: 0.98 }}
-                                        className={`flex gap-10 md:gap-14 relative group/item cursor-pointer select-none transition-all duration-500 ${isCompleted ? "opacity-40 grayscale-[0.5]" : ""}`}
+                                        className={`flex gap-4 sm:gap-10 md:gap-14 relative group/item cursor-pointer select-none transition-all duration-500 ${isCompleted ? "opacity-40 grayscale-[0.5]" : ""}`}
                                       >
                                         <div className={`size-14 md:size-16 rounded-[1.5rem] flex items-center justify-center shrink-0 z-10 shadow-xl border-2 transition-all group-hover/item:scale-110 relative ${
                                           isTravel ? "bg-blue-600 border-blue-400 text-white" :
@@ -773,23 +773,23 @@ export default function YatraPlannerPage() {
 
                                 {/* Logistic Summaries - Large Horizontal Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                  <div className="flex items-center gap-8 p-10 rounded-[3rem] bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/10 shadow-2xl group/log hover:border-[#FF6B00]/30 transition-all">
-                                     <div className="size-20 rounded-[2rem] bg-[#FF6B00]/10 flex items-center justify-center text-[#FF6B00] group-hover/log:rotate-12 transition-transform shadow-inner shrink-0">
-                                        <Home className="size-10" />
+                                  <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-8 p-6 md:p-10 rounded-[2rem] sm:rounded-[3rem] bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/10 shadow-2xl group/log hover:border-[#FF6B00]/30 transition-all w-full">
+                                     <div className="size-14 sm:size-20 rounded-[1.25rem] sm:rounded-[2rem] bg-[#FF6B00]/10 flex items-center justify-center text-[#FF6B00] group-hover/log:rotate-12 transition-transform shadow-inner shrink-0">
+                                        <Home className="size-7 sm:size-10" />
                                      </div>
                                      <div className="min-w-0 flex-1">
-                                        <div className="text-[11px] font-black uppercase text-[#FF6B00] tracking-[0.3em] mb-2">Sacred Nivas (Stay)</div>
-                                        <div className="text-xl font-black dark:text-white truncate" title={day.accommodation}>{day.accommodation}</div>
+                                        <div className="text-[10px] sm:text-[11px] font-black uppercase text-[#FF6B00] tracking-[0.3em] mb-1 sm:mb-2">Sacred Nivas (Stay)</div>
+                                        <div className="text-lg sm:text-xl font-black dark:text-white truncate" title={day.accommodation}>{day.accommodation}</div>
                                      </div>
                                   </div>
 
-                                  <div className="flex items-center gap-8 p-10 rounded-[3rem] bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/10 shadow-2xl group/log hover:border-[#FF6B00]/30 transition-all">
-                                     <div className="size-20 rounded-[2rem] bg-[#FF6B00]/10 flex items-center justify-center text-[#FF6B00] group-hover/log:rotate-12 transition-transform shadow-inner shrink-0">
-                                        <Utensils className="size-10" />
+                                  <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-8 p-6 md:p-10 rounded-[2rem] sm:rounded-[3rem] bg-white dark:bg-[#1A1A1A] border border-gray-100 dark:border-white/10 shadow-2xl group/log hover:border-[#FF6B00]/30 transition-all w-full">
+                                     <div className="size-14 sm:size-20 rounded-[1.25rem] sm:rounded-[2rem] bg-[#FF6B00]/10 flex items-center justify-center text-[#FF6B00] group-hover/log:rotate-12 transition-transform shadow-inner shrink-0">
+                                        <Utensils className="size-7 sm:size-10" />
                                      </div>
                                      <div className="min-w-0 flex-1">
-                                        <div className="text-[11px] font-black uppercase text-[#FF6B00] tracking-[0.3em] mb-2">Divine Bhojan (Food)</div>
-                                        <div className="text-xl font-black dark:text-white truncate" title={day.food}>{day.food}</div>
+                                        <div className="text-[10px] sm:text-[11px] font-black uppercase text-[#FF6B00] tracking-[0.3em] mb-1 sm:mb-2">Divine Bhojan (Food)</div>
+                                        <div className="text-lg sm:text-xl font-black dark:text-white truncate" title={day.food}>{day.food}</div>
                                      </div>
                                   </div>
                                 </div>

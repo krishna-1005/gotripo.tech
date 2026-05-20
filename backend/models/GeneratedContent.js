@@ -41,11 +41,52 @@ const GeneratedContentSchema = new mongoose.Schema({
     viralityScore: Number,
     engagementPrediction: String
   },
+  mediaOutput: {
+    imagePrompts: [{
+      type: { type: String }, // thumbnail, poster, instagram, cinematic
+      prompt: String,
+      style: String,
+      lighting: String,
+      colorGrading: String,
+      mood: String,
+      composition: String,
+      imageUrl: String,
+      isSaved: { type: Boolean, default: false }
+    }],
+    videoPrompts: [{
+      provider: String, // Runway, Kling, Pika, Luma
+      prompt: String,
+      cameraMovement: String,
+      description: String,
+      lighting: String,
+      style: String,
+      transitions: String,
+      motionDirection: String,
+      isSaved: { type: Boolean, default: false }
+    }],
+    scenePrompts: [{
+      scene: Number,
+      description: String,
+      subtitle: String,
+      cameraAngle: String,
+      transition: String,
+      audio: String
+    }]
+  },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
+  mediaStatus: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected", "Queued"],
+    default: "Pending",
+  },
+  exportHistory: [{
+    platform: String,
+    exportedAt: { type: Date, default: Date.now }
+  }],
   isFavorite: {
     type: Boolean,
     default: false

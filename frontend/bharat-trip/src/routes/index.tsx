@@ -241,7 +241,7 @@ function MoodSearch() {
           <div className="lg:col-span-5 lg:sticky lg:top-32">
             <div className="space-y-2 mb-12">
                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Personalized Discovery</div>
-               <h2 className="font-display font-medium text-6xl md:text-7xl tracking-tighter text-foreground leading-[0.85]">
+               <h2 className="font-display font-medium text-4xl sm:text-5xl md:text-7xl tracking-tighter text-foreground leading-[0.85]">
                  Tune your <br />
                  <span className="italic font-serif text-muted-foreground/40">journey.</span>
                </h2>
@@ -328,7 +328,7 @@ function MoodSearch() {
                                <MapPin className="size-3 text-accent" />
                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{item.region}</span>
                             </div>
-                            <h3 className="font-display font-medium text-5xl mb-6 tracking-tighter leading-none group-hover:text-accent transition-colors">
+                            <h3 className="font-display font-medium text-3xl sm:text-4xl md:text-5xl mb-6 tracking-tighter leading-none group-hover:text-accent transition-colors">
                                {item.name}
                             </h3>
                             <p className="text-muted-foreground text-lg leading-relaxed mb-10 italic font-serif">
@@ -564,7 +564,7 @@ function Landing() {
               <span className="size-2 rounded-full bg-accent animate-pulse" />
               <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">The GoTripo Edge</span>
             </div>
-            <h2 className="font-display font-bold text-5xl md:text-6xl tracking-tighter text-balance mb-6">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl tracking-tighter text-balance mb-6">
               The travel agent that <br />
               <span className="italic text-muted-foreground/40">fits in your pocket.</span>
             </h2>
@@ -625,7 +625,7 @@ function Landing() {
           <FadeUp className="flex items-end justify-between gap-6 flex-wrap">
             <div>
               <div className="text-sm font-semibold text-accent uppercase tracking-widest">Popular in India</div>
-              <h2 className="mt-3 font-display font-bold text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-2xl sm:text-3xl md:text-5xl tracking-tight">
                 Destinations travellers love
               </h2>
             </div>
@@ -714,7 +714,7 @@ function Landing() {
                       </div>
                     </div>
                     
-                    <h2 className="font-display font-bold text-5xl md:text-6xl tracking-tighter mb-8 bg-warm-gradient bg-clip-text text-transparent">
+                    <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl tracking-tighter mb-8 bg-warm-gradient bg-clip-text text-transparent">
                       {selectedDest.name}
                     </h2>
 
@@ -757,7 +757,7 @@ function Landing() {
       <section id="voices" className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <FadeUp className="max-w-2xl">
           <div className="text-sm font-semibold text-accent uppercase tracking-widest">Voices of explorers</div>
-          <h2 className="mt-3 font-display font-bold text-4xl md:text-5xl tracking-tight">Stories from the road</h2>
+          <h2 className="mt-3 font-display font-bold text-2xl sm:text-3xl md:text-5xl tracking-tight">Stories from the road</h2>
         </FadeUp>
         <StaggerGroup gap={0.09} className="mt-12 grid md:grid-cols-3 gap-5">
           {voices.map((v) => (
@@ -803,7 +803,7 @@ function Landing() {
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Join the future of travel</span>
               </div>
               
-              <h2 className="font-display font-bold text-5xl md:text-7xl tracking-tighter text-white mb-8 leading-[0.9]">
+              <h2 className="font-display font-bold text-4xl sm:text-5xl md:text-7xl tracking-tighter text-white mb-8 leading-[0.9]">
                 Your next trip is <br />
                 <span className="bg-warm-gradient bg-clip-text text-transparent italic">one prompt away.</span>
               </h2>

@@ -138,6 +138,7 @@ app.use("/api/nearby", nearbyPlaces);
 app.use("/api/places", placeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+
 app.use("/api/ai", aiRoutes);
 app.use("/api/yatra", yatraRoutes);
 app.use("/api/yatra-kit", yatraKitRoutes);

@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { LocationAutocomplete } from "@/components/LocationAutocomplete";
+import { calculateDistance } from "@/lib/utils";
 
 export default function PlannerMulti() {
   return (
@@ -15,8 +16,13 @@ export default function PlannerMulti() {
 
 function PlannerMultiContent() {
   const { user, loading: authLoading } = useAuth();
-  const [stops, setStops] = useState(["Bengaluru", "Mysuru", "Coorg"]);
+  const [stops, setStops] = useState<any[]>([
+    { name: "Bengaluru", lat: 12.9716, lng: 77.5946 },
+    { name: "Mysuru", lat: 12.2958, lng: 76.6394 },
+    { name: "Coorg", lat: 12.3375, lng: 75.8069 }
+  ]);
   const [newStop, setNewStop] = useState("");
+  const [pendingStop, setPendingStop] = useState<any>(null);
   const [mode, setMode] = useState("car");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["Sightseeing", "Nature"]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +46,8 @@ function PlannerMultiContent() {
     if (pending) {
       sessionStorage.removeItem("pending_plan_multi");
       const data = JSON.parse(pending);
-      setStops(data.cities);
+      // Data format for cities in session storage might be names or objects
+      setStops(data.cities.map((c: any) => typeof c === 'string' ? { name: c } : c));
       setMode(data.mode);
       setSelectedInterests(data.interests || ["Sightseeing", "Nature"]);
       
@@ -62,8 +69,12 @@ function PlannerMultiContent() {
   }, [user, authLoading, navigate]);
 
   const handleAddStop = () => {
-    if (newStop.trim()) {
-      setStops([...stops, newStop.trim()]);
+    if (pendingStop) {
+      setStops([...stops, pendingStop]);
+      setPendingStop(null);
+      setNewStop("");
+    } else if (newStop.trim()) {
+      setStops([...stops, { name: newStop.trim() }]);
       setNewStop("");
     }
   };
@@ -79,9 +90,11 @@ function PlannerMultiContent() {
       return;
     }
 
+    const cityNames = stops.map(s => typeof s === 'string' ? s : s.name);
+
     const planData = {
-      cities: stops,
-      city: stops[0], // fallback for old code
+      cities: cityNames,
+      city: cityNames[0], // fallback for old code
       days: stops.length * 2, // Estimate 2 days per city
       budget: 50000,
       interests: selectedInterests,
@@ -127,7 +140,7 @@ function PlannerMultiContent() {
               {stops.map((s, i) => (
                 <span key={i} className="inline-flex items-center gap-2 pl-3 pr-2 py-2 rounded-full bg-primary-soft text-primary text-sm font-semibold">
                   <span className="size-5 rounded-full bg-primary text-primary-foreground grid place-items-center text-[11px]">{i + 1}</span>
-                  {s}
+                  {typeof s === 'string' ? s : s.name}
                   <button onClick={() => setStops(stops.filter((_, idx) => idx !== i))} className="hover:bg-primary/10 rounded-full p-0.5"><X className="size-3.5" /></button>
                 </span>
               ))}
@@ -137,6 +150,7 @@ function PlannerMultiContent() {
               <LocationAutocomplete 
                 value={newStop}
                 onChange={setNewStop}
+                onSelectSuggestion={(s) => setPendingStop(s)}
                 placeholder="Add another city..."
                 className="flex-1 h-11 px-4 rounded-xl border border-border bg-surface focus:border-ring outline-none text-sm transition-all"
               />
@@ -171,8 +185,8 @@ function PlannerMultiContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-sm font-medium">Travel mode:</div>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="text-sm font-medium mr-1">Travel mode:</div>
             {[
               { id: "car", label: "Car", icon: Car },
               { id: "train", label: "Train", icon: Train },
@@ -209,14 +223,19 @@ function PlannerMultiContent() {
                 <div key={i} className="flex items-center gap-2">
                   <div className="rounded-2xl border border-border bg-surface p-4 w-44 shadow-soft">
                     <div className="text-xs text-muted-foreground">Stop {i + 1}</div>
-                    <div className="font-display font-bold mt-1">{s}</div>
+                    <div className="font-display font-bold mt-1">{typeof s === 'string' ? s : s.name}</div>
                     <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Clock className="size-3" /> 2 nights
                     </div>
                   </div>
                   {i < stops.length - 1 && (
                     <div className="flex flex-col items-center text-muted-foreground">
-                      <div className="text-[11px] font-semibold">{120 + i * 40} km</div>
+                      <div className="text-[11px] font-semibold">
+                        {stops[i].lat && stops[i+1].lat 
+                          ? `${calculateDistance(stops[i].lat, stops[i].lng, stops[i+1].lat, stops[i+1].lng)} km`
+                          : `${120 + i * 40} km`
+                        }
+                      </div>
                       <MoveHorizontal className="size-5 text-accent" />
                     </div>
                   )}

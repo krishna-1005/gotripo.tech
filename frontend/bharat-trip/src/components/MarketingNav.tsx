@@ -10,54 +10,54 @@ export function MarketingNav() {
   const { user, loading } = useAuth();
 
   return (
-    <header className="fixed top-4 inset-x-4 lg:inset-x-8 z-50">
-      <div className="max-w-7xl mx-auto bg-white/70 dark:bg-black/20 backdrop-blur-xl border border-border dark:border-white/10 rounded-2xl px-5 py-3 flex items-center justify-between text-foreground dark:text-white shadow-2xl transition-colors duration-500">
+    <header className="fixed top-6 left-0 right-0 z-50 px-4 md:px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto bg-black/40 backdrop-blur-2xl border border-white/10 rounded-full px-5 md:px-8 py-3 flex items-center justify-between text-white shadow-2xl transition-all duration-500">
 
         <Link to="/" className="flex items-center gap-2 group">
-          <Logo className="scale-90 origin-left" />
+          <Logo className="scale-100 origin-left" variant="light" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted-foreground dark:text-white/80">
-          <a href="#features" className="hover:text-foreground dark:hover:text-white transition">Features</a>
-          <a href="#destinations" className="hover:text-foreground dark:hover:text-white transition">Destinations</a>
-          <a href="#voices" className="hover:text-foreground dark:hover:text-white transition">Stories</a>
-          <Link to="/pricing" className="hover:text-foreground dark:hover:text-white transition">Pricing</Link>
-          <Link to="/explore-india" className="hover:text-foreground dark:hover:text-white transition">Explore</Link>
-          <Link to="/community" className="hover:text-foreground dark:hover:text-white transition font-bold text-accent">Community</Link>
-          <Link to="/yatra" className="hover:text-foreground dark:hover:text-white transition">Yatra</Link>
+        <nav className="hidden lg:flex items-center gap-8 text-[13px] font-bold tracking-wide text-white/90">
+          <a href="#features" className="hover:text-white transition-colors">Features</a>
+          <a href="#destinations" className="hover:text-white transition-colors">Destinations</a>
+          <a href="#voices" className="hover:text-white transition-colors">Stories</a>
+          <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+          <Link to="/explore-india" className="hover:text-white transition-colors">Explore</Link>
+          <Link to="/community" className="text-[#10b981] hover:text-[#10b981]/80 transition-colors">Community</Link>
+          <Link to="/yatra" className="hover:text-white transition-colors">Yatra</Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-2">
-          <ThemeToggle className="!bg-secondary/50 dark:!bg-white/10 !border-border dark:!border-white/20 text-foreground dark:text-white hover:!bg-secondary dark:hover:!bg-white/20" />
+        <div className="hidden md:flex items-center gap-4">
+          <ThemeToggle className="size-10 !rounded-full !bg-white/10 !border-white/10 text-white hover:!bg-white/20 transition-all" />
 
           {!loading &&
             (user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <Link
                   to="/profile"
-                  className="size-10 rounded-xl bg-secondary dark:bg-white/10 border border-border dark:border-white/10 flex items-center justify-center font-bold text-sm text-foreground dark:text-white hover:bg-secondary/80 dark:hover:bg-white/20 transition shadow-sm"
+                  className="size-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-bold text-sm text-white hover:bg-white/20 transition-all shadow-sm"
                   title="My Profile"
                 >
-                  {(user.displayName as string | undefined)?.charAt(0) || user.email?.charAt(0).toUpperCase() || "P"}
+                  {(user.displayName as string | undefined)?.charAt(0) || user.email?.charAt(0).toUpperCase() || "K"}
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="text-sm font-semibold px-5 py-2.5 rounded-xl bg-primary text-primary-foreground dark:bg-white/10 dark:text-white dark:border-white/10 hover:opacity-90 transition flex items-center gap-2 shadow-sm"
+                  className="text-sm font-bold px-7 py-2.5 rounded-full bg-white/15 border border-white/10 text-white hover:bg-white/25 transition-all flex items-center gap-2 shadow-sm"
                 >
                   Dashboard <ArrowRight className="size-4" />
                 </Link>
               </div>
             ) : (
               <>
-                <Link to="/auth" className="text-sm px-4 py-2 hover:text-accent transition">
+                <Link to="/auth" className="text-sm px-4 py-2 hover:text-[#10b981] transition font-semibold">
                   Log in
                 </Link>
 
                 <Link
                   to="/auth?mode=signup"
-                  className="text-sm font-semibold px-5 py-2.5 rounded-xl bg-warm-gradient text-white shadow-cta hover:opacity-95 transition"
+                  className="text-sm font-bold px-7 py-3 rounded-xl bg-[#10b981] text-white shadow-lg hover:bg-[#0da673] hover:shadow-[#10b981]/20 transition-all"
                 >
-                  <Sparkles className="size-4 inline mr-1" /> Get started
+                  <Sparkles className="size-4 inline mr-1.5" /> Get started
                 </Link>
               </>
             ))}

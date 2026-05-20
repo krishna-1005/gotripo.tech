@@ -364,7 +364,7 @@ export function TrustSection() {
             {/* Dark Section Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-accent/5 blur-[120px] pointer-events-none" />
             
-            <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+            <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 text-center">
               {stats.map((stat, i) => (
                 <div key={i} className="group space-y-3">
                   <div className="flex justify-center">
@@ -384,22 +384,6 @@ export function TrustSection() {
 
         <FadeUp delay={0.6} className="mt-20">
           <div className="flex flex-col items-center">
-            <div className="flex flex-wrap justify-center gap-12 items-center opacity-40 hover:opacity-100 transition-opacity duration-700 grayscale hover:grayscale-0">
-              <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Official Partners</span>
-              <div className="flex items-center gap-3">
-                <Globe className="size-5 text-slate-500" />
-                <span className="font-display font-bold text-slate-400">Incredible India</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="size-5 text-slate-500" />
-                <span className="font-display font-bold text-slate-400">MakeMyTrip</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Star className="size-5 text-slate-500" />
-                <span className="font-display font-bold text-slate-400">TripAdvisor</span>
-              </div>
-            </div>
-            
             <motion.button 
               onClick={() => setShowTruths(true)}
               whileHover={{ scale: 1.05 }}
