@@ -61,7 +61,7 @@ export const PlaceDetailModal = ({ isOpen, onClose, place }: PlaceDetailModalPro
              </div>
              <div className="text-center">
                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{place.category || "Must Visit"}</div>
-                <h2 className="font-display font-bold text-2xl text-foreground">{place.name || place.place}</h2>
+                <h2 className="font-display font-bold text-2xl text-foreground">{place.name || place.place || place.title}</h2>
              </div>
           </div>
           <button 
@@ -84,7 +84,7 @@ export const PlaceDetailModal = ({ isOpen, onClose, place }: PlaceDetailModalPro
              <div className="p-3 rounded-2xl bg-secondary/50 border border-border text-center">
                 <div className="text-[8px] font-black uppercase text-muted-foreground mb-1">Best Time</div>
                 <div className="flex items-center justify-center gap-1 font-bold text-sm">
-                   <Clock className="size-3 text-primary" /> {place.time || "Morning"}
+                   <Clock className="size-3 text-primary" /> {place.time || place.bestTime || "Morning"}
                 </div>
              </div>
              <div className="p-3 rounded-2xl bg-secondary/50 border border-border text-center">
@@ -101,7 +101,7 @@ export const PlaceDetailModal = ({ isOpen, onClose, place }: PlaceDetailModalPro
                 <Zap className="size-4 text-accent" /> Why visit?
              </h3>
              <p className="text-xs text-muted-foreground leading-relaxed">
-                {place.description || `This iconic spot in ${place.city || 'the city'} is highly recommended for its unique vibe and cultural significance. It's a perfect place to experience the local lifestyle and capture amazing memories.`}
+                {place.description || place.desc || place.notes || place.reason || `This iconic spot in ${place.city || 'the city'} is highly recommended for its unique vibe and cultural significance. It's a perfect place to experience the local lifestyle and capture amazing memories.`}
              </p>
           </div>
 

@@ -386,7 +386,7 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
         ) : (
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded-md" onClick={() => setIsEditing(true)}>
             <Clock size={12} />
-            {activity.time}
+            {activity.time || activity.bestTime || "Morning"}
           </div>
         )}
       </div>
@@ -419,6 +419,11 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
                  <MapPin size={10} />
                  {activity.location}
                </div>
+             )}
+             {(activity.desc || activity.description || activity.notes || activity.reason) && (
+               <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xl line-clamp-1">
+                 {activity.desc || activity.description || activity.notes || activity.reason}
+               </p>
              )}
           </div>
         )}

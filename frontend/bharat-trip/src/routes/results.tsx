@@ -57,6 +57,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { PDFViewerModal } from "@/components/PDFViewerModal";
 import { PlaceDetailModal } from "@/components/PlaceDetailModal";
 import { cn } from "@/lib/utils";
+import OnboardingTour from "@/components/OnboardingTour";
 
 /* ── 1. SIDEBAR COMPONENTS ── */
 
@@ -197,6 +198,23 @@ export default function Results() {
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
   const [weather, setWeather] = useState<any>(null);
   const { user } = useAuth();
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    if (!loading && plan && user) {
+      const hasSeen = localStorage.getItem(`hasSeenResultTour_${user.uid}`);
+      if (!hasSeen) {
+        setShowTour(true);
+      }
+    }
+  }, [loading, plan, user]);
+
+  const handleCloseTour = () => {
+    if (user) {
+      localStorage.setItem(`hasSeenResultTour_${user.uid}`, "true");
+    }
+    setShowTour(false);
+  };
 
   const destinationName = plan?.destination || plan?.city || "Delhi";
 
@@ -271,14 +289,14 @@ export default function Results() {
         <div className="max-w-[1600px] mx-auto">
           
           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
-            <div>
+            <div id="tour-title-block">
               <h1 className="font-display font-bold text-4xl text-white">{plan?.title}</h1>
               <div className="flex gap-4 mt-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                 <span className="flex items-center gap-1"><MapPin size={14} className="text-primary"/> {destinationName}</span>
                 <span className="flex items-center gap-1"><Calendar size={14} className="text-primary"/> {plan?.days} Days</span>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div id="tour-finalize-block" className="flex gap-3">
               <button onClick={handleFinalize} className="h-11 px-8 rounded-2xl bg-[#534AB7] text-white font-bold shadow-cta flex items-center gap-2 hover:scale-105 transition-all">
                 <Rocket size={18} /> Finalize & Group Room
               </button>
@@ -290,9 +308,11 @@ export default function Results() {
 
           <div className="grid lg:grid-cols-[1fr_400px] gap-10">
             <div className="space-y-12">
-              <TripBlueprint plan={plan} />
+              <div id="tour-blueprint">
+                <TripBlueprint plan={plan} />
+              </div>
               
-              <div className="space-y-16">
+              <div id="tour-timeline" className="space-y-16">
                 {plan.itinerary.map((day: any, idx: number) => (
                   <div key={idx} className="relative pl-16">
                     <div className="absolute left-[31px] top-14 bottom-[-64px] w-0.5 bg-gradient-to-b from-primary/30 to-transparent" />
@@ -308,20 +328,48 @@ export default function Results() {
                       <div className="grid gap-4">
                         {(day.places || []).map((p: any, pIdx: number) => (
                           <div key={pIdx} className="group p-6 rounded-[2.5rem] bg-[#0B1221] border border-white/5 hover:border-primary/30 transition-all flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-6">
-                              <div className="size-14 rounded-2xl bg-white/5 grid place-items-center text-primary">
+                            <div 
+                              onClick={() => {
+                                setSelectedPlace(p);
+                                setIsPlaceModalOpen(true);
+                              }}
+                              className="flex items-center gap-6 cursor-pointer flex-1 group/place min-w-0 w-full"
+                              title="Click to view details"
+                            >
+                              <div className="size-14 rounded-2xl bg-white/5 grid place-items-center text-primary group-hover/place:bg-primary/10 group-hover/place:scale-105 transition-all duration-300 shrink-0">
                                 {p.type === 'food' ? <Utensils size={24} /> : <Landmark size={24} />}
                               </div>
-                              <div>
-                                <div className="font-bold text-xl text-white">{p.name || p.place}</div>
-                                <div className="flex items-center gap-3 mt-1">
-                                  <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">{p.time || "Morning"}</span>
-                                  <span className="text-[10px] text-white/30 uppercase font-bold">{p.category || "Sightseeing"}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-xl text-white group-hover/place:text-primary transition-colors truncate">
+                                  {p.name || p.place || p.title}
+                                </div>
+                                {(p.desc || p.description || p.notes || p.reason) && (
+                                  <p className="text-sm text-slate-400 mt-1.5 leading-relaxed line-clamp-2">
+                                    {p.desc || p.description || p.notes || p.reason}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                                  <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                                    {p.time || p.bestTime || "Morning"}
+                                  </span>
+                                  <span className="text-[10px] text-white/30 uppercase font-bold">
+                                    {p.category || "Sightseeing"}
+                                  </span>
+                                  {p.rating && (
+                                    <span className="flex items-center gap-1 text-[11px] text-amber-500 font-bold">
+                                      <Star className="size-3 fill-amber-500 text-amber-500" /> {p.rating}
+                                    </span>
+                                  )}
+                                  {p.estimatedCost && (
+                                    <span className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
+                                      {p.estimatedCost}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                               <button onClick={() => handleSwap(idx, pIdx, p)} disabled={swapping === `${idx}-${pIdx}`} className="h-10 px-5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
                                 {swapping === `${idx}-${pIdx}` ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Swap
                               </button>
@@ -339,18 +387,21 @@ export default function Results() {
             </div>
 
             <aside className="space-y-8">
-              <div className="rounded-[3rem] border border-white/5 bg-[#0B1221] overflow-hidden h-[400px] shadow-pop">
+              <div id="tour-map" className="rounded-[3rem] border border-white/5 bg-[#0B1221] overflow-hidden h-[400px] shadow-pop">
                 <MapPreview itinerary={plan.itinerary} activePlace={activePlace} onMarkerClick={setActivePlace} />
               </div>
-              <KnowBeforeYouGo city={destinationName} weather={weather} />
-              <StayRecommendations city={destinationName} />
-              <AgenticValidationStack city={destinationName} weather={weather} />
+              <div id="tour-sidebar-widgets" className="space-y-8">
+                <KnowBeforeYouGo city={destinationName} weather={weather} />
+                <StayRecommendations city={destinationName} />
+                <AgenticValidationStack city={destinationName} weather={weather} />
+              </div>
             </aside>
           </div>
         </div>
       </div>
       <PDFViewerModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} plan={plan} />
       <PlaceDetailModal isOpen={isPlaceModalOpen} onClose={() => setIsPlaceModalOpen(false)} place={selectedPlace} />
+      {showTour && <OnboardingTour onClose={handleCloseTour} />}
     </AppShell>
   );
 }

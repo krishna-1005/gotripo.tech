@@ -491,8 +491,19 @@ function CollaborativeContent() {
                               {day.items.map((item: any, j: number) => (
                                 <div key={j} className="p-5 rounded-2xl bg-[#141416] border border-[#2a2a2e] flex items-center justify-between">
                                   <div className="flex items-center gap-5">
-                                    <div className="text-[10px] font-black text-[#534AB7] uppercase tracking-widest bg-[#534AB7]/10 px-2 py-1 rounded-md">{item.time}</div>
-                                    <div className="font-bold text-sm">{item.activity}</div>
+                                    <div className="text-[10px] font-black text-[#534AB7] uppercase tracking-widest bg-[#534AB7]/10 px-2 py-1 rounded-md">
+                                      {item.time || item.bestTime || "Morning"}
+                                    </div>
+                                    <div>
+                                      <div className="font-bold text-sm">
+                                        {item.activity || item.name || item.title || item.place}
+                                      </div>
+                                      {(item.desc || item.description || item.notes || item.reason) && (
+                                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                          {item.desc || item.description || item.notes || item.reason}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
                                   <ChevronRight className="size-4 text-[#2a2a2e]" />
                                 </div>
