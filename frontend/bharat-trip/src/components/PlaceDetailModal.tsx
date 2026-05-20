@@ -2,8 +2,8 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { 
   MapPin, 
@@ -52,6 +52,10 @@ export const PlaceDetailModal = ({ isOpen, onClose, place }: PlaceDetailModalPro
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg p-0 overflow-hidden bg-card border-border rounded-3xl shadow-pop">
+        {/* Hidden a11y labels required by Radix UI — invisible to sighted users */}
+        <DialogTitle className="sr-only">{place?.name || place?.place || "Place Details"}</DialogTitle>
+        <DialogDescription className="sr-only">Details about {place?.name || place?.place || "this place"}</DialogDescription>
+
         {/* Header/Hero section */}
         <div className="relative h-48 bg-primary/10 flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-warm-gradient opacity-10" />

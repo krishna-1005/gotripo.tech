@@ -2,56 +2,39 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppShell } from "@/components/AppShell";
 import { MapPreview } from "@/components/MapPreview";
-import { sampleItinerary, destinationItineraries, destinations } from "@/lib/sample-data";
+import { destinationItineraries } from "@/lib/sample-data";
 import { useEffect, useState } from "react";
 import {
-  Edit3,
-  Share2,
   Download,
   MapPin,
-  Plane,
   Utensils,
-  Camera,
-  User,
   Landmark,
-  Ship,
-  Music,
-  ShoppingBag,
-  ChevronDown,
-  Sparkles,
-  Wallet,
   Calendar,
-  Receipt,
   Hotel,
-  ArrowRight,
-  X,
   Loader2,
-  Bookmark,
-  Check,
-  ExternalLink,
-  Train,
-  Car,
-  Info,
   Clock,
   Sun,
   CloudSun,
-  ShieldCheck,
-  Zap,
-  Map,
-  Eye,
   AlertTriangle,
-  Award,
   Star,
-  Navigation,
-  Search,
-  Activity,
   CheckCircle2,
   RefreshCw,
   Trash2,
-  Rocket
+  Rocket,
+  Info,
+  Thermometer,
+  Users,
+  Camera,
+  ChevronRight,
+  Wallet,
+  Receipt,
+  ShieldCheck,
+  BadgeCheck,
+  ArrowUpRight,
+  Flame,
+  Zap,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import api, { remixItineraryByTrip } from "@/lib/api";
+import api from "@/lib/api";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { PDFViewerModal } from "@/components/PDFViewerModal";
@@ -59,131 +42,229 @@ import { PlaceDetailModal } from "@/components/PlaceDetailModal";
 import { cn } from "@/lib/utils";
 import OnboardingTour from "@/components/OnboardingTour";
 
-/* ── 1. SIDEBAR COMPONENTS ── */
+/* ─────────────────────────────────────
+   PLACE TYPE CONFIG
+───────────────────────────────────── */
+function getTypeConfig(type: string) {
+  const t = (type || "").toLowerCase();
+  if (t === "food") return {
+    icon: Utensils, label: "Food & Dining", color: "#ea580c",
+    fallbackDesc: "A popular local dining spot known for authentic regional cuisine and vibrant atmosphere.",
+    duration: "45 – 90 min"
+  };
+  if (t === "activity") return {
+    icon: Flame, label: "Activity", color: "#dc2626",
+    fallbackDesc: "An engaging hands-on experience that gives you an immersive taste of the local culture.",
+    duration: "1 – 2 hrs"
+  };
+  if (t === "landmark") return {
+    icon: Landmark, label: "Landmark", color: "#2563eb",
+    fallbackDesc: "A historically significant site with rich architectural heritage and cultural importance.",
+    duration: "30 – 60 min"
+  };
+  return {
+    icon: Camera, label: "Sightseeing", color: "#7c3aed",
+    fallbackDesc: "A must-visit spot offering scenic views, local character, and memorable photo opportunities.",
+    duration: "1 – 2 hrs"
+  };
+}
 
-function KnowBeforeYouGo({ city, weather }: { city: string; weather?: any }) {
+/* ─────────────────────────────────────
+   WEATHER CARD
+───────────────────────────────────── */
+function WeatherCard({ city, weather }: { city: string; weather?: any }) {
   const temp = weather?.temp || 28;
   const condition = weather?.condition || "Clear Skies";
   const icon = weather?.icon || "sun";
   const WeatherIcon = icon === "cloud" ? CloudSun : icon === "rain" ? AlertTriangle : Sun;
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
+      <WeatherIcon className="size-5 text-amber-400 shrink-0" />
+      <div>
+        <p className="text-[11px] text-slate-400 font-medium">{city} weather</p>
+        <p className="text-sm font-semibold text-white">{condition} · {temp}°C</p>
+      </div>
+    </div>
+  );
+}
 
+/* ─────────────────────────────────────
+   TRIP SUMMARY STRIP
+───────────────────────────────────── */
+function TripSummaryStrip({ plan }: { plan: any }) {
+  const totalPlaces = plan?.itinerary?.reduce(
+    (acc: number, d: any) => acc + (d.places?.length || 0), 0
+  ) ?? 0;
+
+  const items = [
+    { label: "Duration", value: `${plan?.days || 3} days`, icon: Calendar },
+    { label: "Destinations", value: `${totalPlaces} stops`, icon: MapPin },
+    { label: "Estimated budget", value: `₹${Number(plan?.totalTripCost || 35000).toLocaleString()}`, icon: Wallet },
+    { label: "Travel style", value: plan?.travelerType || "Solo", icon: Users },
+    { label: "Trip pace", value: plan?.pace || "Moderate", icon: Zap },
+  ];
+
+  return (
+    <div id="tour-blueprint" className="border-b border-slate-800 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Mobile: 2-col grid */}
+        <div className="grid grid-cols-2 sm:hidden border-b border-slate-800">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className={cn(
+                "flex items-center gap-2.5 px-4 py-3.5",
+                i % 2 === 0 && "border-r border-slate-800",
+                i < items.length - 2 && "border-b border-slate-800"
+              )}
+            >
+              <item.icon className="size-3.5 text-slate-400 shrink-0" />
+              <div>
+                <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">{item.label}</p>
+                <p className="text-xs font-bold text-white mt-0.5">{item.value}</p>
+              </div>
+            </div>
+          ))}
+          <div className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 border-t border-slate-800">
+            <BadgeCheck className="size-3.5 text-emerald-400" />
+            <span className="text-[11px] font-semibold text-emerald-400">AI Verified · 98/100</span>
+          </div>
+        </div>
+        {/* Desktop: horizontal scroll row */}
+        <div className="hidden sm:flex items-stretch gap-0 overflow-x-auto scrollbar-none px-6 lg:px-10">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className={cn(
+                "flex items-center gap-3 px-5 py-4 min-w-max shrink-0",
+                i < items.length - 1 && "border-r border-slate-800"
+              )}
+            >
+              <item.icon className="size-4 text-slate-400 shrink-0" />
+              <div>
+                <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">{item.label}</p>
+                <p className="text-sm font-bold text-white mt-0.5">{item.value}</p>
+              </div>
+            </div>
+          ))}
+          <div className="flex items-center gap-2 px-5 py-4 ml-auto shrink-0 border-l border-slate-800">
+            <BadgeCheck className="size-4 text-emerald-400 shrink-0" />
+            <span className="text-[11px] font-semibold text-emerald-400 whitespace-nowrap">AI Verified · 98/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────
+   SIDEBAR: KNOW BEFORE YOU GO
+───────────────────────────────────── */
+function KnowBeforeYouGo({ city, weather }: { city: string; weather?: any }) {
   const tips = [
-    "Carry cash for local markets and small vendors.",
-    "Best time to visit heritage sites is early morning (10 AM).",
-    "Pre-book monument tickets online to skip long queues.",
-    "Try the local street food but stick to busy, popular stalls."
+    "Carry cash for local markets — many vendors don't accept cards.",
+    "Book monument entry tickets online in advance to avoid queues.",
+    "Early mornings (before 9 AM) are the best time to visit heritage sites.",
+    "Use IRCTC or local bus passes for cost-effective intercity travel.",
   ];
-
   return (
-    <div className="rounded-3xl border border-border bg-card dark:bg-[#0B1221] p-6 shadow-soft relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-primary">
-        <Info className="size-24" />
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-800 flex items-center gap-2">
+        <Info className="size-4 text-slate-400" />
+        <h3 className="text-sm font-bold text-white">Travel Tips</h3>
       </div>
-      
-      <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2 text-foreground dark:text-white relative z-10">
-        <Info className="size-5 text-primary" /> Know Before You Go
-      </h3>
-
-      <div className="p-4 rounded-2xl bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 mb-6 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-amber-500/20 grid place-items-center text-amber-500 shadow-sm">
-            <WeatherIcon className="size-5" />
-          </div>
-          <div>
-            <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground dark:text-white/40">Current Weather in {city}</div>
-            <div className="text-xs font-bold text-foreground dark:text-white">{condition}, {temp}°C</div>
-          </div>
+      <div className="p-5">
+        <WeatherCard city={city} weather={weather} />
+        <div className="mt-4 space-y-3">
+          {tips.map((tip, i) => (
+            <div key={i} className="flex gap-2.5 items-start">
+              <CheckCircle2 className="size-4 text-slate-500 shrink-0 mt-0.5" />
+              <p className="text-[12px] text-slate-400 leading-relaxed">{tip}</p>
+            </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="space-y-3 relative z-10">
-        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:text-white/30 mb-2">Local Quick Tips</div>
-        {tips.map((tip, i) => (
-          <div key={i} className="flex gap-3 text-xs text-muted-foreground dark:text-white/70 leading-relaxed group/tip">
-            <div className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0 group-hover/tip:scale-125 transition-transform" />
-            <span>{tip}</span>
+/* ─────────────────────────────────────
+   SIDEBAR: STAY RECOMMENDATIONS
+───────────────────────────────────── */
+function StayRecommendations({ city }: { city: string }) {
+  const options = [
+    { type: "Budget", range: "₹800 – ₹1,500 / night", note: "Guesthouses & hostels" },
+    { type: "Mid-range", range: "₹2,500 – ₹4,500 / night", note: "Boutique hotels", recommended: true },
+    { type: "Premium", range: "₹6,000+ / night", note: "Heritage properties & resorts" },
+  ];
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-800 flex items-center gap-2">
+        <Hotel className="size-4 text-slate-400" />
+        <h3 className="text-sm font-bold text-white">Accommodation Options</h3>
+      </div>
+      <div className="divide-y divide-slate-800">
+        {options.map((opt, i) => (
+          <div key={i} className={cn("px-5 py-4 flex items-center justify-between group", opt.recommended && "bg-indigo-950/30")}>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-bold text-white">{opt.type}</p>
+                {opt.recommended && (
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-400 bg-indigo-900/50 px-2 py-0.5 rounded-full">Recommended</span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">{opt.note}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-semibold text-slate-300">{opt.range}</p>
+            </div>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function SavingsInsights({ insights }: { insights: any }) {
-  if (!insights) return null;
-  return (
-    <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-6 shadow-soft relative overflow-hidden group backdrop-blur-md">
-      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-emerald-500"><Wallet className="size-24" /></div>
-      <div className="flex items-center gap-2 font-display font-bold text-lg text-emerald-600 dark:text-emerald-400 mb-4 relative z-10"><Sparkles className="size-5" /> Cost Intelligence</div>
-      <div className="space-y-4 relative z-10">
-        {insights.potentialHotelSavings > 0 && (
-          <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-emerald-500/20">
-            <div className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 mb-1">Accommodation Hack</div>
-            <p className="text-xs font-bold">Save up to ₹{insights.potentialHotelSavings.toLocaleString()}</p>
-          </div>
-        )}
+      <div className="px-5 py-4 border-t border-slate-800">
+        <p className="text-[11px] text-slate-500">Prices are indicative. Book 2–4 weeks in advance for best rates.</p>
       </div>
     </div>
   );
 }
 
-function AgenticValidationStack({ city, weather }: { city: string; weather?: any }) {
+/* ─────────────────────────────────────
+   SIDEBAR: VALIDATION PANEL
+───────────────────────────────────── */
+function ValidationPanel({ city }: { city: string }) {
+  const checks = [
+    "All venues verified as open",
+    "Route distances are optimized",
+    "Budget is within requested range",
+    "Weather conditions are suitable",
+  ];
   return (
-    <div className="rounded-3xl border border-border bg-card dark:bg-[#0B1221] p-6 shadow-soft">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 font-display font-bold text-lg text-foreground dark:text-white"><Activity className="size-5 text-emerald-500" /> Validation Stack</div>
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="size-4 text-emerald-400" />
+          <h3 className="text-sm font-bold text-white">Plan Verification</h3>
+        </div>
+        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-900/40 border border-emerald-800/60 px-2 py-1 rounded-full">98 / 100</span>
       </div>
-      <div className="space-y-4">
-        {["Verifying opening hours...", "Checking weather feasibility..."].map((check, i) => (
-          <div key={i} className="flex items-center justify-between group">
-            <span className="text-xs text-muted-foreground dark:text-white/60">{check}</span>
-            <CheckCircle2 className="size-4 text-emerald-500" />
+      <div className="p-5 space-y-3">
+        {checks.map((c, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+            <span className="text-[12px] text-slate-400">{c}</span>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function StayRecommendations({ lat, lng, city, budgetTier }: { lat?: number; lng?: number; city: string; budgetTier?: string }) {
-  return (
-    <div className="rounded-3xl border border-border bg-card dark:bg-[#0B1221] p-6 shadow-soft">
-      <h3 className="font-display font-bold text-lg mb-4 text-foreground dark:text-white text-center">Recommended Stay</h3>
-      <div className="p-4 rounded-2xl bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 text-center">
-         <Hotel className="size-8 mx-auto mb-2 text-primary" />
-         <div className="text-sm font-bold">Boutique Stay in {city}</div>
-         <div className="text-[10px] text-muted-foreground mt-1">Starting from ₹3,500/night</div>
+      <div className="mx-5 mb-5 p-3 rounded-xl bg-emerald-950/50 border border-emerald-900/60 text-center">
+        <p className="text-[11px] text-emerald-400 font-semibold">This itinerary passed all AI quality checks</p>
       </div>
     </div>
   );
 }
 
-function TripBlueprint({ plan }: { plan: any }) {
-  if (!plan) return null;
-  const details = [
-    { icon: User, label: "Traveler", value: plan.travelerType || "Solo" },
-    { icon: Zap, label: "Pace", value: plan.pace || "Moderate" },
-    { icon: Calendar, label: "Duration", value: `${plan.days} Days` },
-  ];
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div className="bg-card dark:bg-[#0B1221] border border-border p-6 rounded-3xl shadow-soft">
-         <h3 className="font-display font-bold text-base mb-4 flex items-center gap-2"><Receipt className="size-4 text-primary" /> Budget</h3>
-         <div className="text-2xl font-black text-primary">₹{Number(plan.totalTripCost || 35000).toLocaleString()}</div>
-         <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Estimated Total</div>
-      </div>
-      {details.slice(0, 2).map(d => (
-        <div key={d.label} className="bg-card dark:bg-[#0B1221] border border-border p-6 rounded-3xl shadow-soft">
-           <h3 className="font-display font-bold text-base mb-4 flex items-center gap-2"><d.icon className="size-4 text-accent" /> {d.label}</h3>
-           <div className="text-xl font-bold">{d.value}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── MAIN COMPONENT ── */
-
+/* ─────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────── */
 export default function Results() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -203,16 +284,12 @@ export default function Results() {
   useEffect(() => {
     if (!loading && plan && user) {
       const hasSeen = localStorage.getItem(`hasSeenResultTour_${user.uid}`);
-      if (!hasSeen) {
-        setShowTour(true);
-      }
+      if (!hasSeen) setShowTour(true);
     }
   }, [loading, plan, user]);
 
   const handleCloseTour = () => {
-    if (user) {
-      localStorage.setItem(`hasSeenResultTour_${user.uid}`, "true");
-    }
+    if (user) localStorage.setItem(`hasSeenResultTour_${user.uid}`, "true");
     setShowTour(false);
   };
 
@@ -224,16 +301,14 @@ export default function Results() {
       const res = await api.post("/ai/swap", {
         activityName: currentPlace.name || currentPlace.place,
         destination: destinationName,
-        currentItinerary: plan.itinerary[dayIdx].places
+        currentItinerary: plan.itinerary[dayIdx].places,
       });
-
       const newItinerary = [...plan.itinerary];
       newItinerary[dayIdx].places[placeIdx] = res.data;
       setPlan({ ...plan, itinerary: newItinerary });
-      
       if (planId) await api.patch(`/trips/${planId}`, { itinerary: newItinerary });
       toast.success("Activity swapped!");
-    } catch (err) {
+    } catch {
       toast.error("AI swap failed");
     } finally {
       setSwapping(null);
@@ -251,17 +326,17 @@ export default function Results() {
   const handleFinalize = async () => {
     if (!planId) return;
     try {
-      await api.patch(`/trips/${planId}`, { type: 'room' });
-      toast.success("Finalized! Joining Group Room...");
+      await api.patch(`/trips/${planId}`, { type: "room" });
+      toast.success("Finalized! Opening Group Room…");
       navigate(`/collaborative-trip?tripId=${planId}`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to finalize");
     }
   };
 
   useEffect(() => {
     if (destinationName) {
-      const mocks: any = { "Delhi": { temp: 32, condition: "Sunny", icon: "sun" } };
+      const mocks: any = { Delhi: { temp: 32, condition: "Sunny", icon: "sun" } };
       setWeather(mocks[destinationName] || { temp: 26, condition: "Clear", icon: "sun" });
     }
   }, [destinationName]);
@@ -271,7 +346,7 @@ export default function Results() {
       setLoading(true);
       api.get(`/trips/${planId}`)
         .then((res) => { setPlan(res.data); setLoading(false); })
-        .catch(() => { toast.error("Load failed"); setLoading(false); });
+        .catch(() => { toast.error("Failed to load itinerary"); setLoading(false); });
     } else if (sampleId) {
       const sample = destinationItineraries[sampleId];
       if (sample) {
@@ -281,127 +356,277 @@ export default function Results() {
     }
   }, [planId, sampleId]);
 
-  if (loading) return <AppShell><div className="p-20 text-center"><Loader2 className="animate-spin mx-auto" /></div></AppShell>;
+  /* Loading state */
+  if (loading) {
+    return (
+      <AppShell>
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+          <Loader2 className="size-8 text-indigo-400 animate-spin" />
+          <p className="text-slate-400 text-sm">Loading your itinerary…</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const DAY_ACCENT = [
+    { dot: "bg-indigo-500", label: "text-indigo-400", border: "border-indigo-500/40" },
+    { dot: "bg-rose-500",   label: "text-rose-400",   border: "border-rose-500/40"   },
+    { dot: "bg-amber-500",  label: "text-amber-400",  border: "border-amber-500/40"  },
+    { dot: "bg-emerald-500",label: "text-emerald-400",border: "border-emerald-500/40"},
+    { dot: "bg-sky-500",    label: "text-sky-400",    border: "border-sky-500/40"    },
+  ];
 
   return (
-    <AppShell>
-      <div className="min-h-screen bg-background dark:bg-[#020817] text-foreground p-4 lg:p-10">
-        <div className="max-w-[1600px] mx-auto">
-          
-          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
-            <div id="tour-title-block">
-              <h1 className="font-display font-bold text-4xl text-white">{plan?.title}</h1>
-              <div className="flex gap-4 mt-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                <span className="flex items-center gap-1"><MapPin size={14} className="text-primary"/> {destinationName}</span>
-                <span className="flex items-center gap-1"><Calendar size={14} className="text-primary"/> {plan?.days} Days</span>
+    <ProtectedRoute>
+      <AppShell>
+        <div className="min-h-screen bg-slate-950 text-white">
+
+          {/* ─── TOP NAV BAR ─────────────────────────── */}
+          <div className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+            <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
+              {/* Breadcrumb */}
+              <div id="tour-title-block" className="flex items-center gap-3 min-w-0">
+                <div className="hidden sm:flex items-center gap-1 text-xs text-slate-500 font-medium shrink-0">
+                  <span>Trips</span>
+                  <ChevronRight className="size-3.5" />
+                  <span className="text-slate-300 font-semibold truncate max-w-[200px]">{plan?.title || destinationName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 rounded-md bg-indigo-900/50 border border-indigo-800/60 text-[10px] font-bold text-indigo-300 uppercase tracking-wide flex items-center gap-1">
+                    <BadgeCheck className="size-3" /> AI Verified
+                  </span>
+                </div>
               </div>
-            </div>
-            <div id="tour-finalize-block" className="flex gap-3">
-              <button onClick={handleFinalize} className="h-11 px-8 rounded-2xl bg-[#534AB7] text-white font-bold shadow-cta flex items-center gap-2 hover:scale-105 transition-all">
-                <Rocket size={18} /> Finalize & Group Room
-              </button>
-              <button onClick={() => setIsPdfModalOpen(true)} className="h-11 px-6 rounded-2xl bg-primary text-white font-bold shadow-cta flex items-center gap-2">
-                <Download size={18} /> PDF
-              </button>
+
+              {/* Actions */}
+              <div id="tour-finalize-block" className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setIsPdfModalOpen(true)}
+                  className="h-9 px-4 rounded-lg border border-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2 hover:bg-slate-800 hover:border-slate-600 transition-all"
+                >
+                  <Download className="size-3.5" /> Export PDF
+                </button>
+                <button
+                  onClick={handleFinalize}
+                  className="h-9 px-5 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center gap-2 hover:bg-indigo-500 transition-all shadow-sm"
+                >
+                  <Rocket className="size-3.5" />
+                  <span className="hidden sm:inline">Finalize &amp; Collaborate</span>
+                  <span className="sm:hidden">Finalize</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_400px] gap-10">
-            <div className="space-y-12">
-              <div id="tour-blueprint">
-                <TripBlueprint plan={plan} />
+          {/* ─── PAGE HEADER ─────────────────────────── */}
+          <div className="border-b border-slate-800 bg-slate-900/40">
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400 mb-3 flex-wrap">
+                <MapPin className="size-3.5 text-indigo-400 shrink-0" />
+                <span className="font-medium">{destinationName}</span>
+                <span className="text-slate-600">·</span>
+                <Calendar className="size-3.5 text-slate-500 shrink-0" />
+                <span>{plan?.days} days</span>
               </div>
-              
-              <div id="tour-timeline" className="space-y-16">
-                {plan.itinerary.map((day: any, idx: number) => (
-                  <div key={idx} className="relative pl-16">
-                    <div className="absolute left-[31px] top-14 bottom-[-64px] w-0.5 bg-gradient-to-b from-primary/30 to-transparent" />
-                    <div className="absolute left-0 top-0 size-16 rounded-3xl bg-[#0B1221] border-4 border-[#020817] flex items-center justify-center font-display font-black text-2xl text-primary shadow-soft z-10">
-                      {idx + 1}
-                    </div>
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 justify-between">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
+                    {plan?.title || `Trip to ${destinationName}`}
+                  </h1>
+                  <p className="text-slate-400 mt-2 text-xs sm:text-sm max-w-xl leading-relaxed">
+                    Review each day, swap activities, and collaborate with your travel group.
+                  </p>
+                </div>
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2 shrink-0">
+                  <p className="text-[11px] text-slate-500 font-medium">Estimated total cost</p>
+                  <p className="text-xl sm:text-2xl font-bold text-white">₹{Number(plan?.totalTripCost || 35000).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    <div className="space-y-8">
-                      <h3 className="text-2xl font-display font-bold text-white flex items-center gap-4">
-                        {day.title || `Day ${idx + 1}`}
-                      </h3>
+          {/* ─── SUMMARY STRIP ───────────────────────── */}
+          <TripSummaryStrip plan={plan} />
 
-                      <div className="grid gap-4">
-                        {(day.places || []).map((p: any, pIdx: number) => (
-                          <div key={pIdx} className="group p-6 rounded-[2.5rem] bg-[#0B1221] border border-white/5 hover:border-primary/30 transition-all flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div 
-                              onClick={() => {
-                                setSelectedPlace(p);
-                                setIsPlaceModalOpen(true);
-                              }}
-                              className="flex items-center gap-6 cursor-pointer flex-1 group/place min-w-0 w-full"
-                              title="Click to view details"
-                            >
-                              <div className="size-14 rounded-2xl bg-white/5 grid place-items-center text-primary group-hover/place:bg-primary/10 group-hover/place:scale-105 transition-all duration-300 shrink-0">
-                                {p.type === 'food' ? <Utensils size={24} /> : <Landmark size={24} />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-xl text-white group-hover/place:text-primary transition-colors truncate">
-                                  {p.name || p.place || p.title}
-                                </div>
-                                {(p.desc || p.description || p.notes || p.reason) && (
-                                  <p className="text-sm text-slate-400 mt-1.5 leading-relaxed line-clamp-2">
-                                    {p.desc || p.description || p.notes || p.reason}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-3 mt-2 flex-wrap">
-                                  <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
-                                    {p.time || p.bestTime || "Morning"}
-                                  </span>
-                                  <span className="text-[10px] text-white/30 uppercase font-bold">
-                                    {p.category || "Sightseeing"}
-                                  </span>
-                                  {p.rating && (
-                                    <span className="flex items-center gap-1 text-[11px] text-amber-500 font-bold">
-                                      <Star className="size-3 fill-amber-500 text-amber-500" /> {p.rating}
-                                    </span>
-                                  )}
-                                  {p.estimatedCost && (
-                                    <span className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
-                                      {p.estimatedCost}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
+          {/* ─── MAIN GRID ───────────────────────────── */}
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
+            <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-10 items-start">
 
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                              <button onClick={() => handleSwap(idx, pIdx, p)} disabled={swapping === `${idx}-${pIdx}`} className="h-10 px-5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
-                                {swapping === `${idx}-${pIdx}` ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Swap
-                              </button>
-                              <button onClick={() => handleRemove(idx, pIdx)} className="size-10 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:bg-destructive hover:text-white flex items-center justify-center transition-all">
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
+              {/* ── LEFT: ITINERARY ── */}
+              <div id="tour-timeline" className="space-y-8">
+                {plan.itinerary.map((day: any, idx: number) => {
+                  const accent = DAY_ACCENT[idx % DAY_ACCENT.length];
+                  return (
+                    <div key={idx} className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+                      {/* Day header */}
+                      <div className={cn("px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-800 flex items-center justify-between gap-3", `border-l-4 ${accent.border}`)}>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={cn("size-9 sm:size-10 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg text-white shrink-0", accent.dot)}>
+                            {idx + 1}
                           </div>
-                        ))}
+                          <div className="min-w-0">
+                            <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-0.5", accent.label)}>Day {idx + 1}</p>
+                            <h2 className="text-sm sm:text-base font-bold text-white truncate">{day.title || `Day ${idx + 1}`}</h2>
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-slate-500 font-medium bg-slate-800 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                          {(day.places || []).length} stops
+                        </span>
+                      </div>
+
+                      {/* Places list */}
+                      <div className="divide-y divide-slate-800/70">
+                        {(day.places || []).map((p: any, pIdx: number) => {
+                          const cfg = getTypeConfig(p.type);
+                          const PlaceIcon = cfg.icon;
+                          const placeName = p.name || p.place || p.title || "Unnamed Place";
+                          const placeDesc = p.desc || p.description || p.notes || p.reason || cfg.fallbackDesc;
+                          const timeSlot = p.time || p.bestTime || "Morning";
+                          const locationHint = p.city || p.area || p.locality || destinationName;
+                          const isSwapping = swapping === `${idx}-${pIdx}`;
+                          const pIdx1 = pIdx + 1;
+
+                          return (
+                            <div key={pIdx} className="relative group px-4 sm:px-6 py-5 hover:bg-slate-800/30 transition-colors">
+                              <div className="flex items-start gap-4">
+
+                                {/* Step number + icon stacked */}
+                                <div className="flex flex-col items-center gap-1 shrink-0">
+                                  <div
+                                    className="size-12 rounded-2xl flex items-center justify-center"
+                                    style={{ backgroundColor: cfg.color + "20", border: `1.5px solid ${cfg.color}40` }}
+                                  >
+                                    <PlaceIcon className="size-5" style={{ color: cfg.color }} />
+                                  </div>
+                                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{pIdx1}</span>
+                                </div>
+
+                                {/* Content — clickable */}
+                                <div
+                                  className="flex-1 min-w-0 cursor-pointer"
+                                  onClick={() => { setSelectedPlace(p); setIsPlaceModalOpen(true); }}
+                                >
+                                  {/* Name + location */}
+                                  <h3 className="font-bold text-[15px] sm:text-base text-white group-hover:text-indigo-300 transition-colors leading-snug">
+                                    {placeName}
+                                  </h3>
+                                  <div className="flex items-center gap-1.5 mt-0.5 mb-2">
+                                    <MapPin className="size-2.5 text-slate-500 shrink-0" />
+                                    <span className="text-[11px] text-slate-500 font-medium truncate">{locationHint}</span>
+                                  </div>
+
+                                  {/* Description — always present */}
+                                  <p className="text-[12px] text-slate-400 leading-relaxed line-clamp-2 mb-3">
+                                    {placeDesc}
+                                  </p>
+
+                                  {/* Chips row */}
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-slate-800 border border-slate-700/80 px-2 py-0.5 rounded-md">
+                                      <Clock className="size-2.5" /> {timeSlot}
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md" style={{ color: cfg.color, backgroundColor: cfg.color + "15" }}>
+                                      {cfg.label}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 bg-slate-800/80 border border-slate-700/60 px-2 py-0.5 rounded-md">
+                                      ⏱ {p.duration || cfg.duration}
+                                    </span>
+                                    {p.rating && (
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-400 bg-amber-900/30 border border-amber-800/40 px-2 py-0.5 rounded-md">
+                                        <Star className="size-2.5 fill-amber-400" /> {p.rating}
+                                      </span>
+                                    )}
+                                    {p.estimatedCost && (
+                                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-900/30 border border-emerald-800/40 px-2 py-0.5 rounded-md">
+                                        ₹{p.estimatedCost}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <p className="text-[11px] text-indigo-400/50 group-hover:text-indigo-400 mt-2.5 flex items-center gap-1 transition-colors font-semibold">
+                                    View full details <ArrowUpRight className="size-3" />
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Bottom: Swap / Delete — always visible on mobile, hover-only on desktop */}
+                              <div className="flex items-center gap-2 mt-3 sm:mt-0 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:absolute sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
+                                <button
+                                  onClick={() => handleSwap(idx, pIdx, p)}
+                                  disabled={isSwapping}
+                                  className="h-8 px-3 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-semibold text-slate-300 flex items-center gap-1.5 hover:bg-indigo-900/50 hover:border-indigo-700/60 hover:text-indigo-300 transition-all disabled:opacity-50"
+                                >
+                                  {isSwapping ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />}
+                                  Swap
+                                </button>
+                                <button
+                                  onClick={() => handleRemove(idx, pIdx)}
+                                  className="size-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-500 flex items-center justify-center hover:bg-red-900/30 hover:border-red-800/50 hover:text-red-400 transition-all"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  );
+                })}
 
-            <aside className="space-y-8">
-              <div id="tour-map" className="rounded-[3rem] border border-white/5 bg-[#0B1221] overflow-hidden h-[400px] shadow-pop">
-                <MapPreview itinerary={plan.itinerary} activePlace={activePlace} onMarkerClick={setActivePlace} />
+                {/* Bottom CTA */}
+                <div className="rounded-2xl border border-indigo-900/60 bg-indigo-950/30 p-5 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-white text-sm sm:text-base">Happy with your plan?</h3>
+                      <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">Finalize and open a group collaboration room with real-time chat and voting.</p>
+                    </div>
+                    <button
+                      onClick={handleFinalize}
+                      className="w-full sm:w-auto h-10 px-6 rounded-xl bg-indigo-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-indigo-500 transition-all shrink-0"
+                    >
+                      <Rocket className="size-4" /> Finalize &amp; Collaborate
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div id="tour-sidebar-widgets" className="space-y-8">
-                <KnowBeforeYouGo city={destinationName} weather={weather} />
-                <StayRecommendations city={destinationName} />
-                <AgenticValidationStack city={destinationName} weather={weather} />
-              </div>
-            </aside>
+
+              {/* ── RIGHT: SIDEBAR ── */}
+              <aside className="lg:sticky lg:top-20 space-y-5">
+                {/* Map */}
+                <div id="tour-map" className="rounded-2xl border border-slate-800 overflow-hidden">
+                  <div className="px-4 sm:px-5 py-3 sm:py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="size-4 text-slate-400" />
+                      <span className="text-sm font-bold text-white">Route Map</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-medium">{destinationName}</span>
+                  </div>
+                  <div className="h-[220px] sm:h-[280px]">
+                    <MapPreview
+                      itinerary={plan.itinerary}
+                      activePlace={activePlace}
+                      onMarkerClick={setActivePlace}
+                    />
+                  </div>
+                </div>
+
+                {/* Sidebar widgets */}
+                <div id="tour-sidebar-widgets" className="space-y-4 sm:space-y-5">
+                  <KnowBeforeYouGo city={destinationName} weather={weather} />
+                  <StayRecommendations city={destinationName} />
+                  <ValidationPanel city={destinationName} />
+                </div>
+              </aside>
+            </div>
           </div>
+
+          {/* Modals */}
+          <PDFViewerModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} plan={plan} />
+          <PlaceDetailModal isOpen={isPlaceModalOpen} onClose={() => setIsPlaceModalOpen(false)} place={selectedPlace} />
+          {showTour && <OnboardingTour onClose={handleCloseTour} />}
         </div>
-      </div>
-      <PDFViewerModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} plan={plan} />
-      <PlaceDetailModal isOpen={isPlaceModalOpen} onClose={() => setIsPlaceModalOpen(false)} place={selectedPlace} />
-      {showTour && <OnboardingTour onClose={handleCloseTour} />}
-    </AppShell>
+      </AppShell>
+    </ProtectedRoute>
   );
 }

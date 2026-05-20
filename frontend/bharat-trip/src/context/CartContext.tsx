@@ -29,8 +29,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await api.get('/cart');
       setCart(res.data);
-    } catch (err) {
-      console.error('Failed to fetch cart', err);
+    } catch (err: any) {
+      // 401 = user not logged in yet, silently skip — not a real error
+      if (err?.response?.status !== 401) {
+        console.error('Failed to fetch cart', err);
+      }
     } finally {
       setLoading(false);
     }
