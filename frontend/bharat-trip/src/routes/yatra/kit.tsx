@@ -113,7 +113,7 @@ export default function YatraKitPage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">Preparation Progress</h3>
-                  <p className="text-white/40 text-sm">You have {readyItems}/{totalItems} items ready ✅</p>
+                  <p className="text-white/40 text-sm">You have {readyItems}/{totalItems} items ready</p>
                 </div>
               </div>
               <div className="text-3xl font-black text-[#FF6B00] font-['Cinzel']">{Math.round(progress)}%</div>

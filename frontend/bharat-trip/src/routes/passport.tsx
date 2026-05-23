@@ -1,22 +1,22 @@
 import { AppShell } from "@/components/AppShell";
 import { motion } from "framer-motion";
-import { ShieldCheck, MapPin, Star, Award, Search, Compass, Sparkles } from "lucide-react";
+import { ShieldCheck, MapPin, Star, Award, Search, Compass, Sparkles, Mountain, Palmtree, Castle, Heart, Trees } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface Stamp {
   id: string;
   name: string;
   requiredStates: string[];
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const ALL_STAMPS: Stamp[] = [
-  { id: "1", name: "Himalayan Explorer", requiredStates: ["Uttarakhand", "Himachal Pradesh", "Sikkim"], icon: "🏔️" },
-  { id: "2", name: "Coastal Wanderer", requiredStates: ["Goa", "Kerala", "Maharashtra", "Tamil Nadu"], icon: "🏖️" },
-  { id: "3", name: "Royal Voyager", requiredStates: ["Rajasthan", "Gujarat"], icon: "🏰" },
-  { id: "4", name: "Spiritual Soul", requiredStates: ["Uttar Pradesh", "Bihar", "Odisha"], icon: "📿" },
-  { id: "5", name: "Seven Sisters", requiredStates: ["Assam", "Meghalaya", "Arunachal Pradesh"], icon: "🎋" },
-  { id: "6", name: "Heart of India", requiredStates: ["Madhya Pradesh", "Chhattisgarh"], icon: "❤️" },
+  { id: "1", name: "Himalayan Explorer", requiredStates: ["Uttarakhand", "Himachal Pradesh", "Sikkim"], icon: Mountain },
+  { id: "2", name: "Coastal Wanderer", requiredStates: ["Goa", "Kerala", "Maharashtra", "Tamil Nadu"], icon: Palmtree },
+  { id: "3", name: "Royal Voyager", requiredStates: ["Rajasthan", "Gujarat"], icon: Castle },
+  { id: "4", name: "Spiritual Soul", requiredStates: ["Uttar Pradesh", "Bihar", "Odisha"], icon: Compass },
+  { id: "5", name: "Seven Sisters", requiredStates: ["Assam", "Meghalaya", "Arunachal Pradesh"], icon: Trees },
+  { id: "6", name: "Heart of India", requiredStates: ["Madhya Pradesh", "Chhattisgarh"], icon: Heart },
 ];
 
 const ALL_STATES = [
@@ -99,8 +99,8 @@ export default function PassportPage() {
                           : "border-dashed border-muted opacity-40"
                       }`}
                     >
-                      <div className={`text-4xl mb-2 transition-all transform group-hover:scale-110 duration-300 ${!isUnlocked && "grayscale"}`}>
-                        {stamp.icon}
+                      <div className={`mb-2 transition-all transform group-hover:scale-110 duration-300 ${isUnlocked ? "text-accent" : "text-muted-foreground"}`}>
+                        <stamp.icon className="size-10" />
                       </div>
                       <div className={`text-[10px] font-bold uppercase tracking-tighter leading-tight px-2 ${isUnlocked ? "text-foreground" : "text-muted-foreground"}`}>
                         {stamp.name}

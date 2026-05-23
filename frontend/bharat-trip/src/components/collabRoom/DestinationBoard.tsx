@@ -138,7 +138,7 @@ const DestinationBoard = ({ tripId, isOwner }: { tripId: string, isOwner: boolea
 
     try {
       await lockDestination(tripId, destId);
-      toast.success('Destination locked! 🔒');
+      toast.success('Destination locked!');
     } catch (error) {
       setDestinations(oldDestinations);
       toast.error('Failed to lock destination');
@@ -182,7 +182,7 @@ const DestinationBoard = ({ tripId, isOwner }: { tripId: string, isOwner: boolea
                 </div>
                 <div>
                   <h2 className="text-lg lg:text-2xl font-display font-bold leading-tight">Your group is going to {lockedDest.name}!</h2>
-                  <p className="text-xs lg:text-sm text-muted-foreground">The vote is final. Time to start packing! 🇮🇳✈️</p>
+                  <p className="text-xs lg:text-sm text-muted-foreground">The vote is final. Time to start packing!</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-teal-500 font-bold uppercase tracking-widest text-[10px] lg:text-xs">
@@ -367,8 +367,8 @@ const DestinationCard = ({ dest, onVote, onLock, onDelete, onView, isOwner, user
         </div>
 
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">📍</span>
+          <div className="flex items-center gap-1.5 mb-1">
+            <MapPin size={12} className="text-white/60" />
             <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{dest.country}</span>
           </div>
           <h3 className="text-xl font-display font-bold text-white">{dest.name}</h3>

@@ -5,12 +5,13 @@ import { destinations, destinationItineraries } from "@/lib/sample-data";
 import { 
   Edit3, Share2, Copy, MapPin, Calendar, Wallet, Hotel, Plane, 
   Utensils, Camera, Landmark, Ship, Music, ShoppingBag, Sun, 
-  Sparkles, Coffee, Compass, Heart, ExternalLink
+  Sparkles, Coffee, Compass, Heart, ExternalLink, Star, Clock
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { MapPreview } from "@/components/MapPreview";
 import { getNextThreeMonths } from "@/lib/utils";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   plane: Plane,
@@ -22,6 +23,26 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "shopping-bag": ShoppingBag,
   sun: Sun,
 };
+
+const DAY_ACCENT = [
+  { dot: "bg-indigo-500 dark:bg-indigo-550", label: "text-indigo-600 dark:text-indigo-400", border: "border-indigo-500/40" },
+  { dot: "bg-rose-500 dark:bg-rose-555",   label: "text-rose-650 dark:text-rose-400",   border: "border-rose-500/40"   },
+  { dot: "bg-amber-500 dark:bg-amber-555",  label: "text-amber-600 dark:text-amber-400",  border: "border-amber-500/40"  },
+  { dot: "bg-emerald-500 dark:bg-emerald-555",label: "text-emerald-650 dark:text-emerald-400",border: "border-emerald-500/40"},
+  { dot: "bg-sky-500 dark:bg-sky-555",    label: "text-sky-600 dark:text-sky-400",    border: "border-sky-500/40"    },
+];
+
+function getTypeConfig(icon: string) {
+  const i = (icon || "").toLowerCase();
+  if (i === "utensils" || i === "food") return { color: "#ea580c", label: "Food & Dining", duration: "1 hr" };
+  if (i === "plane" || i === "flight") return { color: "#0ea5e9", label: "Transit", duration: "1-2 hrs" };
+  if (i === "ship" || i === "boat") return { color: "#06b6d4", label: "Boat Ride", duration: "1.5 hrs" };
+  if (i === "music" || i === "entertainment") return { color: "#ec4899", label: "Activity", duration: "2 hrs" };
+  if (i === "shopping-bag" || i === "shopping") return { color: "#a855f7", label: "Shopping", duration: "1-2 hrs" };
+  if (i === "camera" || i === "sightseeing") return { color: "#7c3aed", label: "Sightseeing", duration: "1 hr" };
+  if (i === "landmark" || i === "temple") return { color: "#2563eb", label: "Landmark", duration: "1-2 hrs" };
+  return { color: "#10b981", label: "Explore", duration: "1 hr" };
+}
 
 export default function TripDetails() {
   return (
@@ -47,7 +68,7 @@ function TripDetailsContent() {
   const handleShare = async () => {
     const shareData = {
       title: `${d.name} Escape | GoTripo`,
-      text: `Planning a trip to ${d.name}! Check this out on GoTripo. 🇮🇳✨`,
+      text: `Planning a trip to ${d.name}! Check this out on GoTripo.`,
       url: window.location.href,
     };
 
@@ -62,7 +83,7 @@ function TripDetailsContent() {
     } else {
       try {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success("Link copied to clipboard! 📋");
+        toast.success("Link copied to clipboard!");
       } catch (err) {
         toast.error("Failed to copy link");
       }
@@ -71,7 +92,7 @@ function TripDetailsContent() {
 
   return (
     <AppShell>
-      <div className="relative pb-20">
+      <div className="min-h-screen bg-background text-foreground pb-20">
         {/* Premium Header */}
         <div className="h-[400px] md:h-[500px] relative overflow-hidden group">
           <img 
@@ -92,7 +113,7 @@ function TripDetailsContent() {
               </span>
             </div>
             
-            <h1 className="font-display font-bold text-5xl md:text-7xl text-white tracking-tighter max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
+            <h1 className="font-sans font-extrabold text-4xl md:text-6xl text-white tracking-tight max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
               {d.id === 'jaipur' ? 'Royal Rajasthan' : `${d.name} Escape`}
             </h1>
             
@@ -121,21 +142,21 @@ function TripDetailsContent() {
 
         <div className="max-w-7xl mx-auto px-4 lg:px-10 -mt-10 relative z-10">
           {/* Action Bar */}
-          <div className="rounded-3xl bg-surface/80 backdrop-blur-2xl border border-white/20 shadow-pop p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="rounded-2xl bg-card/80 backdrop-blur-2xl border border-border shadow-pop p-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
               <Link to={`/results?sampleId=${d.id}`} className="h-12 px-6 rounded-2xl bg-warm-gradient text-white text-sm font-bold inline-flex items-center gap-2 shadow-cta hover:scale-[1.02] active:scale-[0.98] transition-all">
                 <Edit3 className="size-4" /> Edit Itinerary
               </Link>
-              <button onClick={handleShare} className="h-12 px-6 rounded-2xl bg-secondary hover:bg-secondary/80 text-sm font-bold inline-flex items-center gap-2 transition-all">
+              <button onClick={handleShare} className="h-12 px-6 rounded-2xl bg-secondary hover:bg-secondary/80 text-sm font-bold inline-flex items-center gap-2 transition-all cursor-pointer text-foreground">
                 <Share2 className="size-4" /> Share
               </button>
-              <button className="h-12 px-6 rounded-2xl bg-secondary hover:bg-secondary/80 text-sm font-bold inline-flex items-center gap-2 transition-all">
+              <button className="h-12 px-6 rounded-2xl bg-secondary hover:bg-secondary/80 text-sm font-bold inline-flex items-center gap-2 transition-all cursor-pointer text-foreground">
                 <Copy className="size-4" /> Duplicate
               </button>
             </div>
             <div className="hidden md:flex items-center gap-4 px-4 text-sm font-medium text-muted-foreground">
               <span className="flex items-center gap-1.5"><Heart className="size-4 text-destructive" /> 1.2k likes</span>
-              <span className="flex items-center gap-1.5"><Compass className="size-4 text-primary" /> 450+ booked</span>
+              <span className="flex items-center gap-1.5"><Compass className="size-4 text-emerald-500" /> 450+ booked</span>
             </div>
           </div>
 
@@ -144,24 +165,24 @@ function TripDetailsContent() {
               {/* Overview Section */}
               <section className="space-y-6">
                 <div>
-                  <h2 className="font-display font-bold text-3xl tracking-tight">Experience Overview</h2>
-                  <p className="text-muted-foreground mt-3 text-lg leading-relaxed max-w-3xl">
+                  <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-foreground">Experience Overview</h2>
+                  <p className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed max-w-3xl">
                     A {d.days} {d.tag.toLowerCase()} immersion through {d.name}'s most iconic spots. 
                     Curated for travelers who value authenticity, slow-paced exploration, and premium local experiences.
                   </p>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <StatCard icon={Calendar} label="Duration" value={d.days} color="bg-blue-500/10 text-blue-600" />
-                  <StatCard icon={Hotel} label="Stays" value="Luxury Haveli" color="bg-purple-500/10 text-purple-600" />
-                  <StatCard icon={Plane} label="Transfers" value="Included" color="bg-emerald-500/10 text-emerald-600" />
-                  <StatCard icon={Sparkles} label="Style" value="Curated AI" color="bg-amber-500/10 text-amber-600" />
+                  <StatCard icon={Calendar} label="Duration" value={d.days} color="bg-blue-500/10 text-blue-500 dark:text-blue-400" />
+                  <StatCard icon={Hotel} label="Stays" value="Luxury Haveli" color="bg-purple-500/10 text-purple-500 dark:text-purple-400" />
+                  <StatCard icon={Plane} label="Transfers" value="Included" color="bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" />
+                  <StatCard icon={Sparkles} label="Style" value="Curated AI" color="bg-amber-500/10 text-amber-500 dark:text-amber-400" />
                 </div>
               </section>
 
               {/* Highlights Section */}
-              <section className="rounded-3xl bg-secondary/30 p-8 border border-border">
-                <h3 className="font-display font-bold text-xl mb-6 flex items-center gap-2">
+              <section className="rounded-2xl bg-card border border-border p-8">
+                <h3 className="font-sans font-bold text-lg text-foreground mb-6 flex items-center gap-2">
                   <Coffee className="size-5 text-accent" /> Quick Highlights
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
@@ -175,7 +196,7 @@ function TripDetailsContent() {
                       <div className="size-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                         <Sparkles className="size-3 text-accent" />
                       </div>
-                      <span className="text-sm font-medium text-foreground/80">{h}</span>
+                      <span className="text-sm font-medium text-foreground/90">{h}</span>
                     </div>
                   ))}
                 </div>
@@ -183,72 +204,107 @@ function TripDetailsContent() {
 
               {/* Itinerary Section */}
               <section className="space-y-6">
-                <h2 className="font-display font-bold text-3xl tracking-tight">Day by Day Itinerary</h2>
+                <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-foreground">Day by Day Itinerary</h2>
                 <div className="space-y-6">
-                  {itinerary.map((day) => (
-                    <div key={day.day} className="group rounded-3xl bg-card border border-border shadow-soft overflow-hidden transition-all hover:border-accent/30">
-                       <div className="p-6 bg-secondary/20 flex items-center justify-between border-b border-border">
-                        <div className="flex items-center gap-4">
-                          <div className="size-12 rounded-2xl bg-warm-gradient text-white grid place-items-center font-display font-bold shadow-cta">
-                            D{day.day}
+                  {itinerary.map((day, idx) => {
+                    const accent = DAY_ACCENT[idx % DAY_ACCENT.length];
+                    return (
+                      <div key={day.day} className="group rounded-2xl border border-border bg-card overflow-hidden">
+                        {/* Day header */}
+                        <div className={cn("px-4 sm:px-6 py-4 sm:py-5 border-b border-border flex items-center justify-between gap-3", `border-l-4 ${accent.border}`)}>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={cn("size-9 sm:size-10 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg text-white shrink-0", accent.dot)}>
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-0.5", accent.label)}>Day {idx + 1}</p>
+                              <h2 className="text-sm sm:text-base font-bold text-foreground truncate">{day.title || `Day ${idx + 1}`}</h2>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-display font-bold text-xl">{day.title}</div>
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Morning · Afternoon · Evening</div>
-                          </div>
+                          <span className="text-[11px] text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                            {(day.items || []).length} stops
+                          </span>
                         </div>
-                      </div>
-                      <div className="p-6 pt-2 space-y-6">
-                        <div className="relative ml-6 pl-10 border-l-2 border-dashed border-border/50 space-y-8 py-4">
+
+                        {/* Places list */}
+                        <div className="divide-y divide-border/70">
                           {day.items.map((it, i) => {
+                            const cfg = getTypeConfig(it.icon);
                             const Icon = iconMap[it.icon] || MapPin;
                             const isCurrentlyActive = activePlace && (it.place === (activePlace.name || activePlace.place));
+                            const pIdx1 = i + 1;
                             
                             return (
-                              <div key={i} className="relative">
-                                <div className={`absolute -left-[51px] top-0 size-10 rounded-2xl flex items-center justify-center transition-all duration-300 border ${
-                                  isCurrentlyActive ? 'bg-accent border-accent text-white shadow-pop' : 'bg-card border-border text-primary'
-                                }`}>
-                                  <Icon className="size-5" />
-                                </div>
-                                <div className={`rounded-2xl p-5 transition-all duration-300 ${
-                                  isCurrentlyActive ? 'bg-accent/5 border border-accent/20 ring-1 ring-accent/10' : 'bg-secondary/40 hover:bg-secondary border border-transparent'
-                                }`}>
-                                  <div className="flex items-center justify-between">
-                                    <div className={`text-xs font-bold uppercase tracking-widest ${isCurrentlyActive ? 'text-accent' : 'text-primary'}`}>
-                                      {it.time}
+                              <div key={i} className="relative group px-4 sm:px-6 py-5 hover:bg-secondary/30 transition-colors">
+                                <div className="flex items-start gap-4">
+                                  {/* Step number + icon stacked */}
+                                  <div className="flex flex-col items-center gap-1 shrink-0">
+                                    <div
+                                      className="size-12 rounded-2xl flex items-center justify-center"
+                                      style={{ backgroundColor: cfg.color + "20", border: `1.5px solid ${cfg.color}40` }}
+                                    >
+                                      <Icon className="size-5" style={{ color: cfg.color }} />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <button 
-                                        onClick={() => setActivePlace(it)}
-                                        className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 rounded-md transition-all ${
-                                          isCurrentlyActive 
-                                            ? "bg-accent text-white" 
-                                            : "bg-background text-muted-foreground hover:bg-primary hover:text-white"
-                                        }`}
-                                      >
-                                        {isCurrentlyActive ? "Active" : "Focus on Map"}
-                                      </button>
+                                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{pIdx1}</span>
+                                  </div>
+
+                                  {/* Content */}
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-[15px] sm:text-base text-foreground hover:text-indigo-650 dark:hover:text-indigo-300 transition-colors leading-snug">
+                                      {it.place}
+                                    </h3>
+                                    <div className="flex items-center gap-1.5 mt-0.5 mb-2">
+                                      <MapPin className="size-2.5 text-muted-foreground shrink-0" />
+                                      <span className="text-[11px] text-muted-foreground font-medium truncate">{d.name}</span>
+                                    </div>
+
+                                    <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-2 mb-3">
+                                      {it.desc}
+                                    </p>
+
+                                    {/* Chips row */}
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-secondary border border-border px-2 py-0.5 rounded-md">
+                                        <Clock className="size-2.5" /> {it.time}
+                                      </span>
+                                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md" style={{ color: cfg.color, backgroundColor: cfg.color + "15" }}>
+                                        {cfg.label}
+                                      </span>
+                                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground bg-secondary/80 border border-border px-2 py-0.5 rounded-md">
+                                        <Clock className="size-2.5" /> {cfg.duration}
+                                      </span>
                                       <a
                                         href={`https://www.google.com/maps/search/?api=1&query=${it.lat},${it.lng}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 rounded-md bg-background text-muted-foreground hover:bg-accent hover:text-white transition-all border border-border"
+                                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-secondary border border-border px-2 py-0.5 rounded-md hover:bg-secondary-hover hover:text-foreground transition-colors"
                                       >
-                                        <ExternalLink className="size-3" /> Maps
+                                        <ExternalLink className="size-2.5" /> Maps
                                       </a>
                                     </div>
                                   </div>
-                                  <div className="font-display font-bold text-lg mt-1">{it.place}</div>
-                                  <div className="text-sm text-muted-foreground leading-relaxed mt-1">{it.desc}</div>
+
+                                  {/* Right side buttons */}
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <button 
+                                      onClick={() => setActivePlace(it)}
+                                      className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                                        isCurrentlyActive 
+                                          ? "bg-accent text-white" 
+                                          : "bg-secondary text-muted-foreground hover:bg-secondary-hover hover:text-foreground border border-border"
+                                      }`}
+                                    >
+                                      {isCurrentlyActive ? "Focused" : "Focus Map"}
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             );
                           })}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             </div>
@@ -257,7 +313,7 @@ function TripDetailsContent() {
             <aside className="space-y-6">
               <div className="space-y-6">
                 {/* Real Map Card */}
-                <div className="rounded-[2.5rem] border border-border bg-card overflow-hidden shadow-pop h-[450px] relative group">
+                <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-pop h-[450px] relative group">
                   <MapPreview 
                     itinerary={itinerary} 
                     activePlace={activePlace} 
@@ -269,12 +325,12 @@ function TripDetailsContent() {
                     </div>
                   </div>
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] z-10">
-                    <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-3 shadow-pop border border-white flex items-center justify-between">
+                    <div className="bg-background/90 backdrop-blur-xl rounded-2xl p-3 shadow-pop border border-border flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="size-8 rounded-xl bg-primary flex items-center justify-center text-white">
+                        <div className="size-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
                           <Compass className="size-4" />
                         </div>
-                        <div className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                           {itinerary.reduce((acc, day) => acc + day.items.length, 0)} Curated Stops
                         </div>
                       </div>
@@ -283,9 +339,9 @@ function TripDetailsContent() {
                 </div>
 
                 {/* Budget Control Card */}
-                <div className="rounded-[2.5rem] border border-border bg-card p-6 shadow-pop">
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-pop">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                    <h3 className="font-sans font-bold text-lg text-foreground flex items-center gap-2">
                       <Wallet className="size-5 text-accent" /> Budget Control
                     </h3>
                     <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-secondary px-2 py-0.5 rounded">AI Estimate</div>
@@ -307,10 +363,10 @@ function TripDetailsContent() {
                               <div className={`size-8 rounded-lg ${r.c} bg-opacity-10 flex items-center justify-center`}>
                                 <r.i className={`size-4 ${r.c.replace('bg-', 'text-')}`} />
                               </div>
-                              <span className="font-medium text-foreground/80">{r.l}</span>
+                              <span className="font-medium text-muted-foreground">{r.l}</span>
                             </div>
                             <div className="text-right">
-                              <div className="font-bold">₹{amount.toLocaleString("en-IN")}</div>
+                              <div className="font-bold text-foreground">₹{amount.toLocaleString("en-IN")}</div>
                               <div className="text-[10px] text-muted-foreground font-bold">{r.p}%</div>
                             </div>
                           </div>
@@ -327,34 +383,34 @@ function TripDetailsContent() {
 
                   <div className="mt-8 pt-6 border-t border-border">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Total Estimate</div>
-                    <div className="text-2xl font-display font-bold text-primary mt-1">
+                    <div className="text-2xl font-sans font-bold text-foreground mt-1">
                       {d.price} <span className="text-sm font-normal text-muted-foreground">/ person</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Stay Suggestions */}
-                <div className="rounded-[2.5rem] border border-border bg-card p-6 shadow-soft">
-                  <h3 className="font-display font-bold text-lg mb-4 flex items-center justify-between">
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <h3 className="font-sans font-bold text-lg text-foreground mb-4 flex items-center justify-between">
                     Recommended Stays
-                    <Link to="/explore" className="text-[10px] text-accent font-bold uppercase hover:underline">View All</Link>
+                    <Link to="/explore-india" className="text-[10px] text-accent font-bold uppercase hover:underline">View All</Link>
                   </h3>
                   <div className="space-y-3">
                     {["The Heritage Palace", "The Luxury Boutique", "Royal Haveli"].map((h, i) => (
-                      <div key={h} className="group flex items-center gap-4 rounded-3xl bg-secondary/50 p-3 hover:bg-secondary transition-all cursor-pointer border border-transparent hover:border-border">
-                        <div className="size-16 rounded-2xl bg-warm-gradient shrink-0 shadow-soft group-hover:scale-105 transition-transform overflow-hidden relative">
+                      <div key={h} className="group flex items-center gap-4 rounded-2xl bg-secondary/30 p-3 hover:bg-secondary/60 transition-all cursor-pointer border border-transparent hover:border-border">
+                        <div className="size-16 rounded-xl bg-gradient-to-br from-secondary to-border shrink-0 shadow-soft group-hover:scale-105 transition-transform overflow-hidden relative border border-border">
                            <div className="absolute inset-0 bg-black/20" />
-                           <Hotel className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/50 size-6" />
+                           <Hotel className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground size-6" />
                         </div>
                         <div className="flex-1">
-                          <div className="font-bold text-sm">{h}</div>
+                          <div className="font-bold text-sm text-foreground">{h}</div>
                           <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{d.tag} Property</div>
-                          <div className="text-sm font-bold text-primary mt-1">₹{6+i},200<span className="text-[10px] font-normal text-muted-foreground ml-1">/night</span></div>
+                          <div className="text-sm font-bold text-accent mt-1">₹{6+i},200<span className="text-[10px] font-normal text-muted-foreground ml-1">/night</span></div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <button className="w-full mt-6 py-3 rounded-2xl bg-secondary font-bold text-sm hover:bg-border transition-colors">
+                  <button className="w-full mt-6 py-3 rounded-xl bg-secondary font-semibold text-sm text-muted-foreground hover:bg-secondary-hover hover:text-foreground transition-colors border border-border cursor-pointer">
                     Compare All Hotels
                   </button>
                 </div>
@@ -369,12 +425,12 @@ function TripDetailsContent() {
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string, color: string }) {
   return (
-    <div className="rounded-3xl bg-card border border-border p-5 shadow-soft hover:-translate-y-1 transition-transform">
-      <div className={`size-10 rounded-2xl ${color} flex items-center justify-center mb-4`}>
+    <div className="rounded-2xl bg-card border border-border p-5 shadow-soft hover:-translate-y-1 transition-transform">
+      <div className={`size-10 rounded-xl ${color} flex items-center justify-center mb-4`}>
         <Icon className="size-5" />
       </div>
       <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{label}</div>
-      <div className="text-base font-display font-bold text-foreground mt-0.5">{value}</div>
+      <div className="text-base font-sans font-bold text-foreground mt-0.5">{value}</div>
     </div>
   );
 }

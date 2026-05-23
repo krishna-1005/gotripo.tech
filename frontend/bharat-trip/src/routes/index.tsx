@@ -171,6 +171,102 @@ const getVibeGradient = (v: any) => {
   return `radial-gradient(circle at center, ${colors.join(", ")})`;
 };
 
+const fallbackVibeSuggestions = [
+  {
+    name: "Jaipur",
+    region: "Rajasthan",
+    vibe: "Walking through royal sandstone palaces, bustling bazaars, and listening to old stories of kings.",
+    icon: "castle",
+    adventure: 30,
+    modern: 20,
+    social: 75
+  },
+  {
+    name: "Goa",
+    region: "West Coast",
+    vibe: "Sunbathing on warm sandy beaches, sipping coconut water, and dancing under the stars.",
+    icon: "waves",
+    adventure: 60,
+    modern: 70,
+    social: 90
+  },
+  {
+    name: "Rishikesh",
+    region: "Uttarakhand",
+    vibe: "Waking up to Ganga Aarti bells, meditating by the river banks, and white-water rafting in rapids.",
+    icon: "sun",
+    adventure: 75,
+    modern: 15,
+    social: 30
+  },
+  {
+    name: "Kerala Backwaters",
+    region: "Kerala",
+    vibe: "Floating gently on a wooden houseboat through lush palm-fringed canals and tranquil lagoons.",
+    icon: "trees",
+    adventure: 20,
+    modern: 30,
+    social: 25
+  },
+  {
+    name: "Ladakh",
+    region: "Leh Ladakh",
+    vibe: "Riding across vast high-altitude cold deserts, seeing azure lakes, and visiting ancient cliffside monasteries.",
+    icon: "mountains",
+    adventure: 95,
+    modern: 10,
+    social: 15
+  },
+  {
+    name: "Coorg",
+    region: "Karnataka",
+    vibe: "Trekking through misty coffee hills, listening to bird calls, and breathing fresh mountain air.",
+    icon: "coffee",
+    adventure: 50,
+    modern: 25,
+    social: 35
+  },
+  {
+    name: "Munnar",
+    region: "Kerala",
+    vibe: "Walking through endless rolling tea estates, watching valley mists, and relaxing in cool hill breezes.",
+    icon: "trees",
+    adventure: 40,
+    modern: 20,
+    social: 20
+  },
+  {
+    name: "Varanasi",
+    region: "Uttar Pradesh",
+    vibe: "Navigating ancient ghats, seeing deep spiritual rituals, and smelling sandalwood incense by the holy river.",
+    icon: "sun",
+    adventure: 25,
+    modern: 5,
+    social: 60
+  },
+  {
+    name: "Hampi",
+    region: "Karnataka",
+    vibe: "Climbing boulder-strewn hills, exploring magnificent stone ruins, and watching sunsets over rivers.",
+    icon: "landmark",
+    adventure: 65,
+    modern: 10,
+    social: 20
+  }
+];
+
+const getFallbackSuggestions = (currentVibe: { adventure: number, modern: number, social: number }) => {
+  return [...fallbackVibeSuggestions]
+    .map(dest => {
+      const diff = Math.abs(currentVibe.adventure - dest.adventure) +
+                   Math.abs(currentVibe.modern - dest.modern) +
+                   Math.abs(currentVibe.social - dest.social);
+      const score = Math.max(70, Math.floor(100 - (diff / 3)));
+      return { ...dest, score };
+    })
+    .sort((a, b) => b.score - a.score);
+};
+
 function MoodSearch() {
   const [vibe, setVibe] = useState({
     adventure: 50,
@@ -217,9 +313,12 @@ function MoodSearch() {
       const suggestions = await fetchVibeSuggestions(currentVibe);
       if (suggestions && suggestions.length > 0) {
         setRecommended(suggestions);
+      } else {
+        setRecommended(getFallbackSuggestions(currentVibe));
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Vibe API failed, using client-side fallback suggestions:", err);
+      setRecommended(getFallbackSuggestions(currentVibe));
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 import { YatraLayout } from "@/components/YatraLayout";
 import { Sparkles, Calendar, Wallet, MapPin, Plane, Train, Car, ArrowRight, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 

@@ -168,7 +168,7 @@ const BudgetTracker = ({ tripId, members }: { tripId: string, members: any[] }) 
           <div className="flex flex-col gap-3">
             {settlements.length === 0 ? (
               <div className="p-6 text-center text-muted-foreground bg-secondary/5 rounded-xl border border-border">
-                All settled! 🏖️
+                All settled!
               </div>
             ) : (
               settlements.map((s, idx) => (

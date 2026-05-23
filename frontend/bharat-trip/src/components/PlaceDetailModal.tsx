@@ -57,20 +57,26 @@ export const PlaceDetailModal = ({ isOpen, onClose, place }: PlaceDetailModalPro
         <DialogDescription className="sr-only">Details about {place?.name || place?.place || "this place"}</DialogDescription>
 
         {/* Header/Hero section */}
-        <div className="relative h-48 bg-primary/10 flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-warm-gradient opacity-10" />
-          <div className="relative z-10 flex flex-col items-center gap-3">
-             <div className="size-16 rounded-2xl bg-background border border-border shadow-soft grid place-items-center text-primary">
-                <CategoryIcon category={place.category} className="size-8" />
+        <div className="relative h-60 flex items-end overflow-hidden p-6">
+          <img 
+            src={`https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800&sig=${encodeURIComponent(place.name || place.place || place.title)}`} 
+            alt={place.name || place.place} 
+            className="absolute inset-0 w-full h-full object-cover" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          
+          <div className="relative z-10 flex items-center gap-4 w-full">
+             <div className="size-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-soft grid place-items-center text-white shrink-0">
+                <CategoryIcon category={place.category} className="size-6" />
              </div>
-             <div className="text-center">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{place.category || "Must Visit"}</div>
-                <h2 className="font-display font-bold text-2xl text-foreground">{place.name || place.place || place.title}</h2>
+             <div className="min-w-0">
+                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#10b981] mb-0.5">{place.category || "Must Visit"}</div>
+                <h2 className="font-display font-bold text-xl sm:text-2xl text-white truncate">{place.name || place.place || place.title}</h2>
              </div>
           </div>
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 size-8 rounded-full bg-background/50 backdrop-blur-md border border-border grid place-items-center hover:bg-background transition"
+            className="absolute top-4 right-4 size-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 grid place-items-center text-white transition z-20"
           >
             <X className="size-4" />
           </button>

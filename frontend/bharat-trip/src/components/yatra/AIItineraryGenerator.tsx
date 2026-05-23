@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, MapPin, Calendar, Users, Wallet, Loader2, CheckCircle2, Stars, ArrowRight, Landmark } from "lucide-react";
+import { Sparkles, MapPin, Calendar, Users, Wallet, Loader2, CheckCircle2, Stars, ArrowRight, Landmark, Flame } from "lucide-react";
 
 interface AIItineraryGeneratorProps {
   searchState: {
@@ -110,10 +110,12 @@ export function AIItineraryGenerator({ searchState, setSearchState }: AIItinerar
                       onChange={(e) => setSearchState({ ...searchState, yatra: e.target.value })}
                       className="w-full bg-[#FAFAFA] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-3xl py-5 pl-16 pr-6 focus:outline-none focus:ring-4 focus:ring-[#FF6B00]/10 text-[#1A1A1A] dark:text-white font-bold appearance-none cursor-pointer transition-all"
                     >
-                      <option className="dark:text-black">Kashi Vishwanath</option>
-                      <option className="dark:text-black">Char Dham</option>
-                      <option className="dark:text-black">Vaishno Devi</option>
-                      <option className="dark:text-black">Jagannath Puri</option>
+                      <option className="dark:text-black">Kashi (Varanasi) Darshan</option>
+                      <option className="dark:text-black">Char Dham Yatra</option>
+                      <option className="dark:text-black">Vaishno Devi Katra</option>
+                      <option className="dark:text-black">Haridwar & Rishikesh</option>
+                      <option className="dark:text-black">Tirupati Balaji</option>
+                      <option className="dark:text-black">Shirdi Sai Baba</option>
                     </select>
                   </div>
                 </div>
@@ -198,13 +200,13 @@ export function AIItineraryGenerator({ searchState, setSearchState }: AIItinerar
                   <div className="relative mb-12">
                     <div className="size-40 border-8 border-white/20 border-t-[#F5A623] rounded-full animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <motion.span 
+                      <motion.div 
                         animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="text-6xl"
+                        className="text-[#F5A623]"
                       >
-                        🪔
-                      </motion.span>
+                        <Flame className="size-16" />
+                      </motion.div>
                     </div>
                   </div>
                   <h3 className="text-3xl font-black mb-4 tracking-tight leading-tight">Consulting with AI...</h3>

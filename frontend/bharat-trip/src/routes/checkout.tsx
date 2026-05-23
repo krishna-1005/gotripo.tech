@@ -39,7 +39,7 @@ export default function CheckoutPage() {
       
       setOrderConfirmed(res.data);
       clearCart();
-      toast.success("🎉 Order placed successfully!");
+      toast.success("Order placed successfully!");
       
       confetti({
         particleCount: 150,

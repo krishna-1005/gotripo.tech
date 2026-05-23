@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Loader2, Plus, Receipt, HandCoins, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Receipt, HandCoins, Trash2, Utensils, Car, Home, Ticket, HelpCircle } from 'lucide-react';
 import { fetchBudget, deleteExpense } from '@/lib/api';
 import AddBudgetExpenseModal from '@/components/collabRoom/modals/AddBudgetExpenseModal';
 import SettlementDashboard from '@/components/collabRoom/SettlementDashboard';
@@ -19,12 +19,12 @@ const COLORS = {
   purple: '#534AB7',
 };
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  food: '🍛',
-  transport: '🚌',
-  stay: '🏨',
-  activity: '🎯',
-  other: '💰'
+const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  food: Utensils,
+  transport: Car,
+  stay: Home,
+  activity: Ticket,
+  other: HelpCircle
 };
 
 const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: boolean }) => {
@@ -224,7 +224,7 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
                       fontSize: '24px',
                       border: `1px solid ${COLORS.border}`
                   }}>
-                      {CATEGORY_EMOJI[expense.category] || '💰'}
+                      {React.createElement(CATEGORY_ICON[expense.category] || HelpCircle, { className: "size-5 text-white/80" })}
                   </div>
                   <div style={{ flex: 1 }}>
                     <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{expense.title}</h4>

@@ -12,27 +12,27 @@ const yatras = [
     difficulty: "Challenging",
     rating: 4.9,
     image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=1000",
-    color: "📍 Uttarakhand"
+    color: "Uttarakhand"
   },
   {
     id: 2,
-    name: "Kashi Vishwanath",
+    name: "Kashi (Varanasi) Darshan",
     location: "Uttar Pradesh",
     duration: "3 Days",
     difficulty: "Easy",
     rating: 4.8,
     image: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=1000",
-    color: "📍 Uttar Pradesh"
+    color: "Uttar Pradesh"
   },
   {
     id: 3,
-    name: "Vaishno Devi",
+    name: "Vaishno Devi Katra",
     location: "Jammu & Kashmir",
     duration: "4 Days",
     difficulty: "Moderate",
     rating: 4.9,
     image: "https://images.unsplash.com/photo-1590483736622-39da8af75620?auto=format&fit=crop&q=80&w=1000",
-    color: "📍 Jammu & Kashmir"
+    color: "Jammu & Kashmir"
   },
 ];
 
@@ -79,37 +79,38 @@ function YatraCard({ yatra, index, onPlan }: { yatra: any; index: number; onPlan
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.6 }}
-      className="group relative bg-white dark:bg-[#161616] rounded-[2.5rem] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-none border border-transparent dark:border-white/5 hover:shadow-[0_20px_60px_rgba(255,107,0,0.15)] transition-all duration-500"
+      className="group relative bg-[#121212] rounded-[3rem] overflow-hidden border border-white/5 hover:border-[#FF6B00]/30 shadow-2xl transition-all duration-500"
     >
-      <div className="relative h-[400px] overflow-hidden">
+      <div className="relative h-[380px] overflow-hidden">
         <img
           src={yatra.image}
           alt={yatra.name}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121212]/90 via-black/20 to-transparent" />
         
         <div className="absolute top-6 left-6">
-          <div className="bg-[#FF6B00] text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full shadow-lg">
+          <div className="bg-[#FF6B00] text-white text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2.5 rounded-xl shadow-lg border border-white/10">
             {yatra.duration}
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-8 right-8 text-white">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F5A623] uppercase tracking-widest mb-3">
-            <MapPin className="size-4" /> {yatra.location}
+        <div className="absolute bottom-6 left-8 right-8 text-white">
+          <div className="flex items-center gap-2 text-[10px] font-black text-[#FFD700] uppercase tracking-widest mb-2">
+            <MapPin className="size-3.5" /> {yatra.location}
           </div>
-          <h3 className="text-2xl font-black tracking-tight leading-tight group-hover:text-[#F5A623] transition-colors">{yatra.name}</h3>
+          <h3 className="text-xl md:text-2xl font-black tracking-tight leading-tight group-hover:text-[#FFD700] transition-colors font-['Cinzel']">{yatra.name}</h3>
           
-          <div className="flex items-center gap-4 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-             <div className="flex items-center gap-1 text-[#F5A623]">
-                <Star className="size-4 fill-[#F5A623]" />
-                <span className="text-sm font-black">{yatra.rating}</span>
+          <div className="flex items-center gap-4 mt-3">
+             <div className="flex items-center gap-1 text-[#FFD700]">
+                <Star className="size-3.5 fill-[#FFD700]" />
+                <span className="text-xs font-black">{yatra.rating}</span>
              </div>
-             <div className={`text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-widest ${
-                yatra.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                yatra.difficulty === 'Moderate' ? 'bg-blue-500/20 text-blue-400' :
-                'bg-red-500/20 text-red-400'
+             <div className={`text-[8px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest ${
+                yatra.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/10' :
+                yatra.difficulty === 'Moderate' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/10' :
+                'bg-red-500/20 text-red-400 border border-red-500/10'
               }`}>
                 {yatra.difficulty}
              </div>
@@ -117,12 +118,12 @@ function YatraCard({ yatra, index, onPlan }: { yatra: any; index: number; onPlan
         </div>
       </div>
 
-      <div className="p-8">
+      <div className="p-8 bg-[#121212]">
         <button 
           onClick={onPlan}
-          className="w-full py-4 bg-[#1A1A1A] hover:bg-[#FF6B00] text-white rounded-2xl font-black text-base transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 cursor-pointer"
+          className="w-full py-4.5 bg-white/5 border border-white/10 hover:bg-gradient-to-r hover:from-[#FF6B00] hover:to-[#E32636] hover:border-transparent text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 cursor-pointer"
         >
-          Plan This Yatra <ArrowRight className="size-6" />
+          Plan This Yatra <ArrowRight className="size-5" />
         </button>
       </div>
     </motion.div>

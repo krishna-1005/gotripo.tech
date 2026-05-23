@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 export default function YatraListPage() {
   const navigate = useNavigate();
   const [searchState, setSearchState] = useState({
-    yatra: "Kashi Vishwanath",
+    yatra: "Kashi (Varanasi) Darshan",
     startingCity: "",
     date: ""
   });
@@ -38,33 +38,24 @@ export default function YatraListPage() {
 
   return (
     <AppShell>
-      <div className="font-['Poppins'] selection:bg-[#FF6B00] selection:text-white">
-        <Hero searchState={searchState} setSearchState={setSearchState} />
+      <div className="font-['Poppins'] bg-[#0B0B0B] text-white selection:bg-[#FF6B00] selection:text-white transition-colors duration-500 relative min-h-screen overflow-hidden">
         
-        {/* Subtle Saffron Gradient Divider */}
-        <div className="h-2 w-full bg-gradient-to-r from-transparent via-[#FF6B00]/40 to-transparent" />
+        {/* Golden Glow Backdrop Blobs */}
+        <div className="absolute top-[10%] left-[-10%] size-[500px] rounded-full bg-[#FF6B00]/10 blur-[150px] pointer-events-none" />
+        <div className="absolute top-[40%] right-[-10%] size-[600px] rounded-full bg-[#F5A623]/5 blur-[180px] pointer-events-none" />
+        <div className="absolute bottom-[20%] left-[-5%] size-[500px] rounded-full bg-[#FF6B00]/5 blur-[150px] pointer-events-none" />
+
+        <Hero searchState={searchState} setSearchState={setSearchState} />
         
         <StatsBar />
         
-        <div className="h-px w-full bg-[#FF6B00]/10" />
-        
         <PopularYatras />
-        
-        <div className="h-px w-full bg-[#FF6B00]/10" />
         
         <HowItWorks />
         
-        <div className="h-px w-full bg-[#FF6B00]/10" />
-        
         <FeaturedSpotlight />
         
-        <div className="h-px w-full bg-[#FF6B00]/10" />
-        
         <Testimonials />
-        
-        <div className="h-px w-full bg-[#FF6B00]/10" />
-        
-        {/* Planner section removed as requested - now on a separate page */}
         
         <FooterCTA />
 
@@ -72,9 +63,9 @@ export default function YatraListPage() {
         <div className="md:hidden fixed bottom-8 left-8 right-8 z-50">
           <button 
             onClick={() => navigate('/yatra/plan')}
-            className="w-full py-5 bg-[#FF6B00] text-white rounded-[2rem] font-black shadow-[0_20px_40px_rgba(255,107,0,0.4)] flex items-center justify-center gap-3 animate-pulse border-2 border-white/20 active:scale-95 cursor-pointer"
+            className="w-full py-5 bg-gradient-to-r from-[#FF6B00] to-[#E32636] text-white rounded-[2rem] font-black shadow-[0_20px_40px_rgba(255,107,0,0.5)] flex items-center justify-center gap-3 animate-pulse border-2 border-white/20 active:scale-95 cursor-pointer uppercase tracking-widest text-xs"
           >
-             PLAN YATRA NOW
+             Plan Yatra Now
           </button>
         </div>
       </div>

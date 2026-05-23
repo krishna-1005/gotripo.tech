@@ -38,7 +38,7 @@ export function Chatbot() {
 
   const greeting: Message = {
     role: "assistant",
-    content: `Namaste${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}! I'm your GoTripo AI Co-pilot. Ready to explore the vibrant colors of India? Tell me where you want to go or what kind of vibe you're looking for! 🇮🇳✨`
+    content: `Namaste${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}! I'm your GoTripo AI Co-pilot. Ready to explore the vibrant colors of India? Tell me where you want to go or what kind of vibe you're looking for!`
   };
 
   useEffect(() => {

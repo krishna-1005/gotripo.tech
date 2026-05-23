@@ -6,10 +6,109 @@ import { Sparkles, Loader2, Calendar, MapPin, Users, Wallet, CheckCircle2, Utens
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
+const fallbackYatras = [
+  {
+    _id: "seed-hri",
+    name: "Haridwar & Rishikesh",
+    description: "Experience the evening Ganga Aarti and the spiritual vibe of the Himalayan foothills.",
+    location: "Uttarakhand",
+    duration: "4 Days",
+    bestTimeToVisit: "February to June, August to October",
+    highlights: ["Ganga Aarti at Har Ki Pauri", "Laxman Jhula", "Beatles Ashram", "Yoga & Meditation"],
+    imageUrl: "https://images.unsplash.com/photo-1590050752117-23a9d7fc2140?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 800, maxCost: 1500, duration: "5-7 hrs" },
+      flight: { minCost: 3500, maxCost: 6000, duration: "1.5 hrs" },
+      bus: { minCost: 500, maxCost: 900, duration: "6-8 hrs" }
+    }
+  },
+  {
+    _id: "seed-kashi",
+    name: "Kashi (Varanasi) Darshan",
+    description: "Visit the oldest living city in the world and the sacred Kashi Vishwanath Temple.",
+    location: "Uttar Pradesh",
+    duration: "3 Days",
+    bestTimeToVisit: "October to March",
+    highlights: ["Kashi Vishwanath Temple", "Dashashwamedh Ghat Aarti", "Sarnath", "Boat ride on Ganges"],
+    imageUrl: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 1200, maxCost: 2500, duration: "12-14 hrs" },
+      flight: { minCost: 4500, maxCost: 8000, duration: "1.5 hrs" },
+      bus: { minCost: 800, maxCost: 1200, duration: "14-16 hrs" }
+    }
+  },
+  {
+    _id: "seed-chardham",
+    name: "Char Dham Yatra",
+    description: "The ultimate pilgrimage covering Yamunotri, Gangotri, Kedarnath, and Badrinath.",
+    location: "Uttarakhand",
+    duration: "12 Days",
+    bestTimeToVisit: "May to June, September to October",
+    highlights: ["Kedarnath Temple", "Badrinath Temple", "Yamunotri", "Gangotri"],
+    imageUrl: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 1500, maxCost: 3000, duration: "12 hrs (to Haridwar)" },
+      flight: { minCost: 5000, maxCost: 9000, duration: "1.5 hrs (to Dehradun)" },
+      bus: { minCost: 1000, maxCost: 1800, duration: "14 hrs (to Haridwar)" }
+    }
+  },
+  {
+    _id: "seed-vaishno",
+    name: "Vaishno Devi Katra",
+    description: "A divine journey to the holy cave of Mata Vaishno Devi in the Trikuta Mountains.",
+    location: "Jammu & Kashmir",
+    duration: "3 Days",
+    bestTimeToVisit: "March to October",
+    highlights: ["Bhawan Darshan", "Bhairon Nath Temple", "Ardh Kuwari Cave", "Trek from Katra"],
+    imageUrl: "https://images.unsplash.com/photo-1622144360341-2a6c6ec663da?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 1000, maxCost: 2200, duration: "12-15 hrs" },
+      flight: { minCost: 4000, maxCost: 7500, duration: "1.5 hrs" },
+      bus: { minCost: 900, maxCost: 1400, duration: "14-16 hrs" }
+    }
+  },
+  {
+    _id: "seed-tirupati",
+    name: "Tirupati Balaji",
+    description: "Visit the richest temple in the world and seek blessings of Lord Venkateswara.",
+    location: "Andhra Pradesh",
+    duration: "2 Days",
+    bestTimeToVisit: "September to March",
+    highlights: ["Venkateswara Temple", "Padmavathi Temple", "Akasa Ganga", "Silathoranam"],
+    imageUrl: "https://images.unsplash.com/photo-1610448721566-473ce9da81c3?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 1500, maxCost: 3500, duration: "24-30 hrs" },
+      flight: { minCost: 5500, maxCost: 10000, duration: "2.5 hrs" },
+      bus: { minCost: 1200, maxCost: 2000, duration: "12-15 hrs" }
+    }
+  },
+  {
+    _id: "seed-shirdi",
+    name: "Shirdi Sai Baba",
+    description: "A pilgrimage to the home of the revered saint Sai Baba.",
+    location: "Maharashtra",
+    duration: "2 Days",
+    bestTimeToVisit: "June to March",
+    highlights: ["Sai Baba Samadhi Mandir", "Dwarkamai", "Chavadi", "Shani Shingnapur"],
+    imageUrl: "https://images.unsplash.com/photo-1616493923308-466f913d07e6?auto=format&fit=crop&q=80&w=800",
+    category: "pilgrimage",
+    transportCosts: {
+      train: { minCost: 1100, maxCost: 2400, duration: "18-22 hrs" },
+      flight: { minCost: 4500, maxCost: 8500, duration: "2.5 hrs" },
+      bus: { minCost: 1000, maxCost: 1600, duration: "12-14 hrs" }
+    }
+  }
+];
+
 export default function YatraPlannerPage() {
   const [searchParams] = useSearchParams();
-  const [yatras, setYatras] = useState<any[]>([]);
-  const [loadingYatras, setLoadingYatras] = useState(true);
+  const [yatras, setYatras] = useState<any[]>(fallbackYatras);
+  const [loadingYatras, setLoadingYatras] = useState(false);
   const [generating, setGenerating] = useState(false);
   
   // Initialize state from localStorage if available
@@ -157,7 +256,7 @@ export default function YatraPlannerPage() {
     
     if (!completedActivities[key]) {
       toast.success("Progress marked on your sacred path!", {
-        icon: "✨",
+        icon: <Sparkles className="size-5 text-[#FFD700]" />,
         style: {
           background: "#1A1A1A",
           color: "#FFD700",
@@ -180,7 +279,9 @@ export default function YatraPlannerPage() {
       try {
         setLoadingYatras(true);
         const res = await api.get("/yatra");
-        setYatras(res.data);
+        if (res.data && res.data.length > 0) {
+          setYatras(res.data);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -340,18 +441,9 @@ export default function YatraPlannerPage() {
                             required
                           >
                             <option value="">Select Sacred Path</option>
-                            {loadingYatras ? (
-                              <option>Loading Yatras...</option>
-                            ) : (
-                              yatras.map(y => (
-                                <option key={y._id} value={y.name} className="text-black">{y.name}</option>
-                              ))
-                            )}
-                            <option value="Char Dham Yatra" className="text-black">Char Dham Yatra (Yamunotri, Gangotri, Kedarnath, Badrinath)</option>
-                            <option value="Kashi Vishwanath" className="text-black">Kashi Vishwanath (Varanasi)</option>
-                            <option value="Vaishno Devi" className="text-black">Vaishno Devi (Katra)</option>
-                            <option value="Amarnath Yatra" className="text-black">Amarnath Yatra (Kashmir)</option>
-                            <option value="Haridwar Rishikesh" className="text-black">Haridwar & Rishikesh</option>
+                            {yatras.map(y => (
+                              <option key={y._id} value={y.name} className="text-black">{y.name}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -546,11 +638,11 @@ export default function YatraPlannerPage() {
 
                                 {totalBudget < (getAdjustedCosts(selectedYatra, transportMode).minCost * parseInt(formData.numberOfPeople) + 3000) ? (
                                   <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold flex items-center gap-3">
-                                    <Info className="size-4 shrink-0" /> ⚠️ Recommended minimum is ₹{(getAdjustedCosts(selectedYatra, transportMode).minCost * parseInt(formData.numberOfPeople) + 3000).toLocaleString()}
+                                    <Info className="size-4 shrink-0" /> Recommended minimum is ₹{(getAdjustedCosts(selectedYatra, transportMode).minCost * parseInt(formData.numberOfPeople) + 3000).toLocaleString()}
                                   </div>
                                 ) : (
                                   <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold flex items-center gap-3">
-                                    <CheckCircle2 className="size-4 shrink-0" /> ✅ Your budget looks good!
+                                    <CheckCircle2 className="size-4 shrink-0" /> Your budget looks good!
                                   </div>
                                 )}
                               </div>
@@ -597,9 +689,9 @@ export default function YatraPlannerPage() {
                           <motion.div 
                             animate={{ scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className="text-7xl drop-shadow-[0_0_20px_#FF6B00]"
+                            className="text-[#FF6B00] drop-shadow-[0_0_20px_rgba(255,107,0,0.6)]"
                           >
-                            🪔
+                            <Flame className="size-20 fill-[#FFD700]" />
                           </motion.div>
                        </div>
                     </div>

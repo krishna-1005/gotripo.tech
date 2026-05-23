@@ -10,32 +10,32 @@ interface Step {
 const TOUR_STEPS: Step[] = [
   {
     target: "#tour-title-block",
-    title: "✨ Welcome to your Yatra!",
+    title: "Welcome to your Yatra!",
     content: "This is your customized itinerary! Here you'll find the title, destination, and day count of your generated trip plan."
   },
   {
     target: "#tour-blueprint",
-    title: "📊 Trip Blueprint",
+    title: "Trip Blueprint",
     content: "Review a summary of your trip parameters, budget tier, and estimated transportation cost at a glance."
   },
   {
     target: "#tour-timeline",
-    title: "📍 Day-by-Day Timeline",
+    title: "Day-by-Day Timeline",
     content: "Explore the details of each stop. Hover over any activity to Swap or Delete it. Click the card to open complete directions, instructions, and reviews!"
   },
   {
     target: "#tour-map",
-    title: "🗺️ Route Map Preview",
+    title: "Route Map Preview",
     content: "Track your route visually! Zoom, pan, or click on markers to interact with specific pins on your travel path."
   },
   {
     target: "#tour-sidebar-widgets",
-    title: "💡 Travel Recommendations",
+    title: "Travel Recommendations",
     content: "Check out packing guidelines, live weather tips, and handpicked accommodation options matching your budget."
   },
   {
     target: "#tour-finalize-block",
-    title: "🚀 Finalize & Collaborate",
+    title: "Finalize & Collaborate",
     content: "Ready to travel? Finalize your trip to open a collaborative Room where you can invite friends, live chat, and poll in real time!"
   }
 ];

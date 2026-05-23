@@ -438,7 +438,7 @@ function Collab() {
                     onClick={async () => {
                       const shareData = {
                         title: `Join my trip to ${currentTrip?.destination}! | GoTripo`,
-                        text: `Hey! Join my collaboration room for our trip to ${currentTrip?.destination} on GoTripo! 🇮🇳✈️`,
+                        text: `Hey! Join my collaboration room for our trip to ${currentTrip?.destination} on GoTripo!`,
                         url: window.location.href,
                       };
 
@@ -453,7 +453,7 @@ function Collab() {
                       } else {
                         try {
                           await navigator.clipboard.writeText(window.location.href);
-                          toast.success("Room link copied! Invite your crew. 📋");
+                          toast.success("Room link copied! Invite your crew.");
                         } catch (err) {
                           toast.error("Failed to copy link");
                         }

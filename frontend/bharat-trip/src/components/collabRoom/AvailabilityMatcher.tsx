@@ -247,7 +247,7 @@ const AvailabilityMatcher: React.FC<AvailabilityMatcherProps> = ({
           <h3 className="text-2xl font-bold text-white mb-1">
             {poll.finalDates && format(new Date(poll.finalDates.startDate), "MMM d")} – {poll.finalDates && format(new Date(poll.finalDates.endDate), "MMM d, yyyy")}
           </h3>
-          <p className="text-white/60">The trip dates have been finalized! Pack your bags. 🎒</p>
+          <p className="text-white/60">The trip dates have been finalized! Pack your bags.</p>
         </Card>
       ) : (
         <div className="grid gap-4">

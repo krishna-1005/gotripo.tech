@@ -47,7 +47,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await api.post('/cart/add', item);
       setCart(res.data);
-      toast.success('✅ Added to cart!');
+      toast.success('Added to cart!');
     } catch (err) {
       toast.error('Failed to add to cart');
     }
@@ -66,7 +66,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await api.delete(`/cart/remove/${itemId}`);
       setCart(res.data);
-      toast.success('🗑️ Item removed');
+      toast.success('Item removed');
     } catch (err) {
       toast.error('Failed to remove item');
     }

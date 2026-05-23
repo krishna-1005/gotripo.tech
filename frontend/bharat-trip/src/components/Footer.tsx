@@ -104,7 +104,7 @@ export function Footer() {
               System Status: Operational
             </span>
             <span className="text-slate-700 dark:text-white/10">|</span>
-            <span>Handcrafted in Bharat 🇮🇳</span>
+            <span>Handcrafted in India</span>
           </div>
         </div>
       </div>

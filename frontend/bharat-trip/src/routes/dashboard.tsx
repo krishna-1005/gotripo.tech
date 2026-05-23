@@ -99,7 +99,7 @@ function DashboardContent() {
           <div className="absolute inset-0 bg-mesh opacity-50" />
           <div className="relative">
             <div className="text-sm text-white/70">
-              Good morning, {user?.displayName || "Explorer"} 👋
+              Good morning, {user?.displayName || "Explorer"}
             </div>
             <h1 className="mt-2 font-display font-bold text-3xl md:text-4xl tracking-tight">
               Where to next?
