@@ -4,6 +4,7 @@ export {
   seoRoutes,
   findSEORoute,
   getSitemapRoutes,
+  normalizePath,
   SITE_URL,
   DEFAULT_OG_IMAGE,
 } from "./seo-routes";

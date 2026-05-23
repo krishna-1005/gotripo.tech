@@ -1,22 +1,35 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { SEO } from "./SEO";
-import { findSEORoute, SITE_URL, DEFAULT_OG_IMAGE } from "./seo-routes";
+import { findSEORoute, normalizePath, SITE_URL, DEFAULT_OG_IMAGE } from "./seo-routes";
 
 /**
  * Automatic SEO component that reads the current route
  * and applies the matching SEO configuration from seo-routes.ts.
  *
- * Place this ONCE in your App component. It will automatically
- * set title, description, OG tags, Twitter cards, and canonical URL
- * for every page defined in seo-routes.ts.
+ * Place this ONCE in your App component. It will automatically:
+ * 1. Normalize trailing slashes (redirect /path/ → /path)
+ * 2. Set title, description, OG tags, Twitter cards per route
+ * 3. Set unique canonical URL per page
  *
  * For pages not in the config (e.g., dynamic routes), it uses defaults.
  * Individual pages can override by rendering their own <SEO> component.
  */
 export function AutoSEO() {
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
+  const navigate = useNavigate();
 
-  const routeConfig = findSEORoute(pathname);
+  // Client-side trailing slash normalization as a safety net.
+  // The primary fix is in vercel.json (trailingSlash: false), but
+  // this handles cases where users navigate client-side with a trailing slash.
+  useEffect(() => {
+    if (pathname !== "/" && pathname.endsWith("/")) {
+      navigate(normalizePath(pathname) + search + hash, { replace: true });
+    }
+  }, [pathname, search, hash, navigate]);
+
+  const normalizedPath = normalizePath(pathname);
+  const routeConfig = findSEORoute(normalizedPath);
 
   if (routeConfig) {
     return (
@@ -55,11 +68,12 @@ export function AutoSEO() {
   }
 
   // Default SEO for routes not in the config (dynamic routes, etc.)
+  // Uses the normalized path as canonical to prevent duplicates.
   return (
     <SEO
       title="GoTripo – Group Trip Planning & Travel Expense Split App"
       description="Plan group trips with friends, split expenses, manage itineraries, and collaborate easily with GoTripo."
-      canonicalPath={pathname}
+      canonicalPath={normalizedPath}
       noindex={false}
     />
   );

@@ -44,7 +44,13 @@ export function SEO({
   noindex = false,
   structuredData,
 }: SEOProps) {
-  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  // Ensure canonical URL matches sitemap exactly:
+  // Homepage: https://gotripo.tech (no trailing slash)
+  // Other pages: https://gotripo.tech/explore-india (no trailing slash)
+  const canonicalUrl =
+    canonicalPath === "/"
+      ? SITE_URL
+      : `${SITE_URL}${canonicalPath}`;
   const fullTitle = title.includes("GoTripo") ? title : `${title} | GoTripo`;
 
   return (

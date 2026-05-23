@@ -14,7 +14,7 @@ export const SITE_URL = "https://gotripo.tech";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/gotripo-final-logo.png`;
 
 export interface SEORouteConfig {
-  /** Route path (must match react-router path) */
+  /** Route path (must match react-router path, no trailing slash) */
   path: string;
   /** Page title — appended with " | GoTripo" automatically */
   title: string;
@@ -315,12 +315,23 @@ export const seoRoutes: SEORouteConfig[] = [
 ];
 
 /**
+ * Normalizes a pathname by stripping trailing slashes.
+ * Ensures "/explore-india/" matches "/explore-india" in the config.
+ */
+export function normalizePath(pathname: string): string {
+  if (pathname === "/") return "/";
+  return pathname.replace(/\/+$/, "");
+}
+
+/**
  * Helper to find SEO config for a given pathname.
+ * Normalizes trailing slashes before matching.
  * Supports exact matches only (dynamic routes like /yatra/:id
  * won't match and will use defaults).
  */
 export function findSEORoute(pathname: string): SEORouteConfig | undefined {
-  return seoRoutes.find((route) => route.path === pathname);
+  const normalized = normalizePath(pathname);
+  return seoRoutes.find((route) => route.path === normalized);
 }
 
 /**
