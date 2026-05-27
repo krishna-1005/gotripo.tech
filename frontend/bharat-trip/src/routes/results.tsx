@@ -37,6 +37,10 @@ import {
   Archive,
   ThumbsUp,
   ThumbsDown,
+  Wine,
+  Trees,
+  Milestone,
+  Palette,
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -53,23 +57,50 @@ import { motion, AnimatePresence } from "framer-motion";
    ───────────────────────────────────── */
 function getTypeConfig(type: string) {
   const t = (type || "").toLowerCase();
+  
   if (t === "food") return {
     icon: Utensils, label: "Food & Dining", color: "#ea580c",
     fallbackDesc: "A popular local dining spot known for authentic regional cuisine and vibrant atmosphere.",
     duration: "45 – 90 min"
   };
-  if (t === "activity") return {
-    icon: Flame, label: "Activity", color: "#dc2626",
-    fallbackDesc: "An engaging hands-on experience that gives you an immersive taste of the local culture.",
+  if (t === "nightlife") return {
+    icon: Wine, label: "Nightlife", color: "#7c3aed",
+    fallbackDesc: "A lively evening destination known for music, social energy, and a great atmosphere.",
+    duration: "2 – 3 hrs"
+  };
+  if (t === "nature") return {
+    icon: Trees, label: "Nature", color: "#16a34a",
+    fallbackDesc: "A peaceful scenic location ideal for relaxing walks, fresh air, and beautiful views.",
     duration: "1 – 2 hrs"
   };
-  if (t === "landmark") return {
-    icon: Landmark, label: "Landmark", color: "#2563eb",
-    fallbackDesc: "A historically significant site with rich architectural heritage and cultural importance.",
+  if (t === "heritage") return {
+    icon: Landmark, label: "Heritage", color: "#854d0e",
+    fallbackDesc: "A historic landmark showcasing rich architecture and fascinating cultural heritage.",
+    duration: "1.5 – 2 hrs"
+  };
+  if (t === "spiritual") return {
+    icon: Milestone, label: "Spiritual", color: "#0891b2",
+    fallbackDesc: "A serene spiritual site offering a peaceful atmosphere and cultural significance.",
     duration: "30 – 60 min"
   };
+  if (t === "shopping") return {
+    icon: ShoppingBag, label: "Shopping", color: "#db2777",
+    fallbackDesc: "A bustling marketplace featuring local specialties and a lively shopping vibe.",
+    duration: "2 – 3 hrs"
+  };
+  if (t === "adventure") return {
+    icon: Zap, label: "Adventure", color: "#dc2626",
+    fallbackDesc: "An exciting destination offering thrilling activities and memorable outdoor experiences.",
+    duration: "3 – 4 hrs"
+  };
+  if (t === "culture") return {
+    icon: Palette, label: "Culture", color: "#4f46e5",
+    fallbackDesc: "An immersive cultural experience highlighting local art, traditions, and creativity.",
+    duration: "1.5 – 2.5 hrs"
+  };
+  
   return {
-    icon: Camera, label: "Sightseeing", color: "#7c3aed",
+    icon: Camera, label: "Sightseeing", color: "#6366f1",
     fallbackDesc: "A must-visit spot offering scenic views, local character, and memorable photo opportunities.",
     duration: "1 – 2 hrs"
   };
@@ -668,12 +699,28 @@ export default function Results() {
 
   const handleFinalize = async () => {
     if (!planId) return;
+    
+    // Show premium transition states
+    const transitionToast = toast.loading("Creating collaboration room...");
+    
+    setTimeout(() => {
+      toast.loading("Preparing shared itinerary...", { id: transitionToast });
+    }, 1000);
+
+    setTimeout(() => {
+      toast.loading("Syncing your trip...", { id: transitionToast });
+    }, 2000);
+
     try {
       await api.patch(`/trips/${planId}`, { type: "room" });
-      toast.success("Finalized! Opening Group Room…");
-      navigate(`/collaborative-trip?tripId=${planId}`);
+      
+      setTimeout(() => {
+        toast.success("Room ready! Opening shared headquarters...", { id: transitionToast });
+        navigate(`/collaborative-trip?tripId=${planId}`);
+      }, 3000);
+      
     } catch {
-      toast.error("Failed to finalize");
+      toast.error("Failed to finalize", { id: transitionToast });
     }
   };
 

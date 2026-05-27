@@ -116,12 +116,13 @@ Instructions:
 3. Include at least 3 distinct attractions/activities for each day.
 4. Group nearby places together for each day.
 5. Provide a concise summary.
+6. For each place, return: name, type (food/nature/heritage/spiritual/shopping/nightlife/adventure/sightseeing), bestTime, duration (e.g. '1-2 hrs'), estimatedCost, and reason.
 
 Return ONLY valid JSON:
 {
   "summary": "...",
   "itinerary": {
-    "Day 1": [ { "name": "...", "bestTime": "Morning/Afternoon/Evening", "reason": "...", "lat": ..., "lng": ... } ],
+    "Day 1": [ { "name": "...", "type": "...", "bestTime": "...", "duration": "...", "estimatedCost": ..., "reason": "...", "lat": ..., "lng": ... } ],
     ...
   }
 }`;

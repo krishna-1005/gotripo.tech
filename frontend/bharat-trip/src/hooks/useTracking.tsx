@@ -47,7 +47,6 @@ export const useTracking = () => {
         }
 
         // 5. Send to Google Analytics 4
-        console.debug('[Analytics] Tracking pageview:', location.pathname + location.search);
         ReactGA.send({
           hitType: 'pageview',
           page: location.pathname + location.search,
@@ -55,7 +54,7 @@ export const useTracking = () => {
         });
       } catch (err) {
         // Silent fail to not disturb user experience
-        console.error('[Analytics] Error tracking pageview:', err);
+        console.debug('Analytics ping skipped');
       }
     };
 

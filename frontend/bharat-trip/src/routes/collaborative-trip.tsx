@@ -129,12 +129,15 @@ function CollaborativeContent() {
       setMessages(res.data.messages || []);
       
       // Transform trip members to UI members
-      const tripMembers = (res.data.members || []).map((m: any, i: number) => ({
-        userId: m.userId,
-        userName: m.userName,
-        initials: m.userName[0],
-        color: COLORS[i % COLORS.length]
-      }));
+      const tripMembers = (res.data.members || []).map((m: any, i: number) => {
+        const uName = m.userId?.name || m.userName || "Traveller";
+        return {
+          userId: m.userId?._id || m.userId,
+          userName: uName,
+          initials: uName[0].toUpperCase(),
+          color: COLORS[i % COLORS.length]
+        };
+      });
       setMembers(tripMembers);
     } catch (err) {
       toast.error("Failed to load trip");
@@ -294,7 +297,20 @@ function CollaborativeContent() {
     }
   }, [messages]);
 
-  if (loading) return <AppShell><div className="min-h-screen bg-[#0e0e10] flex items-center justify-center"><Loader2 className="size-10 animate-spin text-primary" /></div></AppShell>;
+  if (loading) return (
+    <AppShell>
+      <div className="min-h-screen bg-[#0e0e10] flex flex-col items-center justify-center space-y-6">
+        <div className="relative">
+          <Loader2 className="size-16 animate-spin text-[#534AB7] opacity-20" />
+          <Sparkles className="size-6 text-[#534AB7] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        </div>
+        <div className="text-center">
+          <h2 className="font-display font-bold text-xl text-white">Preparing your headquarters...</h2>
+          <p className="text-[#888888] text-sm mt-2 animate-pulse">Syncing your itinerary and shared tools</p>
+        </div>
+      </div>
+    </AppShell>
+  );
 
   const topPick = suggestions.reduce((prev, current) => (prev.upvotes.length > current.upvotes.length) ? prev : current, suggestions[0]);
 
@@ -488,7 +504,7 @@ function CollaborativeContent() {
                               <span className="text-[10px] text-[#888888] font-black uppercase tracking-[0.2em]">Day {i + 1}</span>
                             </h3>
                             <div className="space-y-4">
-                              {day.items.map((item: any, j: number) => (
+                              {(day.activities || day.places || []).map((item: any, j: number) => (
                                 <div key={j} className="p-5 rounded-2xl bg-[#141416] border border-[#2a2a2e] flex items-center justify-between">
                                   <div className="flex items-center gap-5">
                                     <div className="text-[10px] font-black text-[#534AB7] uppercase tracking-widest bg-[#534AB7]/10 px-2 py-1 rounded-md">
@@ -499,7 +515,7 @@ function CollaborativeContent() {
                                         {item.activity || item.name || item.title || item.place}
                                       </div>
                                       {(item.desc || item.description || item.notes || item.reason) && (
-                                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                        <p className="text-xs text-[#888888] mt-1 leading-relaxed">
                                           {item.desc || item.description || item.notes || item.reason}
                                         </p>
                                       )}

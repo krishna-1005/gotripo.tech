@@ -61,7 +61,6 @@ import ReactGA from "react-ga4";
 
 // Initialize Google Analytics 4
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-BDP3TC1E66";
-console.debug('[Analytics] Initializing GA4 with ID:', GA_MEASUREMENT_ID);
 ReactGA.initialize(GA_MEASUREMENT_ID);
 
 export default function App() {

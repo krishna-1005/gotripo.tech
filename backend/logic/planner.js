@@ -776,6 +776,8 @@ async function generatePlan({
     // Assign time slots
     const dayPlaces = dayGroup.map((p, idx) => {
       const priority = getTimePriority(p);
+      const metadata = p.metadata || classifyPlace(p, budgetTier);
+      
       let slot = "Afternoon";
       if (priority <= 2) slot = "Morning";
       else if (priority <= 4) slot = "Afternoon";
@@ -784,10 +786,11 @@ async function generatePlan({
 
       return {
         ...p,
+        type: metadata.primaryCategory || p.category,
         bestTime: slot,
         timeReason: `Optimized for ${slot.toLowerCase()} visit.`,
-        estimatedCost: p.avgCost || 200,
-        estimatedHours: p.timeHours || 2,
+        estimatedCost: metadata.estimatedCost ?? p.avgCost ?? 200,
+        duration: metadata.avgDuration ? (metadata.avgDuration >= 60 ? `${Math.floor(metadata.avgDuration/60)} – ${Math.floor(metadata.avgDuration/60)+1} hrs` : `${metadata.avgDuration} mins`) : "1 – 2 hrs",
       };
     });
 

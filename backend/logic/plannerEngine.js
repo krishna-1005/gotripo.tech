@@ -66,12 +66,12 @@ function getBestVisitTime(category, index) {
 /* ── FALLBACK GENERATOR ── */
 function generateFallbacks(city, count) {
   const templates = [
-    { name: "Local Market", category: "Shopping", tags: ["local", "market"], timeHours: 2, avgCost: 100 },
-    { name: "City Park", category: "Nature", tags: ["park", "relaxing"], timeHours: 1.5, avgCost: 0 },
-    { name: "Food Street", category: "Food", tags: ["street food", "local"], timeHours: 2, avgCost: 300 },
-    { name: "Central Mall", category: "Shopping", tags: ["mall", "modern"], timeHours: 3, avgCost: 500 },
-    { name: "Ancient Temple", category: "Spiritual", tags: ["temple", "historic"], timeHours: 1, avgCost: 0 },
-    { name: "Art Gallery", category: "Culture", tags: ["art", "museum"], timeHours: 2, avgCost: 200 }
+    { name: "Local Market", category: "Shopping", tags: ["local", "market"], avgTime: 120, estimatedCost: 200 },
+    { name: "City Park", category: "Nature", tags: ["park", "relaxing"], avgTime: 90, estimatedCost: 0 },
+    { name: "Food Street", category: "Food", tags: ["street food", "local"], avgTime: 60, estimatedCost: 300 },
+    { name: "Central Mall", category: "Shopping", tags: ["mall", "modern"], avgTime: 180, estimatedCost: 500 },
+    { name: "Ancient Temple", category: "Spiritual", tags: ["temple", "historic"], avgTime: 45, estimatedCost: 0 },
+    { name: "Art Gallery", category: "Culture", tags: ["art", "museum"], avgTime: 120, estimatedCost: 200 }
   ];
 
   const results = [];
@@ -81,7 +81,7 @@ function generateFallbacks(city, count) {
       ...template,
       name: `${city} ${template.name}`,
       city: city,
-      lat: 0, // Should be filled by caller if needed
+      lat: 0, 
       lng: 0,
       rating: 4.2 + (i % 5) * 0.1,
       tag: "Popular Spot",
@@ -178,18 +178,22 @@ function plannerEngine(places, { city, days, interests, budget, userPreferences 
 
     itinerary[`Day ${i + 1}`] = {
       places: dayPlaces.map((p, idx) => {
-        const timing = getBestVisitTime(p.category, idx + i); // use idx + i for more variation
+        const timing = getBestVisitTime(p.category, idx + i);
+        const metadata = p.metadata || {};
+        
         return {
           name: p.name,
+          type: metadata.primaryCategory || p.category, // Map primaryCategory to 'type' for frontend
           category: p.category,
-          estimatedCost: p.cost || p.estimatedCost || 0,
-          timeHours: p.avgTime || 2,
+          estimatedCost: metadata.estimatedCost || p.cost || p.estimatedCost || 0,
+          duration: metadata.avgDuration ? (metadata.avgDuration >= 60 ? `${Math.floor(metadata.avgDuration/60)} – ${Math.floor(metadata.avgDuration/60)+1} hrs` : `${metadata.avgDuration} mins`) : "1 – 2 hrs",
+          description: metadata.description || "A wonderful place to explore and enjoy.",
           lat: p.lat,
           lng: p.lng,
           rating: p.rating,
           tag: p.tag || "Top Choice",
           isPersonalized: p.isPersonalized,
-          bestTime: timing.time,
+          bestTime: metadata.bestTimeOfDay ? (metadata.bestTimeOfDay.charAt(0).toUpperCase() + metadata.bestTimeOfDay.slice(1)) : timing.time,
           timeReason: timing.reason
         };
       })

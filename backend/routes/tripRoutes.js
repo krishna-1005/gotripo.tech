@@ -506,8 +506,38 @@ router.patch("/:id", protect, async (req, res) => {
       return res.status(403).json({ error: "Not authorized to update this trip" });
     }
 
-    const { startDate, title, destination } = req.body;
+    const { startDate, title, destination, type, itinerary } = req.body;
     
+    if (type === "room" && trip.type !== "room") {
+      trip.type = "room";
+      // Auto-migrate places to activities for collaboration
+      if (trip.itinerary && trip.itinerary.length > 0) {
+        trip.itinerary.forEach(day => {
+          if ((!day.activities || day.activities.length === 0) && day.places && day.places.length > 0) {
+            day.activities = day.places.map((p, idx) => ({
+              id: "act_" + Math.random().toString(36).substr(2, 9),
+              time: p.bestTime || "Morning",
+              title: p.name,
+              location: destination || trip.destination,
+              type: p.category?.toLowerCase().includes("food") ? "food" : "activity",
+              notes: p.timeReason || p.desc || p.description,
+              order: idx,
+              addedBy: {
+                userId: req.user._id.toString(),
+                name: req.user.name || "Traveller"
+              }
+            }));
+          }
+        });
+        trip.markModified('itinerary');
+      }
+    }
+    
+    if (itinerary) {
+      trip.itinerary = itinerary;
+      trip.markModified('itinerary');
+    }
+
     if (startDate) {
       trip.startDate = new Date(startDate);
       // 1. Update Trip.itinerary dates
