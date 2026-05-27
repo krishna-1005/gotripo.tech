@@ -133,11 +133,22 @@ router.post("/generate", planValidation, async (req, res) => {
 
     if (isMultiCity && Array.isArray(cities) && cities.length > 0) {
       // SMART MULTI-CITY LOGIC: PARALLEL GENERATION
-      const daysPerCity = Math.floor(days / cities.length);
+      const { cityStays } = req.body;
       
       // 1. Launch all city plan generations concurrently
       const cityPlanPromises = cities.map((cityName, i) => {
-        const currentCityDays = (i === cities.length - 1) ? (days - (daysPerCity * (cities.length - 1))) : daysPerCity;
+        let currentCityDays;
+        
+        if (cityStays && Array.isArray(cityStays)) {
+          // Find the stay info for this specific city
+          const stay = cityStays.find(s => s.name === cityName) || cityStays[i];
+          currentCityDays = stay ? (stay.days || (stay.nights ? stay.nights + 1 : 2)) : 2;
+        } else {
+          // Fallback to even split
+          const daysPerCity = Math.floor(days / cities.length);
+          currentCityDays = (i === cities.length - 1) ? (days - (daysPerCity * (cities.length - 1))) : daysPerCity;
+        }
+
         if (currentCityDays <= 0) return Promise.resolve(null);
 
         return generatePlan({

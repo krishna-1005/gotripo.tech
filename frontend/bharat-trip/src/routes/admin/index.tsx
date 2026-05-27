@@ -14,7 +14,9 @@ import {
   MousePointer2,
   Loader2,
   RefreshCw,
-  Globe
+  Globe,
+  Mail,
+  Send
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
@@ -29,6 +31,7 @@ import {
   Area
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
   return (
@@ -41,6 +44,7 @@ export default function AdminDashboardPage() {
 function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [broadcasting, setBroadcasting] = useState(false);
 
   useEffect(() => {
     api.get("/admin/stats")
@@ -48,6 +52,20 @@ function AdminDashboard() {
       .catch(err => console.error("Stats fetch error:", err))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleBroadcastDigest = async () => {
+    if (!confirm("Are you sure you want to broadcast the Weekly Travel Digest to ALL eligible users?")) return;
+    
+    setBroadcasting(true);
+    try {
+      const res = await api.post("/admin/broadcast-digest");
+      toast.success(`Broadcast successful! Sent to ${res.data.count} users.`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Broadcast failed");
+    } finally {
+      setBroadcasting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -94,9 +112,19 @@ function AdminDashboard() {
   return (
     <AdminShell>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight">System Overview</h1>
-          <p className="text-muted-foreground mt-1">Real-time performance and user engagement metrics.</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold tracking-tight">System Overview</h1>
+            <p className="text-muted-foreground mt-1">Real-time performance and user engagement metrics.</p>
+          </div>
+          <button 
+            onClick={handleBroadcastDigest}
+            disabled={broadcasting}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-70"
+          >
+            {broadcasting ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
+            {broadcasting ? "Broadcasting..." : "Broadcast Weekly Digest"}
+          </button>
         </div>
 
         {/* Stats Grid */}

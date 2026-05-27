@@ -9,12 +9,43 @@ const Announcement = require("../models/Announcement");
 const Notification = require("../models/Notification");
 const { protect, adminOnly } = require("../middleware/protect");
 const { admin, db } = require("../firebaseAdmin");
-const { sendUpdateEmail } = require("../services/emailService");
+const { sendUpdateEmail, sendWeeklyTravelDigest } = require("../services/emailService");
 
 const router = express.Router();
 
 // Middleware to verify admin status
 const verifyAdminEmail = adminOnly;
+
+/* BROADCAST WEEKLY DIGEST */
+router.post("/broadcast-digest", protect, verifyAdminEmail, async (req, res) => {
+  try {
+    const users = await User.find({ 
+      $or: [
+        { "preferences.emailAlerts": true },
+        { "preferences.emailAlerts": { $exists: false } }
+      ]
+    });
+
+    console.log(`📧 Starting Weekly Digest broadcast to ${users.length} users...`);
+    
+    // Process in batches or concurrently (using Promise.all for simplicity here, but would use a queue in production)
+    const broadcastPromises = users.map(user => 
+      sendWeeklyTravelDigest(user.email, user.name).catch(err => 
+        console.error(`❌ Failed to send digest to ${user.email}:`, err.message)
+      )
+    );
+
+    await Promise.all(broadcastPromises);
+
+    res.json({ 
+      message: "Weekly Digest broadcast initiated successfully!", 
+      count: users.length 
+    });
+  } catch (err) {
+    console.error("Digest broadcast error:", err);
+    res.status(500).json({ error: "Failed to broadcast Weekly Digest" });
+  }
+});
 
 /* ANNOUNCEMENTS MANAGEMENT */
 router.get("/announcements", protect, verifyAdminEmail, async (req, res) => {
@@ -46,11 +77,20 @@ router.post("/announcements", protect, verifyAdminEmail, async (req, res) => {
 
     // 2. Send email notification if requested
     if (sendEmail) {
-      const users = await User.find({ "preferences.emailAlerts": true });
+      console.log(`📧 Starting announcement broadcast: ${announcement.title}`);
+      // Fetch all users who haven't explicitly opted out, or all users if preference doesn't exist
+      const users = await User.find({ 
+        $or: [
+          { "preferences.emailAlerts": true },
+          { "preferences.emailAlerts": { $exists: false } }
+        ]
+      });
       const emails = users.map(u => u.email).filter(e => e);
       if (emails.length > 0) {
-        // Use the title as subject and content as body
+        console.log(`📧 Sending announcement to ${emails.length} users...`);
         sendUpdateEmail(emails, announcement.title, announcement.content);
+      } else {
+        console.warn("⚠️ No eligible users found for email broadcast.");
       }
     }
 

@@ -121,6 +121,7 @@ router.post("/login", authLimiter, loginValidation, async (req, res) => {
     const token = signToken(user._id);
 
     // Send login notification email (background)
+    console.log(`📧 Triggering login alert for: ${user.email}`);
     sendLoginNotificationEmail(user.email, user.name).catch(e => console.error("Login email error:", e.message));
 
     // Log the login (background)
