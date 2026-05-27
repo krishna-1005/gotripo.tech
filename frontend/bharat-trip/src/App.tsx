@@ -57,22 +57,15 @@ import { Chatbot } from "./components/Chatbot";
 import { useTracking } from "./hooks/useTracking";
 import { CartProvider } from "./context/CartContext";
 import { AutoSEO } from "./seo";
-import { useEffect } from "react";
 import ReactGA from "react-ga4";
 
 // Initialize Google Analytics 4
-ReactGA.initialize("G-BDP3TC1E66");
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-BDP3TC1E66";
+console.debug('[Analytics] Initializing GA4 with ID:', GA_MEASUREMENT_ID);
+ReactGA.initialize(GA_MEASUREMENT_ID);
 
 export default function App() {
   useTracking();
-
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: window.location.pathname + window.location.search,
-      title: document.title || "GoTripo",
-    });
-  }, []);
   
   return (
     <CartProvider>

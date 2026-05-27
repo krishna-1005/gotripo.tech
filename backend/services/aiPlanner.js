@@ -12,11 +12,26 @@ async function analyzeAndRefinePlan({
   interests,
   travelerType,
   pace,
+  mood = "local culture",
+  planningStyle = "balanced",
   candidates,
   userPreferences = {},
-  language = "English"
+  language = "English",
+  recommendedStay = null,
+  preClusteredItinerary = null
 }) {
+  // If we have a pre-clustered itinerary from the recommendation engine,
+  // use the constrained AI enhancement mode that only writes copy.
+  const useConstrainedMode = preClusteredItinerary && preClusteredItinerary.length > 0;
+
   const getFallbackPlan = () => {
+    // If pre-clustered itinerary exists, return it directly as the fallback
+    if (useConstrainedMode) {
+      return {
+        summary: `A curated ${days}-day trip to ${city} focusing on ${interests.join(", ")}.`,
+        itinerary: preClusteredItinerary
+      };
+    }
     const it = {};
     for (let i = 1; i <= days; i++) {
       it[i] = candidates.slice((i - 1) * 3, i * 3).map(c => ({
@@ -37,23 +52,101 @@ async function analyzeAndRefinePlan({
     const config = await SystemConfig.findOne({ key: "use_gpt4" });
     const useGPT4 = config && (config.value === "true" || config.value === true);
 
-    if (useGPT4 && process.env.OPENAI_API_KEY) {
-      const OpenAI = require("openai");
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      
-      const systemPrompt = `
-You are the GoTripo Itinerary Optimizer powered by GPT-4o.
-STRICT RULE: ONLY suggest attractions, landmarks, and activities located within ${city}.
-Return ONLY valid JSON.
-`;
+    // Build the AI prompt — constrained or unconstrained
+    let systemPrompt, userPrompt;
 
-      const userPrompt = `
-Destination: ${city}
+    if (useConstrainedMode) {
+      // CONSTRAINED MODE: AI must NOT change places, only enhance copy
+      const itineraryContext = preClusteredItinerary.map(day => {
+        const placeSummaries = (day.places || []).map(p =>
+          `- ${p.name} (${p.category || "General"}, ${p.bestTime || "Anytime"})${p.whyRecommended && p.whyRecommended.length > 0 ? ` [Reasons: ${p.whyRecommended.join(", ")}]` : ""}`
+        ).join("\n");
+        return `${day.label || `Day ${day.day}`}:\n${placeSummaries}`;
+      }).join("\n\n");
+
+      const persona = interests.includes("Luxury") ? "Luxury Travel Curator" : 
+                      interests.includes("Backpacking") ? "Expert Backpacker" :
+                      interests.includes("Photography") ? "Professional Travel Photographer" :
+                      interests.includes("Food Trail") ? "Gourmet Food Critic" : "Smart Travel Expert";
+
+      systemPrompt = `You are the GoTripo ${persona} for ${city}. Your goal is to make the user feel seen and understood.
+
+STRICT RULES:
+1. NO INVENTING: Do NOT add, remove, swap, or reorder ANY places. The itinerary structure is FINAL.
+2. EXACT NAMES: Keep every place name EXACTLY as provided.
+3. PERSONALIZED COPY: 
+   a. Summary: 1-2 punchy sentences reflecting their ${mood} mood and ${planningStyle} style.
+   b. Themes: Creative, short themes for each day.
+   c. Descriptions: 1-2 vivid sentences for each place. CRITICAL: Mention specific user interests (${interests.join(", ")}) and explain WHY it fits them using the provided "Reasons".
+4. TONE: Premium, expert, and curated. 
+5. Language: ${language}.
+
+Return ONLY valid JSON:
+{
+  "summary": "...",
+  "itinerary": [
+    {
+      "day": 1,
+      "theme": "...",
+      "places": [
+        { "name": "...", "desc": "..." }
+      ]
+    }
+  ]
+}`;
+
+      userPrompt = `Destination: ${city}
 Days: ${days}
 Budget: ${budget}
 Interests: ${interests.join(", ")}
-Available Candidates: ${candidates.map(c => c.name).join(", ")}
-`;
+Traveler: ${travelerType}
+Pace: ${pace}
+
+PRE-FINALIZED ITINERARY (DO NOT CHANGE):
+${itineraryContext}`;
+    } else {
+      // UNCONSTRAINED MODE (legacy fallback — for cases without pre-clustered data)
+      systemPrompt = `You are the GoTripo Itinerary Optimizer.
+STRICT RULE: ONLY suggest attractions, landmarks, and activities located within ${city}.
+DO NOT suggest any places from other states or cities.
+
+Instructions:
+1. Optimize the itinerary for a ${days}-day trip to ${city}.
+2. Use the provided "candidates" as the primary source of truth.
+3. Include at least 3 distinct attractions/activities for each day.
+4. Group nearby places together for each day.
+5. Provide a concise summary.
+
+Return ONLY valid JSON:
+{
+  "summary": "...",
+  "itinerary": {
+    "Day 1": [ { "name": "...", "bestTime": "Morning/Afternoon/Evening", "reason": "...", "lat": ..., "lng": ... } ],
+    ...
+  }
+}`;
+
+      const candidatesContext = candidates.map(c => 
+        `Name: ${c.name}, Category: ${c.category}, Tags: ${(c.tags || []).join(",")}, Lat: ${c.lat}, Lng: ${c.lng}`
+      ).join("\n");
+
+      userPrompt = `Destination: ${city}
+Days: ${days}
+Budget: ${budget}
+Interests: ${interests.join(", ")}
+Traveler Type: ${travelerType}
+Pace: ${pace}
+
+Available Candidates for ${city}:
+${candidatesContext}`;
+    }
+
+    // Execute AI call (GPT-4 or Groq)
+    let content;
+
+    if (useGPT4 && process.env.OPENAI_API_KEY) {
+      const OpenAI = require("openai");
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -64,73 +157,49 @@ Available Candidates: ${candidates.map(c => c.name).join(", ")}
         response_format: { type: "json_object" }
       });
 
-      const content = response.choices[0].message.content;
-      return JSON.parse(content);
+      content = response.choices[0].message.content;
+    } else {
+      const Groq = require("groq-sdk");
+      if (!process.env.GROQ_API_KEY) {
+        console.warn("⚠️ GROQ_API_KEY missing. Falling back to local logic.");
+        return getFallbackPlan();
+      }
+
+      const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" }
+      });
+
+      content = chatCompletion.choices?.[0]?.message?.content;
     }
 
-    const Groq = require("groq-sdk");
-    if (!process.env.GROQ_API_KEY) {
-      console.warn("⚠️ GROQ_API_KEY missing. Falling back to local logic.");
-      return getFallbackPlan();
-    }
-
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const systemPrompt = `
-You are the GoTripo Itinerary Optimizer.
-STRICT RULE: ONLY suggest attractions, landmarks, and activities located within ${city}.
-DO NOT suggest any places from other states or cities (e.g., if the destination is in Kerala, DO NOT suggest places in Bengaluru/Karnataka).
-
-Instructions:
-1. Optimize the itinerary for a ${days}-day trip to ${city}.
-2. Use the provided "candidates" as the primary source of truth for location names and coordinates.
-3. If a candidate's name or metadata clearly indicates it's in a different city (e.g., has "Bengaluru" in the name but the destination is "Kerala"), EXCLUDE IT.
-4. IMPORTANT: Include at least 3 distinct attractions/activities for each day (4 if the pace is "fast").
-5. Group nearby places together for each day to minimize travel time.
-6. Provide a concise summary of the trip.
-
-Return ONLY valid JSON in this structure:
-{
-  "summary": "...",
-  "itinerary": {
-    "Day 1": [ { "name": "...", "bestTime": "Morning/Afternoon/Evening", "reason": "...", "lat": ..., "lng": ... } ],
-    ...
-  }
-}
-`;
-
-    const candidatesContext = candidates.map(c => 
-      `Name: ${c.name}, Category: ${c.category}, Tags: ${(c.tags || []).join(",")}, Lat: ${c.lat}, Lng: ${c.lng}`
-    ).join("\n");
-
-    const userPrompt = `
-Destination: ${city}
-Days: ${days}
-Budget: ${budget}
-Interests: ${interests.join(", ")}
-Traveler Type: ${travelerType}
-Pace: ${pace}
-
-Available Candidates for ${city}:
-${candidatesContext}
-`;
-
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" }
-    });
-
-    const content = chatCompletion.choices?.[0]?.message?.content;
     if (!content) {
-      throw new Error("Empty response from Groq");
+      throw new Error("Empty response from AI");
     }
 
     const data = JSON.parse(content);
 
     if (data && data.itinerary) {
+      // In constrained mode, return the AI-enhanced descriptions mapped back
+      if (useConstrainedMode) {
+        return {
+          summary: data.summary || `A ${days}-day trip to ${city}.`,
+          itinerary: Array.isArray(data.itinerary) ? data.itinerary : 
+            Object.entries(data.itinerary).map(([dayKey, places]) => ({
+              day: dayKey,
+              theme: (typeof places === 'object' && !Array.isArray(places)) ? places.theme : undefined,
+              places: Array.isArray(places) ? places : (places.places || [])
+            }))
+        };
+      }
+
+      // Unconstrained mode: parse as before
       const finalizedItinerary = [];
       const itineraryEntries = Array.isArray(data.itinerary) 
         ? data.itinerary.map((d, i) => [`Day ${i + 1}`, d.places || d])

@@ -58,7 +58,7 @@ router.post("/generate", planValidation, async (req, res) => {
     return res.status(400).json({ error: "Request body missing" });
   }
 
-  const { city, cities, days, budget, interests, isMultiCity, travelerType, pace, sourceCity } = req.body;
+  const { city, cities, days, budget, interests, isMultiCity, travelerType, pace, sourceCity, mood } = req.body;
 
   if (!days || !budget) {
     return res.status(400).json({ error: "days and budget are required" });
@@ -148,7 +148,8 @@ router.post("/generate", planValidation, async (req, res) => {
           travelerType: travelerType || "solo",
           pace: pace || "moderate",
           userPreferences,
-          language: req.body.language || "English"
+          language: req.body.language || "English",
+          mood: mood || "local culture"
         });
       });
 
@@ -197,7 +198,8 @@ router.post("/generate", planValidation, async (req, res) => {
         pace: pace || "moderate",
         userPreferences,
         language: req.body.language || "English",
-        sourceCity
+        sourceCity,
+        mood: mood || "local culture"
       });
     }
 

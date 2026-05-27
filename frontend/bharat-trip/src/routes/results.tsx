@@ -35,6 +35,8 @@ import {
   ShoppingCart,
   Sparkles,
   Archive,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -655,6 +657,15 @@ export default function Results() {
     toast.success("Activity removed");
   };
 
+  const handleFeedback = async (placeName: string, type: 'like' | 'dislike') => {
+    try {
+      await api.post("/profile/feedback", { placeName, type });
+      toast.success(type === 'like' ? "Glad you like it! We'll show more like this." : "Noted. We'll avoid similar places.");
+    } catch {
+      toast.error("Feedback failed");
+    }
+  };
+
   const handleFinalize = async () => {
     if (!planId) return;
     try {
@@ -875,6 +886,21 @@ export default function Results() {
                                     )}
                                   </div>
 
+                                  {/* Why Recommended badges */}
+                                  {p.whyRecommended && p.whyRecommended.length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-1 mt-2">
+                                      {p.whyRecommended.map((reason: string, rIdx: number) => (
+                                        <span
+                                          key={rIdx}
+                                          className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-800/40 px-2 py-0.5 rounded-md"
+                                        >
+                                          <CheckCircle2 className="size-2.5" />
+                                          {reason}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+
                                   <p className="text-[11px] text-indigo-650 dark:text-indigo-400 opacity-60 group-hover:opacity-100 mt-2.5 flex items-center gap-1 transition-colors font-semibold">
                                     View full details <ArrowUpRight className="size-3" />
                                   </p>
@@ -883,6 +909,24 @@ export default function Results() {
 
                               {/* Bottom: Swap / Delete — always visible on mobile, hover-only on desktop */}
                               <div className="flex items-center gap-2 mt-3 sm:mt-0 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:absolute sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
+                                <div className="flex items-center bg-secondary border border-border rounded-lg p-0.5">
+                                  <button
+                                    onClick={() => handleFeedback(placeName, 'like')}
+                                    className="p-1.5 hover:bg-emerald-500/10 hover:text-emerald-500 rounded-md transition-all cursor-pointer"
+                                    title="I like this"
+                                  >
+                                    <ThumbsUp className="size-3.5" />
+                                  </button>
+                                  <div className="w-px h-3 bg-border mx-0.5" />
+                                  <button
+                                    onClick={() => handleFeedback(placeName, 'dislike')}
+                                    className="p-1.5 hover:bg-rose-500/10 hover:text-rose-500 rounded-md transition-all cursor-pointer"
+                                    title="Not interested"
+                                  >
+                                    <ThumbsDown className="size-3.5" />
+                                  </button>
+                                </div>
+
                                 <button
                                   onClick={() => handleSwap(idx, pIdx, p)}
                                   disabled={isSwapping}

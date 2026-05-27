@@ -27,6 +27,8 @@ function PlannerMultiContent() {
   const [mode, setMode] = useState("car");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["Sightseeing", "Nature"]);
   const [loading, setLoading] = useState(false);
+  const [mood, setMood] = useState("local culture");
+  const [planningStyle, setPlanningStyle] = useState("balanced");
   const navigate = useNavigate();
 
   const allInterests = ["Sightseeing", "Nature", "Heritage", "Adventure", "Spiritual", "Shopping", "Nightlife", "Food trail"];
@@ -103,6 +105,8 @@ function PlannerMultiContent() {
       interests: selectedInterests,
       travelerType: "friends",
       pace: "balanced",
+      mood,
+      planningStyle,
       isMultiCity: true,
       mode: mode
     };
@@ -184,6 +188,61 @@ function PlannerMultiContent() {
                     }`}
                   >
                     {i}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium mb-3">Trip Mood</div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: "relaxed", label: "😌 Relaxed" },
+                { id: "adventure-heavy", label: "🏔️ Adventure" },
+                { id: "party-focused", label: "🎉 Party" },
+                { id: "slow luxury", label: "✨ Slow Luxury" },
+                { id: "hidden gems", label: "💎 Hidden Gems" },
+                { id: "local culture", label: "🏛️ Local Culture" },
+              ].map((m) => {
+                const active = mood === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setMood(m.id)}
+                    className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
+                      active
+                        ? "bg-accent text-white shadow-pop"
+                        : "bg-secondary text-muted-foreground hover:bg-border"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium mb-3">Planning Style</div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: "relaxed", label: "🧘 Relaxed" },
+                { id: "balanced", label: "⚖️ Balanced" },
+                { id: "packed", label: "🎒 Packed" },
+              ].map((s) => {
+                const active = planningStyle === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setPlanningStyle(s.id)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${
+                      active
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-border bg-secondary/50 text-muted-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {s.label}
                   </button>
                 );
               })}

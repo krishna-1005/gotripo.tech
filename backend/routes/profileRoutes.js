@@ -96,6 +96,41 @@ router.delete("/", async (req, res) => {
    MY TRIPS
 ═══════════════════════════════════════ */
 
+/* POST /api/profile/feedback  — like/dislike a place for future learning */
+router.post("/feedback", async (req, res) => {
+  try {
+    const { placeName, type } = req.body; // type: 'like', 'dislike', 'skip'
+    if (!placeName) return res.status(400).json({ error: "Place name required." });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ error: "User not found." });
+
+    if (!user.preferences) user.preferences = {};
+    if (!user.preferences.likedPlaces) user.preferences.likedPlaces = [];
+    if (!user.preferences.dislikedPlaces) user.preferences.dislikedPlaces = [];
+
+    if (type === "like") {
+      if (!user.preferences.likedPlaces.includes(placeName)) {
+        user.preferences.likedPlaces.push(placeName);
+      }
+      user.preferences.dislikedPlaces = user.preferences.dislikedPlaces.filter(p => p !== placeName);
+    } else if (type === "dislike") {
+      if (!user.preferences.dislikedPlaces.includes(placeName)) {
+        user.preferences.dislikedPlaces.push(placeName);
+      }
+      user.preferences.likedPlaces = user.preferences.likedPlaces.filter(p => p !== placeName);
+    } else if (type === "skip") {
+      // Logic for skipping could be adding to avoided or just tracking
+    }
+
+    await user.save();
+    res.json({ message: "Feedback recorded.", preferences: user.preferences });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
 /* GET /api/profile/trips?status=upcoming  — list all trips */
 router.get("/trips", async (req, res) => {
   try {

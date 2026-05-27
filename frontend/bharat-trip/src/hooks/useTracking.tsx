@@ -2,10 +2,11 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
 import api from '@/lib/api';
+import ReactGA from 'react-ga4';
 
 /**
- * useTracking hook sends a tracking event to the backend on every route change.
- * It handles both registered users and anonymous guests.
+ * useTracking hook sends tracking events on every route change.
+ * It handles backend logging, Microsoft Clarity, and Google Analytics 4.
  */
 export const useTracking = () => {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export const useTracking = () => {
       guestId: guestId,
       action: 'page_view',
       details: {
-        path: location.pathname,
+        path: location.pathname + location.search,
         referrer: document.referrer,
         title: document.title,
         screenRes: `${window.screen.width}x${window.screen.height}`,
@@ -36,7 +37,7 @@ export const useTracking = () => {
     // 3. Send to backend (fire and forget)
     const track = async () => {
       try {
-        // Use /public/track which is unauthenticated but allows userId/guestId
+        // Send to backend
         await api.post('/public/track', trackData);
 
         // 4. Identify in Microsoft Clarity
@@ -44,14 +45,22 @@ export const useTracking = () => {
           (window as any).clarity('identify', user?.uid || guestId);
           (window as any).clarity('set', 'userType', user ? 'user' : 'guest');
         }
+
+        // 5. Send to Google Analytics 4
+        console.debug('[Analytics] Tracking pageview:', location.pathname + location.search);
+        ReactGA.send({
+          hitType: 'pageview',
+          page: location.pathname + location.search,
+          title: document.title || 'GoTripo',
+        });
       } catch (err) {
         // Silent fail to not disturb user experience
-        console.debug('Analytics ping skipped');
+        console.error('[Analytics] Error tracking pageview:', err);
       }
     };
 
     // Delay slightly to ensure page title is updated if changed by React Helmet or similar
     const timer = setTimeout(track, 500);
     return () => clearTimeout(timer);
-  }, [location.pathname, user?.uid]);
+  }, [location.pathname, location.search, user?.uid]);
 };

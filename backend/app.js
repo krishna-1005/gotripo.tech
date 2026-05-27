@@ -52,9 +52,9 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "script-src": ["'self'", "'unsafe-inline'", "https://www.clarity.ms", "https://c.bing.com"],
-      "connect-src": ["'self'", "https://*.clarity.ms", "https://c.bing.com"],
-      "img-src": ["'self'", "data:", "https://www.clarity.ms", "https://c.bing.com"],
+      "script-src": ["'self'", "'unsafe-inline'", "https://www.clarity.ms", "https://c.bing.com", "https://www.googletagmanager.com"],
+      "connect-src": ["'self'", "https://*.clarity.ms", "https://c.bing.com", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
+      "img-src": ["'self'", "data:", "https://www.clarity.ms", "https://c.bing.com", "https://www.google-analytics.com"],
     },
   },
 }));

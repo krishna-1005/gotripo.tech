@@ -2,6 +2,7 @@ const path = require("path");
 const fetchOSMPlaces = require("../services/osmPlaces");
 const { generateReviews: fetchUserReviews } = require("../services/reviewService");
 const { analyzeAndRefinePlan } = require("../services/aiPlanner");
+const classifyPlace = require("./metadataClassifier");
 
 /* ── CONFIG ── */
 const MAX_HOURS_PER_DAY = 8;
@@ -122,17 +123,22 @@ function loadData() {
       cityData.places.map(p => ({ ...p, area: cityData.city }))
     );
 
-    allPlacesPool = [...curated.flat(), ...bulk, ...flatIndia].map(p => ({
-      name: p.name,
-      lat: Number(p.lat),
-      lng: Number(p.lng),
-      category: p.category || "Other",
-      tags: (p.tags || []).map(t => t.toLowerCase()),
-      timeHours: p.timeHours || 2,
-      avgCost: p.avgCost ?? null,
-      source: "dataset",
-      area: p.area
-    }));
+    allPlacesPool = [...curated.flat(), ...bulk, ...flatIndia].map(p => {
+      const enriched = {
+        name: p.name,
+        lat: Number(p.lat),
+        lng: Number(p.lng),
+        category: p.category || "Other",
+        tags: (p.tags || []).map(t => t.toLowerCase()),
+        timeHours: p.timeHours || 2,
+        avgCost: p.avgCost ?? null,
+        source: "dataset",
+        area: p.area
+      };
+      // Pre-calculate metadata
+      enriched.metadata = classifyPlace(enriched, "medium");
+      return enriched;
+    });
   } catch (err) {
     console.error("Error loading data:", err);
     allPlacesPool = [];
@@ -160,7 +166,7 @@ function generatePlanSummary({ city, days, totalBudget, totalTripCost, interests
 const osmCache = new Map();
 
 /* ── DE-DUPLICATION UTILITY ── */
-function mergePools(curated, dynamic) {
+function mergePools(curated, dynamic, budgetTier = "medium") {
   const merged = [];
   const seenNames = new Set();
 
@@ -169,6 +175,9 @@ function mergePools(curated, dynamic) {
   for (const p of combined) {
     const cleanName = p.name.toLowerCase().trim();
     if (!seenNames.has(cleanName)) {
+      if (!p.metadata) {
+        p.metadata = classifyPlace(p, budgetTier);
+      }
       merged.push(p);
       seenNames.add(cleanName);
     }
@@ -189,7 +198,7 @@ function enrichPlace(p, index) {
 }
 
 /* ── FALLBACK GENERATOR ── */
-function generateFallbacks(city, coords, count) {
+function generateFallbacks(city, coords, count, budgetTier = "medium") {
   const fallbacks = [
     { name: "Local Market", category: "Shopping", tags: ["local", "market", "authentic"], timeHours: 2, avgCost: 100 },
     { name: "City Park", category: "Nature", tags: ["park", "relaxing", "greenery"], timeHours: 1.5, avgCost: 0 },
@@ -204,14 +213,16 @@ function generateFallbacks(city, coords, count) {
   const results = [];
   for (let i = 0; i < count; i++) {
     const template = fallbacks[i % fallbacks.length];
-    results.push({
+    const p = {
       ...template,
       name: `${city} ${template.name}`,
       lat: coords.lat + (Math.random() - 0.5) * 0.05,
       lng: coords.lng + (Math.random() - 0.5) * 0.05,
       source: "fallback",
       area: city
-    });
+    };
+    p.metadata = classifyPlace(p, budgetTier);
+    results.push(p);
   }
   return results;
 }
@@ -424,9 +435,11 @@ async function generatePlan({
   interests,
   travelerType,
   pace,
+  planningStyle = "balanced", // Final Change 4
   userPreferences = {},
   language = "English",
-  sourceCity = null
+  sourceCity = null,
+  mood = "local culture"
 }) {
   const coords = await getCityCoords(city);
   if (!coords) {
@@ -447,7 +460,6 @@ async function generatePlan({
         recommendedTransport.from = sourceCity;
         recommendedTransport.to = city;
         
-        // Safety check for 0km distance (if source is same as dest)
         if (recommendedTransport.distance < 1) {
           recommendedTransport.distance = 0;
           recommendedTransport.mode = "Local Commute";
@@ -462,11 +474,10 @@ async function generatePlan({
   // Normalize budget: can be a number (total) or a tier string
   let totalBudget = 5000;
   let budgetTier = "medium";
-  const tMult = { solo: 1, couple: 2, family: 3, friends: 4 }[travelerType] || 1;
+  const tMult = { solo: 1, couple: 2, family: 3, friends: 4, backpacking: 1 }[travelerType] || 1;
 
   if (typeof budget === 'number' || !isNaN(Number(budget))) {
     totalBudget = Number(budget);
-    // Budget per person per day
     const perPersonPerDay = totalBudget / (days * tMult);
     
     if (perPersonPerDay <= 1500) {
@@ -478,22 +489,17 @@ async function generatePlan({
     }
   } else if (typeof budget === 'string') {
     budgetTier = budget.toLowerCase();
-    // Daily budget per person base
     const dailyBase = { low: 1500, medium: 3500, high: 8000 }[budgetTier] || 2500;
     totalBudget = dailyBase * days * tMult;
   }
 
-  const perDayBudget = totalBudget / days;
-  const minRequired = days * 3;
-
-  /* STEP 1: CURATED POOL */
+  /* STEP 1: CURATED POOL & DYNAMIC OSM POOL */
   let curatedPool = allPlacesPool.filter(p => {
     if (p.area && p.area.toLowerCase() === cleanCity) return true;
     const dist = getDistance(coords.lat, coords.lng, p.lat, p.lng);
     return dist <= 40; 
   });
 
-  /* STEP 2: HYBRID FETCH (OSM) */
   let osmPool = [];
   const cacheKey = `${coords.lat.toFixed(3)},${coords.lng.toFixed(3)}`;
   
@@ -505,91 +511,300 @@ async function generatePlan({
     osmCache.set(cacheKey, osmPool);
   }
 
-  /* STEP 3: MERGE & DE-DUPLICATE */
-  let cityPool = mergePools(curatedPool, osmPool);
+  let cityPool = mergePools(curatedPool, osmPool, budgetTier);
 
-  /* STEP 4: INTEREST FILTER */
-  const interestSet = new Set(interests.map(i => i.toLowerCase()));
-  let filteredPool = cityPool.filter(p =>
-    interestSet.size === 0 ||
-    interestSet.has(p.category.toLowerCase()) ||
-    (p.tags || []).some(t => interestSet.has(t.toLowerCase()))
-  );
+  /* STEP 2 & 3: METADATA CLASSIFICATION & WEIGHTED SCORING */
+  // Define helper scoring function inside generatePlan
+  const scoreCandidate = (p) => {
+    const metadata = p.metadata || classifyPlace(p, budgetTier);
+    let score = p.rating ? p.rating * 3 : 12; // base score from rating
+    const whyRecommended = [];
 
-  // If we have interests but the filtered pool is too small, mix in some popular general spots
-  // but keep the majority focused on interests.
-  if (interestSet.size > 0 && filteredPool.length < minRequired) {
-    const popularGeneral = cityPool
-      .filter(p => !filteredPool.some(fp => fp.name === p.name))
-      .slice(0, minRequired);
-    filteredPool = [...filteredPool, ...popularGeneral];
-  } else if (filteredPool.length === 0) {
-    filteredPool = cityPool;
-  }
+    const interestSet = new Set(interests.map(i => i.toLowerCase().trim()));
+    const category = (p.category || "").toLowerCase();
+    const nameLower = (p.name || "").toLowerCase();
+    const tags = (p.tags || []).map(t => String(t).toLowerCase());
 
-  /* STEP 5: SCORING & ENRICHMENT */
-  // Target cost per activity per person
-  const targetActivityCost = (perDayBudget / tMult) * 0.3; // 30% of daily budget for activities
+    // HARD RELEVANCE FILTERS (Final Change 3)
+    const dietary = (userPreferences.dietary || "").toLowerCase();
+    if (dietary === "veg" || interests.includes("Veg Only")) {
+      if (metadata.food && !metadata.veg) return { score: -1000, whyRecommended: [] };
+    }
 
-  let prioritizedPool = filteredPool
-    .map((p, idx) => {
-      const enriched = enrichPlace(p, idx);
-      return {
-        ...enriched,
-        score: calculateScore(enriched, interests, coords, budgetTier, userPreferences, targetActivityCost)
-      };
-    })
-    .sort((a, b) => b.score - a.score);
+    const style = (travelerType || "").toLowerCase();
+    if (style === "family" || interests.includes("Family")) {
+      if (metadata.nightlife) return { score: -1000, whyRecommended: [] };
+    }
 
-  if (prioritizedPool.length < minRequired) {
-    const needed = minRequired - prioritizedPool.length;
-    const fallbacks = generateFallbacks(city, coords, needed).map((p, idx) => {
-      const enriched = enrichPlace(p, prioritizedPool.length + idx);
-      return {
-        ...enriched,
-        score: 5 
-      };
-    });
-    prioritizedPool = [...prioritizedPool, ...fallbacks];
-  }
+    if (style === "luxury" || interests.includes("Luxury")) {
+      if (metadata.backpacking && !metadata.luxury && budgetTier === "high") {
+         score -= 40; // Soft penalty for cheap spots in high budget
+      }
+    }
 
-  const maxPlacesNeeded = Math.max(minRequired, days * 6);
-  
-  /* BALANCED SELECTION: Ensure each interest category is represented */
-  let candidates = [];
-  if (interests.length > 0) {
-    const poolsByInterest = interests.map(interest => {
-      const iLower = interest.toLowerCase();
-      return prioritizedPool.filter(p => 
-        p.category.toLowerCase() === iLower || 
-        (p.tags || []).some(t => t.toLowerCase() === iLower)
-      );
-    });
-
-    // Interleave picks from each interest pool
-    for (let i = 0; i < maxPlacesNeeded; i++) {
-      for (const pool of poolsByInterest) {
-        if (pool[i] && !candidates.some(c => c.name === pool[i].name)) {
-          candidates.push(pool[i]);
-          if (candidates.length >= maxPlacesNeeded) break;
+    // 1. Strict Weighted Interest Matching
+    interests.forEach(interest => {
+      const cleanI = interest.toLowerCase().replace(" trail", "").trim();
+      const match = metadata[cleanI] || category.includes(cleanI) || tags.includes(cleanI) || nameLower.includes(cleanI);
+      
+      if (match) {
+        if (cleanI === "photography") {
+          score += 30;
+          whyRecommended.push("Top spot for photography");
+        } else if (cleanI === "nature") {
+          score += 15;
+          whyRecommended.push("Scenic nature experience");
+        } else if (cleanI === "food" || cleanI === "food trail") {
+          score += 20;
+          whyRecommended.push("Must-visit for food lovers");
+        } else if (cleanI === "nightlife") {
+          score += 20;
+          whyRecommended.push("Great for nightlife");
+        } else if (cleanI === "spiritual") {
+          score += 15;
+          whyRecommended.push("Peaceful spiritual site");
+        } else if (cleanI === "heritage") {
+          score += 20;
+          whyRecommended.push("Rich heritage & history");
+        } else if (cleanI === "adventure") {
+          score += 20;
+          whyRecommended.push("Exciting adventure spot");
+        } else if (cleanI === "shopping") {
+          score += 15;
+          whyRecommended.push("Popular shopping destination");
+        } else {
+          score += 15;
+          whyRecommended.push(`Matches ${interest} interest`);
         }
       }
-      if (candidates.length >= maxPlacesNeeded) break;
+    });
+
+    // 2. Travel style matching
+    if (style === "solo" && metadata["solo-friendly"]) {
+      score += 15;
+      whyRecommended.push("Solo-friendly location");
     }
+    if ((style === "family" || interests.includes("Family")) && metadata["family"]) {
+      score += 15;
+      whyRecommended.push("Family-friendly experience");
+    }
+    if ((style === "backpacking" || interests.includes("Backpacking")) && metadata["backpacking"]) {
+      score += 15;
+      whyRecommended.push("Backpacker favorite");
+    }
+    if ((style === "luxury" || interests.includes("Luxury")) && metadata["luxury"]) {
+      score += 25;
+      whyRecommended.push("Premium luxury spot");
+    }
+    if (interests.includes("Romantic") && metadata["romantic"]) {
+      score += 20;
+      whyRecommended.push("Perfect for a romantic outing");
+    }
+
+    // 3. Trip Mood boosts
+    const reqMood = (mood || "").toLowerCase().trim();
+    if (reqMood === "relaxed" && (metadata["nature"] || metadata["romantic"])) {
+      score += 20;
+      whyRecommended.push("Ideal for a relaxed pace");
+    }
+    if (reqMood === "adventure-heavy" && (metadata["adventure"] || category === "adventure")) {
+      score += 30;
+      whyRecommended.push("Fits your adventure-heavy mood");
+    }
+    if (reqMood === "party-focused" && (metadata["nightlife"] || category === "nightlife")) {
+      score += 30;
+      whyRecommended.push("Matches your party-focused mood");
+    }
+    if (reqMood === "slow luxury" && metadata["luxury"]) {
+      score += 30;
+      whyRecommended.push("Curated for slow luxury");
+    }
+    if (reqMood === "hidden gems") {
+      // Final Change 2: Improved Hidden Gem logic (Rating >= 4.2, low reviews)
+      const isHidden = (p.reviews < 1200 && p.rating >= 4.2) || tags.includes("hidden gem") || nameLower.includes("hidden");
+      if (isHidden) {
+        score += 35;
+        whyRecommended.push("Off-the-beaten-path hidden gem");
+      }
+    }
+    if (reqMood === "local culture" && (metadata["heritage"] || metadata["spiritual"] || category === "culture")) {
+      score += 25;
+      whyRecommended.push("Deep dive into local culture");
+    }
+
+    // 4. Veg Preference (+20 for Veg, heavy penalty for non-veg if Veg Only selected)
+    if (dietary === "veg" || interests.includes("Veg Only")) {
+      if (metadata["veg"] && metadata["food"]) {
+          score += 20;
+          whyRecommended.push("Great vegetarian options");
+      }
+    }
+
+    // 5. Budget matching (+10)
+    if (budgetTier === "low" && metadata["budget-friendly"]) {
+      score += 10;
+      whyRecommended.push("Budget-friendly");
+    } else if (budgetTier === "high" && metadata["luxury"]) {
+      score += 10;
+    }
+
+    // Proximity to city center (small boost)
+    const dist = getDistance(coords.lat, coords.lng, p.lat, p.lng);
+    if (dist < 8) score += 3;
+    else if (dist < 15) score += 1;
+
+    // DB feedback loop
+    if ((userPreferences.likedPlaces || []).includes(p.name)) {
+      score += 30;
+      whyRecommended.push("Highly rated by you");
+    }
+    if ((userPreferences.dislikedPlaces || []).includes(p.name)) {
+      score -= 1000; // Phase 1: Hard filter out disliked places
+    }
+
+    return {
+      score,
+      whyRecommended: [...new Set(whyRecommended)]
+    };
+  };
+
+  const scoredPool = cityPool
+    .map((p, idx) => {
+      const enriched = enrichPlace(p, idx);
+      const { score, whyRecommended } = scoreCandidate(enriched);
+      return { ...enriched, score, whyRecommended };
+    })
+    .filter(p => p.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  // Fallback: If pool is empty, generate baseline fallback places
+  let finalPool = scoredPool;
+  const minRequired = days * 5; // Diversity buffer
+  if (finalPool.length < minRequired) {
+    const needed = minRequired - finalPool.length;
+    const fallbacks = generateFallbacks(city, coords, needed, budgetTier).map((p, idx) => {
+      const enriched = enrichPlace(p, finalPool.length + idx);
+      return {
+        ...enriched,
+        score: 1,
+        whyRecommended: ["Popular spot"]
+      };
+    });
+    finalPool = [...finalPool, ...fallbacks];
   }
 
-  // Fill remaining slots with the best overall places not already picked
-  if (candidates.length < maxPlacesNeeded) {
-    const remaining = prioritizedPool.filter(p => !candidates.some(c => c.name === p.name));
-    candidates = [...candidates, ...remaining.slice(0, maxPlacesNeeded - candidates.length)];
-  }
-
-  /* STEP 5.1: STAY RECOMMENDATION */
+  /* STEP 5 STAY RECOMMENDATION */
   const recommendedStay = getRecommendedStay(city, travelerType, budgetTier);
 
-  /* STEP 6: AI REFINEMENT */
-  let aiItineraryMap = null;
+  /* STEP 6: GEOGRAPHIC PROXIMITY CLUSTERING & PACING */
+  // Planning Style (Final Change 4)
+  let placesPerDay = 3;
+  const currentMood = (mood || "").toLowerCase().trim();
+  const currentStyle = (planningStyle || "balanced").toLowerCase();
+
+  if (currentStyle === "packed") {
+    placesPerDay = 5;
+  } else if (currentStyle === "minimal" || currentStyle === "relaxed") {
+    placesPerDay = 2;
+  } else {
+    // Balanced (default) influenced by pace/mood
+    if (pace === "fast" || currentMood === "adventure-heavy") placesPerDay = 4;
+    else if (pace === "slow" || currentMood === "relaxed") placesPerDay = 2;
+    else placesPerDay = 3;
+  }
+
+  const itineraryDays = [];
+  const unassigned = [...finalPool];
+
+  for (let dayNum = 1; dayNum <= days; dayNum++) {
+    if (unassigned.length === 0) break;
+
+    // Pick seed (highest scoring available place)
+    const seed = unassigned.shift();
+    const dayGroup = [seed];
+    const categoryCounts = { [seed.category]: 1 }; // Final Change 5: Diversity Balancing
+
+    // Find nearest neighbors to the seed
+    while (dayGroup.length < placesPerDay && unassigned.length > 0) {
+      let bestCandidateIdx = -1;
+      let minDistance = Infinity;
+
+      for (let i = 0; i < unassigned.length; i++) {
+        const p = unassigned[i];
+        
+        // Diversity Balancing: Prefer different categories
+        const cat = p.category || "Other";
+        const catRepeatPenalty = (categoryCounts[cat] || 0) * 10; // 10km virtual penalty per repeat
+        
+        const dist = getDistance(seed.lat, seed.lng, p.lat, p.lng) + catRepeatPenalty;
+        if (dist < minDistance) {
+          minDistance = dist;
+          bestCandidateIdx = i;
+        }
+      }
+
+      if (bestCandidateIdx !== -1) {
+        const picked = unassigned.splice(bestCandidateIdx, 1)[0];
+        dayGroup.push(picked);
+        categoryCounts[picked.category] = (categoryCounts[picked.category] || 0) + 1;
+      } else break;
+    }
+
+    // Final Change 1: Time-Aware Sequencing
+    const getTimePriority = (p) => {
+      const metadata = p.metadata || classifyPlace(p);
+      const bestTime = metadata.bestTimeOfDay || "anytime";
+      
+      if (bestTime === "morning") return 1;
+      if (bestTime === "afternoon") return 3;
+      if (bestTime === "evening") return 5;
+      if (bestTime === "night") return 7;
+
+      // Category-based fallbacks
+      const cat = (p.category || "").toLowerCase();
+      if (cat === "spiritual") return 1;
+      if (cat === "nature" || cat === "culture") return 2;
+      if (cat === "food") return 4;
+      if (cat === "shopping") return 6;
+      if (cat === "nightlife") return 8;
+      
+      return 3; // default afternoon
+    };
+
+    dayGroup.sort((a, b) => getTimePriority(a) - getTimePriority(b));
+
+    // Assign time slots
+    const dayPlaces = dayGroup.map((p, idx) => {
+      const priority = getTimePriority(p);
+      let slot = "Afternoon";
+      if (priority <= 2) slot = "Morning";
+      else if (priority <= 4) slot = "Afternoon";
+      else if (priority <= 6) slot = "Evening";
+      else slot = "Night";
+
+      return {
+        ...p,
+        bestTime: slot,
+        timeReason: `Optimized for ${slot.toLowerCase()} visit.`,
+        estimatedCost: p.avgCost || 200,
+        estimatedHours: p.timeHours || 2,
+      };
+    });
+
+    itineraryDays.push({
+      day: dayNum,
+      label: `Day ${dayNum}`,
+      theme: `Exploring the best of ${city}`,
+      places: dayPlaces
+    });
+  }
+
+  /* STEP 7: AI ENHANCEMENT LAYER (CONSTRAINED LLM) */
+  let aiRefinedItinerary = null;
+  let summaryText = `A structured ${days}-day personalized itinerary for ${city} optimized for ${mood || 'general exploration'}.`;
+
   try {
+    // Pass pre-clustered itinerary to AI for enhancement (without swapping/inventing)
     const aiResponse = await analyzeAndRefinePlan({
       city,
       days,
@@ -597,66 +812,72 @@ async function generatePlan({
       interests,
       travelerType,
       pace,
-      candidates,
+      candidates: finalPool, // candidate reference
       userPreferences,
       language,
-      recommendedStay // Pass stay to AI
+      recommendedStay,
+      preClusteredItinerary: itineraryDays // custom parameter
     });
-    
+
     if (aiResponse && aiResponse.itinerary) {
-      // Convert array itinerary back to map for easier access by dayNum
-      aiItineraryMap = {};
-      aiResponse.itinerary.forEach(d => {
-        const dNum = d.day.replace(/\D/g, '');
-        aiItineraryMap[dNum] = d.places;
-      });
+      aiRefinedItinerary = aiResponse.itinerary;
+      summaryText = aiResponse.summary || summaryText;
     }
   } catch (err) {
-    console.warn("AI Refinement skipped or failed:", err.message);
+    console.warn("⚠️ AI Plan Enhancement failed/skipped. Using local fallback plan.", err.message);
   }
 
-  /* STEP 7: BUILD ITINERARY */
-  const itineraryDays = [];
-  const usedPlaceNames = new Set();
-  
-  for (let dayNum = 1; dayNum <= days; dayNum++) {
-    let dayPlaces = [];
-    if (aiItineraryMap && aiItineraryMap[dayNum.toString()]) {
-      dayPlaces = aiItineraryMap[dayNum.toString()].map(aiP => {
-        const original = candidates.find(c => c.name.toLowerCase() === aiP.name.toLowerCase()) || aiP;
-        return { ...original, ...aiP };
+  // Fallback if AI fails or returns invalid structure: map reasons to fallback descriptions
+  let finalItinerary = itineraryDays;
+  if (aiRefinedItinerary) {
+    // Map AI description back to our geographically optimized places list
+    finalItinerary = itineraryDays.map((d, dIdx) => {
+      const aiDay = aiRefinedItinerary[dIdx] || {};
+      const aiPlaces = aiDay.places || [];
+
+      const mappedPlaces = d.places.map((p, pIdx) => {
+        const aiPlace = aiPlaces.find(ap => ap.name.toLowerCase() === p.name.toLowerCase()) || aiPlaces[pIdx] || {};
+        return {
+          ...p,
+          desc: aiPlace.reason || aiPlace.desc || `Visit ${p.name}, a highly recommended ${p.category.toLowerCase()} spot.`,
+        };
       });
-    } else {
-      const targetCount = 3;
-      const remaining = candidates.filter(p => !usedPlaceNames.has(p.name)).slice(0, targetCount);
-      dayPlaces = remaining;
-    }
 
-    const enrichedPlaces = await Promise.all(dayPlaces.map(async (p) => {
-      usedPlaceNames.add(p.name);
-      const userReviews = await fetchUserReviews(p.name, p.category, city);
-      return { 
-        ...p, 
-        userReviews,
-        estimatedCost: p.avgCost || COST_RULES.activityBase // Deterministic per-place cost
+      return {
+        ...d,
+        theme: aiDay.theme || d.theme,
+        places: mappedPlaces
       };
-    }));
-
-    itineraryDays.push({
-      day: dayNum,
-      label: `Day ${dayNum}`,
-      places: enrichedPlaces
     });
+  } else {
+    // Pure local fallback descriptions using reasons
+    finalItinerary = itineraryDays.map(d => ({
+      ...d,
+      places: d.places.map(p => ({
+        ...p,
+        desc: p.whyRecommended && p.whyRecommended.length > 0
+          ? `${p.name} is selected because it ${p.whyRecommended.join(" and ").toLowerCase()}.`
+          : `Enjoy a curated visit to ${p.name}, matching your overall travel style.`
+      }))
+    }));
   }
 
-  /* STEP 8: FINAL DETERMINISTIC COST CALCULATION */
-  const dietary = userPreferences.dietary || "any";
-  const finalPricing = calculateDeterministicTripCost(itineraryDays, days, budgetTier, travelerType, totalBudget, recommendedStay, dietary, city);
+  // Add reviews to all places
+  for (const d of finalItinerary) {
+    d.places = await Promise.all(d.places.map(async (p) => {
+      const userReviews = await fetchUserReviews(p.name, p.category, city);
+      return { ...p, userReviews };
+    }));
+  }
 
-  return { 
-    city, 
+  /* STEP 8: FINAL COST CALCULATION */
+  const dietary = userPreferences.dietary || "any";
+  const finalPricing = calculateDeterministicTripCost(finalItinerary, days, budgetTier, travelerType, totalBudget, recommendedStay, dietary, city);
+
+  return {
+    city,
     days: parseInt(days),
-    itinerary: itineraryDays, 
+    itinerary: finalItinerary,
     recommendedStay,
     recommendedTransport,
     coordinates: coords,
@@ -667,7 +888,7 @@ async function generatePlan({
     remainingBudget: Math.round(totalBudget - finalPricing.total),
     perDayBudget: Math.round(totalBudget / days),
     isPersonalized: true,
-    summary: generatePlanSummary({ city, days, totalBudget, totalTripCost: finalPricing.total, interests })
+    summary: summaryText
   };
 }
 
