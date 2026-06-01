@@ -308,7 +308,7 @@ function Collab() {
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-2xl transition-all",
                       tripId === room._id 
-                        ? "bg-primary text-white shadow-cta" 
+                        ? "bg-warm-gradient text-white shadow-cta" 
                         : "hover:bg-secondary border border-transparent"
                     )}
                   >
@@ -459,7 +459,7 @@ function Collab() {
                         }
                       }
                     }}
-                    className="h-9 lg:h-10 px-3 lg:px-4 rounded-xl bg-primary-soft text-primary font-bold text-[10px] lg:text-xs flex items-center gap-2 hover:bg-primary hover:text-white transition-all shrink-0"
+                    className="h-9 lg:h-10 px-3 lg:px-4 rounded-xl bg-primary-soft text-primary font-bold text-[10px] lg:text-xs flex items-center gap-2 hover:bg-accent hover:text-white transition-all shrink-0"
                   >
                     <Plus className="size-3 lg:size-4" /> <span className="hidden sm:inline">Invite</span>
                   </button>
@@ -472,7 +472,7 @@ function Collab() {
                   onClick={() => setActiveTab('board')}
                   className={cn(
                     "flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2",
-                    activeTab === 'board' ? "bg-primary text-white shadow-sm" : "text-muted-foreground"
+                    activeTab === 'board' ? "bg-accent text-white shadow-sm" : "text-muted-foreground"
                   )}
                 >
                   <LayoutDashboard className="size-3.5" /> Board & Plan
@@ -481,7 +481,7 @@ function Collab() {
                   onClick={() => setActiveTab('chat')}
                   className={cn(
                     "flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2",
-                    activeTab === 'chat' ? "bg-primary text-white shadow-sm" : "text-muted-foreground"
+                    activeTab === 'chat' ? "bg-accent text-white shadow-sm" : "text-muted-foreground"
                   )}
                 >
                   <MessageSquare className="size-3.5" /> Crew Chat
@@ -542,7 +542,7 @@ function Collab() {
                               </div>
                               <div className={`mt-1 rounded-2xl px-3 lg:px-4 py-2 lg:py-2.5 text-xs lg:text-sm w-fit shadow-sm inline-block ${
                                 isMe 
-                                  ? 'bg-primary text-white rounded-tr-sm' 
+                                  ? 'bg-accent text-white rounded-tr-sm' 
                                   : 'bg-secondary text-foreground rounded-tl-sm'
                               }`}>
                                 {m.text}

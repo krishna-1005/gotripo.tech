@@ -182,7 +182,7 @@ const BudgetTracker = ({ tripId, members }: { tripId: string, members: any[] }) 
       {/* Floating Action Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="absolute top-4 md:top-6 right-4 md:right-6 size-10 rounded-xl bg-primary text-white shadow-cta grid place-items-center hover:scale-105 active:scale-95 transition-all"
+        className="absolute top-4 md:top-6 right-4 md:right-6 size-10 rounded-xl bg-warm-gradient text-white shadow-cta grid place-items-center hover:scale-105 active:scale-95 transition-all"
         title="Add Expense"
       >
         <Plus size={20} />

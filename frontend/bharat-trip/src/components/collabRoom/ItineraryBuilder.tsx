@@ -149,7 +149,7 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
   );
 
   return (
-    <div className="rounded-3xl bg-card border border-border p-4 md:p-6 lg:p-8 shadow-soft space-y-6 md:space-y-8 overflow-hidden">
+    <div className="rounded-3xl bg-card border border-border p-4 md:p-6 lg:p-8 shadow-soft space-y-6 md:space-y-8">
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -210,7 +210,7 @@ const ItineraryBuilder = ({ trip }: { trip: any }) => {
 
         {itinerary.length === 0 && !aiGenerating && (
           <div className="text-center p-12 text-muted-foreground border-2 border-dashed border-border rounded-3xl bg-secondary/5">
-            <Calendar className="size-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+            <CalendarIcon className="size-12 text-muted-foreground mx-auto mb-4 opacity-20" />
             <p className="text-sm">No days planned yet.</p>
             <p className="text-xs text-muted-foreground/60 mt-1">Start by adding a day or let AI help!</p>
           </div>
@@ -432,7 +432,7 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
       <div className="flex items-center gap-4">
         {activity.addedBy && (
           <div 
-            className="size-6 rounded-lg bg-primary text-white flex items-center justify-center text-[10px] font-black shadow-sm"
+            className="size-6 rounded-lg bg-warm-gradient text-white flex items-center justify-center text-[10px] font-black shadow-sm"
             title={`Added by ${activity.addedBy.name}`}
           >
             {(activity.addedBy.name || "?")[0].toUpperCase()}

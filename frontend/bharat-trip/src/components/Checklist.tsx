@@ -112,7 +112,7 @@ export function Checklist({ tripId }: { tripId: string }) {
         />
         <Button 
           disabled={adding || !newItemText.trim()}
-          className="rounded-xl bg-primary text-white shadow-cta aspect-square p-0 shrink-0 w-11"
+          className="rounded-xl bg-warm-gradient text-white shadow-cta aspect-square p-0 shrink-0 w-11"
         >
           {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-5" />}
         </Button>

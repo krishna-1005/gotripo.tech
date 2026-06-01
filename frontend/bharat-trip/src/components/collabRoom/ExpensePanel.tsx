@@ -7,17 +7,7 @@ import SettlementDashboard from '@/components/collabRoom/SettlementDashboard';
 import { useAuth } from '@/components/AuthProvider';
 import { useSocket } from '@/context/SocketContext';
 import { toast } from 'sonner';
-
-const COLORS = {
-  cardBg: '#161b22',
-  border: '#30363d',
-  accent: '#1d9e75',
-  amber: '#ef9f27',
-  red: '#f85149',
-  textPrimary: '#e6edf3',
-  textMuted: '#8b949e',
-  purple: '#534AB7',
-};
+import { cn } from '@/lib/utils';
 
 const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   food: Utensils,
@@ -85,8 +75,8 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
   };
 
   if (loading) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
-      <Loader2 className="animate-spin" size={32} color={COLORS.purple} />
+    <div className="flex justify-center items-center h-[200px]">
+      <Loader2 className="animate-spin text-purple-500" size={32} />
     </div>
   );
 
@@ -105,27 +95,14 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
 
   return (
     <div className="rounded-3xl bg-card border border-border p-4 md:p-6 lg:p-8 shadow-soft relative overflow-hidden mb-8">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>Group Expenses</h2>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold font-display">Group Expenses</h2>
         </div>
         {!isPreview && (
             <button 
                 onClick={() => setShowAddModal(true)}
-                style={{
-                    backgroundColor: COLORS.purple,
-                    color: 'white',
-                    border: 'none',
-                    padding: '10px 20px',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    boxShadow: '0 4px 12px rgba(83, 74, 183, 0.2)'
-                }}
+                className="bg-purple-600 text-white border-none px-5 py-2.5 rounded-xl cursor-pointer flex items-center gap-2 font-semibold text-sm shadow-lg shadow-purple-500/20 hover:bg-purple-500 transition-colors"
             >
                 <Plus size={18} /> Add expense
             </button>
@@ -133,46 +110,22 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
       </div>
 
       {!isPreview && (
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', backgroundColor: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', border: `1px solid ${COLORS.border}` }}>
+        <div className="flex gap-2 mb-6 bg-secondary/30 p-1 rounded-xl border border-border">
           <button 
             onClick={() => setActiveTab('expenses')}
-            style={{ 
-              flex: 1, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '8px', 
-              padding: '10px', 
-              borderRadius: '8px', 
-              border: 'none',
-              backgroundColor: activeTab === 'expenses' ? COLORS.cardBg : 'transparent',
-              color: activeTab === 'expenses' ? 'white' : COLORS.textMuted,
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border-none cursor-pointer font-semibold text-sm transition-all",
+              activeTab === 'expenses' ? "bg-card text-foreground shadow-sm" : "bg-transparent text-muted-foreground"
+            )}
           >
             <Receipt size={18} /> Expenses
           </button>
           <button 
             onClick={() => setActiveTab('settlements')}
-            style={{ 
-              flex: 1, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '8px', 
-              padding: '10px', 
-              borderRadius: '8px', 
-              border: 'none',
-              backgroundColor: activeTab === 'settlements' ? COLORS.cardBg : 'transparent',
-              color: activeTab === 'settlements' ? 'white' : COLORS.textMuted,
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border-none cursor-pointer font-semibold text-sm transition-all",
+              activeTab === 'settlements' ? "bg-card text-foreground shadow-sm" : "bg-transparent text-muted-foreground"
+            )}
           >
             <HandCoins size={18} /> Settlements
           </button>
@@ -181,70 +134,40 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
 
       {activeTab === 'expenses' ? (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <StatCard label="Total spent" value={`₹${totalSpent.toLocaleString()}`} />
-            <StatCard label="Your share" value={`₹${userOwed.toLocaleString()}`} color={COLORS.amber} />
-            <StatCard label="Net Balance" value={`${userBalance >= 0 ? '+' : '-'}₹${Math.abs(userBalance).toLocaleString()}`} color={userBalance >= 0 ? COLORS.accent : COLORS.red} />
+            <StatCard label="Your share" value={`₹${userOwed.toLocaleString()}`} color="text-amber-500" />
+            <StatCard label="Net Balance" value={`${userBalance >= 0 ? '+' : '-'}₹${Math.abs(userBalance).toLocaleString()}`} color={userBalance >= 0 ? "text-emerald-500" : "text-red-500"} />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {expenses.length === 0 ? (
-              <div style={{ 
-                backgroundColor: COLORS.cardBg, 
-                padding: '48px 24px', 
-                textAlign: 'center', 
-                color: COLORS.textMuted,
-                borderRadius: '16px',
-                border: `1px dashed ${COLORS.border}`
-              }}>
-                <Receipt size={48} style={{ marginBottom: '16px', opacity: 0.2 }} />
+              <div className="bg-secondary/30 p-12 text-center text-muted-foreground rounded-2xl border border-dashed border-border">
+                <Receipt size={48} className="mb-4 opacity-20 mx-auto" />
                 <p>No expenses yet. Add one to get started!</p>
               </div>
             ) : (
               expenses.slice(0, isPreview ? 3 : undefined).map((expense, idx) => (
-                <div key={idx} style={{
-                  backgroundColor: COLORS.cardBg,
-                  padding: '16px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  borderRadius: '16px',
-                  border: `1px solid ${COLORS.border}`,
-                  transition: 'transform 0.2s',
-                  cursor: 'default'
-                }}>
-                  <div style={{ 
-                      width: '48px', 
-                      height: '48px', 
-                      backgroundColor: 'rgba(255,255,255,0.05)', 
-                      borderRadius: '12px', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      fontSize: '24px',
-                      border: `1px solid ${COLORS.border}`
-                  }}>
-                      {React.createElement(CATEGORY_ICON[expense.category] || HelpCircle, { className: "size-5 text-white/80" })}
+                <div key={idx} className="bg-secondary/30 p-4 px-5 flex items-center gap-4 rounded-2xl border border-border transition-transform cursor-default hover:bg-secondary/50">
+                  <div className="w-12 h-12 bg-secondary/50 rounded-xl flex items-center justify-center text-2xl border border-border">
+                      {React.createElement(CATEGORY_ICON[expense.category] || HelpCircle, { className: "size-5 text-muted-foreground" })}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{expense.title}</h4>
-                    <p style={{ color: COLORS.textMuted, fontSize: '13px' }}>
-                      Paid by <span style={{ color: COLORS.textPrimary }}>{expense.paidBy.name}</span> • {expense.splitBetween.length} people
+                  <div className="flex-1">
+                    <h4 className="text-base font-bold mb-1">{expense.title}</h4>
+                    <p className="text-muted-foreground text-[13px]">
+                      Paid by <span className="text-foreground">{expense.paidBy.name}</span> • {expense.splitBetween.length} people
                     </p>
                   </div>
-                  <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div className="text-right flex items-center gap-4">
                     <div>
-                      <div style={{ fontSize: '18px', fontWeight: 'bold' }}>₹{expense.amount.toLocaleString()}</div>
+                      <div className="text-lg font-bold">₹{expense.amount.toLocaleString()}</div>
                       {expense.splitBetween.some((s: any) => String(s.userId) === String(currentUserId)) && (
-                        <div style={{ 
-                            backgroundColor: String(expense.paidBy.userId) === String(currentUserId) ? 'rgba(29, 158, 117, 0.1)' : 'rgba(239, 159, 39, 0.1)', 
-                            color: String(expense.paidBy.userId) === String(currentUserId) ? COLORS.accent : COLORS.amber, 
-                            fontSize: '11px', 
-                            padding: '2px 8px', 
-                            borderRadius: '4px', 
-                            fontWeight: 'bold',
-                            marginTop: '4px'
-                        }}>
+                        <div className={cn(
+                          "text-[11px] px-2 py-0.5 rounded font-bold mt-1 inline-block",
+                          String(expense.paidBy.userId) === String(currentUserId)
+                            ? "bg-emerald-500/10 text-emerald-500"
+                            : "bg-amber-500/10 text-amber-500"
+                        )}>
                             {String(expense.paidBy.userId) === String(currentUserId) ? 'you lent' : 'you owe'} ₹{(expense.splitBetween.find((s: any) => String(s.userId) === String(currentUserId))?.share || 0).toLocaleString()}
                         </div>
                       )}
@@ -252,9 +175,7 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
                     {!isPreview && (
                       <button 
                         onClick={() => handleDeleteExpense(expense.id)}
-                        style={{ background: 'none', border: 'none', color: COLORS.red, cursor: 'pointer', padding: '8px', borderRadius: '8px', opacity: 0.6 }}
-                        onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
-                        onMouseOut={(e) => e.currentTarget.style.opacity = '0.6'}
+                        className="bg-transparent border-none text-red-500 cursor-pointer p-2 rounded-lg opacity-60 hover:opacity-100 transition-opacity"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -288,10 +209,10 @@ const ExpensePanel = ({ trip, isPreview = false }: { trip: any, isPreview?: bool
   );
 };
 
-const StatCard = ({ label, value, color = COLORS.textPrimary }: any) => (
-  <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: `1px solid ${COLORS.border}`, borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
-    <div style={{ fontSize: '20px', fontWeight: 'bold', color, marginBottom: '6px' }}>{value}</div>
-    <div style={{ color: COLORS.textMuted, fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em' }}>{label}</div>
+const StatCard = ({ label, value, color = "text-foreground" }: { label: string, value: string, color?: string }) => (
+  <div className="bg-secondary/30 border border-border rounded-2xl p-5 text-center">
+    <div className={cn("text-xl font-bold mb-1.5", color)}>{value}</div>
+    <div className="text-muted-foreground text-[11px] uppercase font-bold tracking-wider">{label}</div>
   </div>
 );
 

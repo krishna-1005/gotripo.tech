@@ -2,15 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2, Check } from 'lucide-react';
 import { addExpense } from '@/lib/api';
 import { toast } from 'sonner';
-
-const COLORS = {
-  bg: '#0e0e10',
-  card: '#141416',
-  border: '#2a2a2e',
-  purple: '#534AB7',
-  text: '#e6edf3',
-  textMuted: '#8b949e'
-};
+import { cn } from '@/lib/utils';
 
 const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => {
   const [loading, setLoading] = useState(false);
@@ -111,54 +103,33 @@ const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => 
   }, [members]);
 
   return (
-    <div style={{ 
-      position: 'fixed', 
-      top: 0, 
-      left: 0, 
-      width: '100%', 
-      height: '100%', 
-      backgroundColor: 'rgba(0,0,0,0.8)', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      zIndex: 1000,
-      backdropFilter: 'blur(4px)'
-    }}>
-      <div style={{ 
-        backgroundColor: COLORS.card, 
-        border: `1px solid ${COLORS.border}`, 
-        borderRadius: '20px', 
-        width: '480px', 
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        padding: '32px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: 'bold' }}>Add Expense</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: COLORS.textMuted, cursor: 'pointer' }}>
+    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex justify-center items-center">
+      <div className="bg-card border border-border rounded-[20px] w-[480px] max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold font-display">Add Expense</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground bg-transparent border-none cursor-pointer p-2 rounded-lg hover:bg-secondary transition-colors">
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.textMuted, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Title</label>
+            <label className="block text-[13px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Title</label>
             <input 
               autoFocus
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What did you pay for?"
-              style={{ width: '100%', backgroundColor: COLORS.bg, border: `1px solid ${COLORS.border}`, color: 'white', padding: '12px 16px', borderRadius: '12px', fontSize: '16px' }}
+              className="w-full bg-secondary/50 border border-border text-foreground p-3 px-4 rounded-xl text-base outline-none focus:border-ring transition-colors"
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 2 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.textMuted, marginBottom: '8px', textTransform: 'uppercase' }}>Amount</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: COLORS.textMuted }}>₹</span>
+          <div className="flex gap-4">
+            <div className="flex-[2]">
+              <label className="block text-[13px] font-semibold text-muted-foreground mb-2 uppercase">Amount</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
                 <input 
                   type="number"
                   step="0.01"
@@ -166,16 +137,16 @@ const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => 
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  style={{ width: '100%', backgroundColor: COLORS.bg, border: `1px solid ${COLORS.border}`, color: 'white', padding: '12px 16px 12px 32px', borderRadius: '12px', fontSize: '16px' }}
+                  className="w-full bg-secondary/50 border border-border text-foreground p-3 pl-8 pr-4 rounded-xl text-base outline-none focus:border-ring transition-colors"
                 />
               </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.textMuted, marginBottom: '8px', textTransform: 'uppercase' }}>Category</label>
+            <div className="flex-1">
+              <label className="block text-[13px] font-semibold text-muted-foreground mb-2 uppercase">Category</label>
               <select 
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                style={{ width: '100%', backgroundColor: COLORS.bg, border: `1px solid ${COLORS.border}`, color: 'white', padding: '12px', borderRadius: '12px', fontSize: '15px' }}
+                className="w-full bg-secondary/50 border border-border text-foreground p-3 rounded-xl text-[15px] outline-none focus:border-ring transition-colors"
               >
                 <option value="food">Food</option>
                 <option value="transport">Transport</option>
@@ -187,11 +158,11 @@ const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => 
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.textMuted, marginBottom: '8px', textTransform: 'uppercase' }}>Paid By</label>
+            <label className="block text-[13px] font-semibold text-muted-foreground mb-2 uppercase">Paid By</label>
             <select 
               value={paidBy.userId?._id || paidBy.userId}
               onChange={(e) => setPaidBy(members.find(m => (m.userId?._id || m.userId) === e.target.value) || {})}
-              style={{ width: '100%', backgroundColor: COLORS.bg, border: `1px solid ${COLORS.border}`, color: 'white', padding: '12px', borderRadius: '12px', fontSize: '15px' }}
+              className="w-full bg-secondary/50 border border-border text-foreground p-3 rounded-xl text-[15px] outline-none focus:border-ring transition-colors"
             >
               {members.map(m => {
                 const mId = m.userId?._id || m.userId;
@@ -204,85 +175,69 @@ const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => 
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.textMuted, textTransform: 'uppercase' }}>Split Between</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="flex justify-between items-center mb-3">
+              <label className="text-[13px] font-semibold text-muted-foreground uppercase">Split Between</label>
+              <div className="flex gap-2">
                 <button 
                   type="button" 
                   onClick={() => setIsEqualSplit(true)}
-                  style={{ 
-                    fontSize: '11px', 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
-                    backgroundColor: isEqualSplit ? COLORS.purple : 'transparent',
-                    color: 'white',
-                    border: `1px solid ${isEqualSplit ? COLORS.purple : COLORS.border}`,
-                    cursor: 'pointer'
-                  }}
+                  className={cn(
+                    "text-[11px] px-2 py-1 rounded cursor-pointer border transition-colors",
+                    isEqualSplit 
+                      ? "bg-purple-600 text-white border-purple-600" 
+                      : "bg-transparent text-muted-foreground border-border hover:border-purple-500/50"
+                  )}
                 >
                   Equal
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setIsEqualSplit(false)}
-                  style={{ 
-                    fontSize: '11px', 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
-                    backgroundColor: !isEqualSplit ? COLORS.purple : 'transparent',
-                    color: 'white',
-                    border: `1px solid ${!isEqualSplit ? COLORS.purple : COLORS.border}`,
-                    cursor: 'pointer'
-                  }}
+                  className={cn(
+                    "text-[11px] px-2 py-1 rounded cursor-pointer border transition-colors",
+                    !isEqualSplit 
+                      ? "bg-purple-600 text-white border-purple-600" 
+                      : "bg-transparent text-muted-foreground border-border hover:border-purple-500/50"
+                  )}
                 >
                   Custom
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="flex flex-col gap-2">
               {splitBetween.map(m => {
                 const mId = m.userId?._id || m.userId;
                 const mName = m.userId?.name || m.userName || m.name || 'Unknown';
                 return (
-                  <div key={mId} style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: COLORS.bg, padding: '8px 12px', borderRadius: '10px', border: `1px solid ${COLORS.border}` }}>
+                  <div key={mId} className="flex items-center gap-3 bg-secondary/50 p-2 px-3 rounded-xl border border-border">
                     <button
                       type="button"
                       onClick={() => handleToggleMember(mId)}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '4px',
-                        backgroundColor: m.selected ? COLORS.purple : 'transparent',
-                        border: `1px solid ${m.selected ? COLORS.purple : COLORS.border}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: 'white'
-                      }}
+                      className={cn(
+                        "w-5 h-5 rounded flex items-center justify-center cursor-pointer border transition-colors",
+                        m.selected 
+                          ? "bg-purple-600 border-purple-600 text-white" 
+                          : "bg-transparent border-border"
+                      )}
                     >
                       {m.selected && <Check size={14} />}
                     </button>
-                    <span style={{ flex: 1, fontSize: '14px' }}>{mName}</span>
+                    <span className="flex-1 text-sm">{mName}</span>
                     {m.selected && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ fontSize: '12px', color: COLORS.textMuted }}>₹</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground">₹</span>
                         <input 
                           type="number"
                           disabled={isEqualSplit}
                           value={m.share}
                           onChange={(e) => handleCustomShareChange(mId, e.target.value)}
-                          style={{ 
-                            width: '80px', 
-                            backgroundColor: isEqualSplit ? 'transparent' : '#000', 
-                            border: `1px solid ${isEqualSplit ? 'transparent' : COLORS.border}`, 
-                            color: 'white', 
-                            padding: '4px 8px', 
-                            borderRadius: '6px', 
-                            fontSize: '14px',
-                            textAlign: 'right'
-                          }}
+                          className={cn(
+                            "w-20 text-foreground p-1 px-2 rounded-md text-sm text-right outline-none transition-colors",
+                            isEqualSplit 
+                              ? "bg-transparent border-transparent" 
+                              : "bg-background border border-border"
+                          )}
                         />
                       </div>
                     )}
@@ -295,24 +250,7 @@ const AddBudgetExpenseModal = ({ tripId, members, onClose, onSuccess }: any) => 
           <button 
             type="submit" 
             disabled={loading}
-            style={{ 
-              backgroundColor: COLORS.purple, 
-              color: 'white', 
-              border: 'none', 
-              padding: '16px', 
-              borderRadius: '12px', 
-              marginTop: '12px', 
-              fontWeight: 'bold', 
-              fontSize: '16px',
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              transition: 'transform 0.2s',
-              boxShadow: '0 8px 16px rgba(83, 74, 183, 0.3)'
-            }}
-            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            className="bg-purple-600 text-white border-none p-4 rounded-xl mt-3 font-bold text-base cursor-pointer flex justify-center items-center transition-transform shadow-lg shadow-purple-500/30 hover:bg-purple-500 active:scale-[0.98]"
           >
             {loading ? <Loader2 className="animate-spin" size={24} /> : 'Save Expense'}
           </button>

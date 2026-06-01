@@ -183,6 +183,7 @@ router.post("/generate", planValidation, async (req, res) => {
             day: dayCounter,
             title: d.title || `Exploring ${cities[i]}`,
             theme: d.theme || `Vibes of ${cities[i]}`,
+            city: cities[i], // Ensure day knows which city it belongs to
             // Ensure places know which city they belong to
             places: d.places.map(p => ({ ...p, city: cities[i] }))
           });

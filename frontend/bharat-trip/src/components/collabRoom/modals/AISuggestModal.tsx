@@ -47,7 +47,7 @@ const AISuggestModal = ({ tripId, onClose, onSuccess }: any) => {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#141416] border border-border rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
+      <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
              <div className="size-10 rounded-xl bg-purple-500/20 grid place-items-center">

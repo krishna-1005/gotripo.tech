@@ -38,7 +38,7 @@ const AddDestinationModal = ({ tripId, onClose, onSuccess }: any) => {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#141416] border border-border rounded-[2.5rem] w-full max-w-lg p-8 shadow-2xl">
+      <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-lg p-8 shadow-2xl">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
              <div className="size-10 rounded-xl bg-primary-soft text-primary grid place-items-center">
@@ -120,7 +120,7 @@ const AddDestinationModal = ({ tripId, onClose, onSuccess }: any) => {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full h-16 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-sm shadow-cta flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="w-full h-16 rounded-2xl bg-warm-gradient text-white font-black uppercase tracking-widest text-sm shadow-cta flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             {loading ? <Loader2 className="animate-spin" /> : 'Suggest Destination'}
           </button>

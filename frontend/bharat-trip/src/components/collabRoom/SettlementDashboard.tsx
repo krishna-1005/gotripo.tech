@@ -1,16 +1,6 @@
 import React from 'react';
 import { ArrowRight, Wallet, UserCircle, TrendingUp, TrendingDown } from 'lucide-react';
-
-const COLORS = {
-  cardBg: '#161b22',
-  border: '#30363d',
-  accent: '#1d9e75',
-  amber: '#ef9f27',
-  red: '#f85149',
-  textPrimary: '#e6edf3',
-  textMuted: '#8b949e',
-  purple: '#534AB7',
-};
+import { cn } from '@/lib/utils';
 
 interface SettlementDashboardProps {
   settlements: any[];
@@ -27,44 +17,35 @@ const SettlementDashboard: React.FC<SettlementDashboardProps> = ({ settlements, 
   const currentUserId = currentUser?._id;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-6">
       {/* Net Balances Overview */}
       <section>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Wallet size={20} color={COLORS.purple} /> Net Balances
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <Wallet size={20} className="text-purple-500" /> Net Balances
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
           {members.map((member) => (
             <div 
               key={member.id} 
-              style={{ 
-                backgroundColor: COLORS.cardBg, 
-                border: `1px solid ${String(member.id) === String(currentUserId) ? COLORS.purple : COLORS.border}`, 
-                borderRadius: '12px', 
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}
+              className={cn(
+                "bg-secondary/30 border rounded-xl p-4 flex flex-col gap-2",
+                String(member.id) === String(currentUserId) ? "border-purple-500" : "border-border"
+              )}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <UserCircle size={24} color={COLORS.textMuted} />
-                <span style={{ fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="flex items-center gap-2">
+                <UserCircle size={24} className="text-muted-foreground" />
+                <span className="font-semibold text-sm truncate">
                   {member.name} {String(member.id) === String(currentUserId) && '(You)'}
                 </span>
               </div>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                color: member.balance > 0.01 ? COLORS.accent : member.balance < -0.01 ? COLORS.red : COLORS.textMuted,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
+              <div className={cn(
+                "text-lg font-bold flex items-center gap-1",
+                member.balance > 0.01 ? "text-emerald-500" : member.balance < -0.01 ? "text-red-500" : "text-muted-foreground"
+              )}>
                 {member.balance > 0.01 ? <TrendingUp size={16} /> : member.balance < -0.01 ? <TrendingDown size={16} /> : null}
                 ₹{Math.abs(member.balance).toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', color: COLORS.textMuted }}>
+              <div className="text-[11px] uppercase font-bold text-muted-foreground">
                 {member.balance > 0.01 ? 'Owed' : member.balance < -0.01 ? 'Owes' : 'Settled'}
               </div>
             </div>
@@ -74,58 +55,40 @@ const SettlementDashboard: React.FC<SettlementDashboardProps> = ({ settlements, 
 
       {/* Suggested Settlements */}
       <section>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ArrowRight size={20} color={COLORS.purple} /> How to Settle
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <ArrowRight size={20} className="text-purple-500" /> How to Settle
         </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="flex flex-col gap-3">
           {settlements.length === 0 ? (
-            <div style={{ 
-              backgroundColor: 'rgba(255,255,255,0.02)', 
-              border: `1px dashed ${COLORS.border}`, 
-              borderRadius: '12px', 
-              padding: '32px', 
-              textAlign: 'center',
-              color: COLORS.textMuted
-            }}>
+            <div className="bg-secondary/10 border border-dashed border-border rounded-xl p-8 text-center text-muted-foreground">
               Everyone is even! No settlements needed.
             </div>
           ) : (
             settlements.map((s, idx) => (
               <div 
                 key={idx} 
-                style={{ 
-                  backgroundColor: COLORS.cardBg, 
-                  border: `1px solid ${COLORS.border}`, 
-                  borderRadius: '12px', 
-                  padding: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
+                className="bg-secondary/30 border border-border rounded-xl p-4 flex items-center justify-between"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{s.from}</div>
-                    <div style={{ fontSize: '10px', color: COLORS.red, textTransform: 'uppercase' }}>Pays</div>
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="text-center">
+                    <div className="font-bold text-sm">{s.from}</div>
+                    <div className="text-[10px] text-red-500 uppercase">Pays</div>
                   </div>
-                  <ArrowRight size={20} color={COLORS.purple} style={{ margin: '0 8px' }} />
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{s.to}</div>
-                    <div style={{ fontSize: '10px', color: COLORS.accent, textTransform: 'uppercase' }}>Receives</div>
+                  <ArrowRight size={20} className="text-purple-500 mx-2" />
+                  <div className="text-center">
+                    <div className="font-bold text-sm">{s.to}</div>
+                    <div className="text-[10px] text-emerald-500 uppercase">Receives</div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', marginLeft: '16px' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: COLORS.textPrimary }}>₹{s.amount.toLocaleString()}</div>
+                <div className="text-right ml-4">
+                  <div className="text-lg font-bold">₹{s.amount.toLocaleString()}</div>
                   { (String(s.fromId) === String(currentUserId) || String(s.toId) === String(currentUserId)) && (
-                    <div style={{ 
-                      fontSize: '11px', 
-                      fontWeight: 'bold', 
-                      color: String(s.fromId) === String(currentUserId) ? COLORS.red : COLORS.accent,
-                      backgroundColor: String(s.fromId) === String(currentUserId) ? 'rgba(248, 81, 73, 0.1)' : 'rgba(29, 158, 117, 0.1)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      marginTop: '4px'
-                    }}>
+                    <div className={cn(
+                      "text-[11px] font-bold px-2 py-0.5 rounded mt-1 inline-block",
+                      String(s.fromId) === String(currentUserId) 
+                        ? "text-red-500 bg-red-500/10" 
+                        : "text-emerald-500 bg-emerald-500/10"
+                    )}>
                       {String(s.fromId) === String(currentUserId) ? 'You pay' : 'You receive'}
                     </div>
                   )}

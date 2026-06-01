@@ -353,7 +353,13 @@ function KnowBeforeYouGo({ city, weather }: { city: string; weather?: any }) {
    SIDEBAR: STAY RECOMMENDATIONS
    ───────────────────────────────────── */
 function StayRecommendations({ city }: { city: string }) {
-  const options = [
+  const isHillStation = ["coorg", "munnar", "wayanad", "ooty", "shimla", "manali", "ladakh", "leh"].includes(city.toLowerCase());
+  
+  const options = isHillStation ? [
+    { type: "Budget", range: "₹1,200 – ₹2,200 / night", note: "Homestays & cottages" },
+    { type: "Mid-range", range: "₹3,500 – ₹6,000 / night", note: "Resorts & villas", recommended: true },
+    { type: "Premium", range: "₹9,000+ / night", note: "Luxury heritage resorts" },
+  ] : [
     { type: "Budget", range: "₹800 – ₹1,500 / night", note: "Guesthouses & hostels" },
     { type: "Mid-range", range: "₹2,500 – ₹4,500 / night", note: "Boutique hotels", recommended: true },
     { type: "Premium", range: "₹6,000+ / night", note: "Heritage properties & resorts" },
@@ -660,16 +666,41 @@ export default function Results() {
 
   const destinationName = plan?.destination || plan?.city || "Delhi";
 
+  // Parse list of cities for multi-city journeys
+  const citiesList = (() => {
+    if (!destinationName) return [];
+    if (destinationName.includes("→") || destinationName.includes("->")) {
+      return destinationName
+        .split(/→|->/)
+        .map((c: string) => c.trim())
+        .filter(Boolean);
+    }
+    return [destinationName];
+  })();
+
+  const [selectedCityTab, setSelectedCityTab] = useState<string>("");
+
+  useEffect(() => {
+    if (citiesList.length > 0 && !selectedCityTab) {
+      setSelectedCityTab(citiesList[0]);
+    }
+  }, [plan, citiesList, selectedCityTab]);
+
   const handleSwap = async (dayIdx: number, placeIdx: number, currentPlace: any) => {
     setSwapping(`${dayIdx}-${placeIdx}`);
     try {
+      const swapCity = currentPlace.city || plan.itinerary[dayIdx].city || plan.itinerary[dayIdx].places?.[0]?.city || "";
       const res = await api.post("/ai/swap", {
         activityName: currentPlace.name || currentPlace.place,
-        destination: destinationName,
+        destination: swapCity || destinationName,
         currentItinerary: plan.itinerary[dayIdx].places,
       });
       const newItinerary = [...plan.itinerary];
-      newItinerary[dayIdx].places[placeIdx] = res.data;
+      const newPlace = {
+        ...res.data,
+        city: swapCity || res.data.city || ""
+      };
+      newItinerary[dayIdx].places[placeIdx] = newPlace;
       setPlan({ ...plan, itinerary: newItinerary });
       if (planId) await api.patch(`/trips/${planId}`, { itinerary: newItinerary });
       toast.success("Activity swapped!");
@@ -725,11 +756,19 @@ export default function Results() {
   };
 
   useEffect(() => {
-    if (destinationName) {
-      const mocks: any = { Delhi: { temp: 32, condition: "Sunny", icon: "sun" } };
-      setWeather(mocks[destinationName] || { temp: 26, condition: "Clear", icon: "sun" });
+    const cityForWeather = selectedCityTab || destinationName;
+    if (cityForWeather) {
+      const mocks: any = { 
+        Delhi: { temp: 32, condition: "Sunny", icon: "sun" },
+        Bengaluru: { temp: 24, condition: "Clear Skies", icon: "sun" },
+        Bangalore: { temp: 24, condition: "Clear Skies", icon: "sun" },
+        Mysuru: { temp: 28, condition: "Partly Cloudy", icon: "cloud" },
+        Mysore: { temp: 28, condition: "Partly Cloudy", icon: "cloud" },
+        Coorg: { temp: 21, condition: "Mist", icon: "cloud" }
+      };
+      setWeather(mocks[cityForWeather] || { temp: 26, condition: "Clear", icon: "sun" });
     }
-  }, [destinationName]);
+  }, [selectedCityTab, destinationName]);
 
   useEffect(() => {
     if (planId) {
@@ -846,39 +885,84 @@ export default function Results() {
               <div id="tour-timeline" className="space-y-8">
                 {plan.itinerary.map((day: any, idx: number) => {
                   const accent = DAY_ACCENT[idx % DAY_ACCENT.length];
+                  
+                  const isMultiCity = citiesList.length > 1;
+                  const currentDayCity = day.city || day.places?.[0]?.city || "";
+                  const prevDayCity = idx > 0 ? (plan.itinerary[idx - 1].city || plan.itinerary[idx - 1].places?.[0]?.city || "") : "";
+                  const isCityTransition = isMultiCity && (idx === 0 || (currentDayCity && prevDayCity && currentDayCity.toLowerCase() !== prevDayCity.toLowerCase()));
+                  
+                  const cityDaysCount = plan.itinerary.filter((d: any) => {
+                    const c = d.city || d.places?.[0]?.city || "";
+                    return c && currentDayCity && c.toLowerCase() === currentDayCity.toLowerCase();
+                  }).length;
+
                   return (
-                    <div key={idx} className="rounded-2xl border border-border bg-card overflow-hidden">
-                      {/* Day header */}
-                      <div className={cn("px-4 sm:px-6 py-4 sm:py-5 border-b border-border flex items-center justify-between gap-3", `border-l-4 ${accent.border}`)}>
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={cn("size-9 sm:size-10 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg text-white shrink-0", accent.dot)}>
-                            {idx + 1}
+                    <div key={idx} className="space-y-6">
+                      {isCityTransition && currentDayCity && (
+                        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500/15 via-purple-500/5 to-transparent border border-indigo-500/25 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm backdrop-blur-sm">
+                          <div className="absolute -right-10 -top-10 size-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                          <div className="flex items-center gap-4">
+                            <div className="size-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20 shrink-0">
+                              <MapPin className="size-6 animate-bounce" />
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-indigo-650 dark:text-indigo-400 uppercase tracking-widest">Journey Leg</span>
+                              <h3 className="text-xl sm:text-2xl font-black text-foreground mt-0.5 tracking-tight flex items-center gap-2">
+                                {currentDayCity}
+                              </h3>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-0.5", accent.label)}>Day {idx + 1}</p>
-                            <h2 className="text-sm sm:text-base font-bold text-foreground truncate">{day.title || `Day ${idx + 1}`}</h2>
+                          <div className="flex items-center gap-2 sm:self-center">
+                            <span className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 text-xs font-bold text-indigo-650 dark:text-indigo-300">
+                              {cityDaysCount} {cityDaysCount === 1 ? 'Day' : 'Days'} Leg
+                            </span>
                           </div>
                         </div>
-                        <span className="text-[11px] text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
-                          {(day.places || []).length} stops
-                        </span>
-                      </div>
+                      )}
 
-                      {/* Places list */}
-                      <div className="divide-y divide-border/70">
-                        {(day.places || []).map((p: any, pIdx: number) => {
-                          const cfg = getTypeConfig(p.type);
-                          const PlaceIcon = cfg.icon;
-                          const placeName = p.name || p.place || p.title || "Unnamed Place";
-                          const placeDesc = p.desc || p.description || p.notes || p.reason || cfg.fallbackDesc;
-                          const timeSlot = p.time || p.bestTime || "Morning";
-                          const locationHint = p.city || p.area || p.locality || destinationName;
-                          const isSwapping = swapping === `${idx}-${pIdx}`;
-                          const pIdx1 = pIdx + 1;
+                      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                        {/* Day header */}
+                        <div className={cn("px-4 sm:px-6 py-4 sm:py-5 border-b border-border flex items-center justify-between gap-3", `border-l-4 ${accent.border}`)}>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={cn("size-9 sm:size-10 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg text-white shrink-0", accent.dot)}>
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-0.5", accent.label)}>
+                                Day {idx + 1} {currentDayCity && `· ${currentDayCity}`}
+                              </p>
+                              <h2 className="text-sm sm:text-base font-bold text-foreground truncate">{day.title || `Day ${idx + 1}`}</h2>
+                            </div>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                            {(day.places || []).length} stops
+                          </span>
+                        </div>
 
-                          return (
-                            <div key={pIdx} className="relative group px-4 sm:px-6 py-5 hover:bg-secondary/30 transition-colors">
-                              <div className="flex items-start gap-4">
+                        {/* Places list */}
+                        <div className="divide-y divide-border/70">
+                          {(day.places || []).map((p: any, pIdx: number) => {
+                            const cfg = getTypeConfig(p.type);
+                            const PlaceIcon = cfg.icon;
+                            const placeName = p.name || p.place || p.title || "Unnamed Place";
+                            const placeDesc = p.desc || p.description || p.notes || p.reason || cfg.fallbackDesc;
+                            const timeSlot = p.time || p.bestTime || "Morning";
+                            
+                            const cleanDestinationName = (destinationName.includes("→") || destinationName.includes("->")) 
+                              ? currentDayCity 
+                              : destinationName;
+                            const cityPart = p.city || currentDayCity;
+                            const localityPart = p.locality || p.area || "";
+                            const locationHint = localityPart && cityPart && localityPart !== cityPart
+                              ? `${localityPart}, ${cityPart}`
+                              : (localityPart || cityPart || cleanDestinationName);
+                              
+                            const isSwapping = swapping === `${idx}-${pIdx}`;
+                            const pIdx1 = pIdx + 1;
+
+                            return (
+                              <div key={pIdx} className="relative group px-4 sm:px-6 py-5 hover:bg-secondary/30 transition-colors">
+                                <div className="flex items-start gap-4">
 
                                 {/* Step number + icon stacked */}
                                 <div className="flex flex-col items-center gap-1 shrink-0">
@@ -994,8 +1078,9 @@ export default function Results() {
                         })}
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
 
                 {/* Bottom CTA */}
                 <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/50 dark:bg-indigo-950/30 p-5 sm:p-6">
@@ -1036,15 +1121,45 @@ export default function Results() {
 
                 {/* Sidebar widgets */}
                 <div id="tour-sidebar-widgets" className="space-y-4 sm:space-y-5">
-                  <KnowBeforeYouGo city={destinationName} weather={weather} />
+                  {/* City Selector Tabs for Multi-City Trips */}
+                  {citiesList.length > 1 && (
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm space-y-3">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-650 dark:text-indigo-400 uppercase tracking-widest">
+                        <MapPin className="size-3.5 animate-pulse" />
+                        <span>Select City Guide</span>
+                      </div>
+                      <div className="bg-secondary/40 border border-border p-1 rounded-xl flex flex-wrap gap-1">
+                        {citiesList.map((city) => {
+                          const isActive = selectedCityTab === city;
+                          return (
+                            <button
+                              key={city}
+                              type="button"
+                              onClick={() => setSelectedCityTab(city)}
+                              className={cn(
+                                "flex-1 px-3 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center whitespace-nowrap",
+                                isActive 
+                                  ? "bg-indigo-600 text-white shadow-sm" 
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              )}
+                            >
+                              {city}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <KnowBeforeYouGo city={selectedCityTab || destinationName} weather={weather} />
                   <TravelerShopWidget
-                    destinationName={destinationName}
+                    destinationName={selectedCityTab || destinationName}
                     checkedItems={checkedItems}
                     togglePackingItem={togglePackingItem}
                     addToCart={addToCart}
                   />
-                  <StayRecommendations city={destinationName} />
-                  <ValidationPanel city={destinationName} />
+                  <StayRecommendations city={selectedCityTab || destinationName} />
+                  <ValidationPanel city={selectedCityTab || destinationName} />
                 </div>
               </aside>
             </div>

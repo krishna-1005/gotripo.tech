@@ -7,11 +7,16 @@ const placeSchema = new mongoose.Schema({
   estimatedCost: Number,
   estimatedHours: Number,
   category: String,
+  type: String,
   rating: Number,
   reviews: String,
   tag: String,
   bestTime: String,
   timeReason: String,
+  city: String,
+  area: String,
+  locality: String,
+  whyRecommended: [String],
   userReviews: [{
     author: String,
     rating: Number,
@@ -23,6 +28,8 @@ const daySchema = new mongoose.Schema({
   day: mongoose.Schema.Types.Mixed,
   date: String,
   label: String,
+  title: String,
+  city: String,
   theme: {
     type: String,
     default: 'explore'

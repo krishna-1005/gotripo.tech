@@ -29,14 +29,9 @@ import AISuggestModal from './modals/AISuggestModal';
 import AddDestinationModal from './modals/AddDestinationModal';
 
 const COLORS = {
-  bg: '#0e0e10',
-  card: '#141416',
-  border: '#2a2a2e',
   teal: '#1D9E75',
   coral: '#993C1D',
   purple: '#534AB7',
-  text: '#e6edf3',
-  textMuted: '#8b949e',
   leadingBg: '#04342C',
   leadingText: '#5DCAA5'
 };
@@ -213,7 +208,7 @@ const DestinationBoard = ({ tripId, isOwner }: { tripId: string, isOwner: boolea
           </button>
           <button 
             onClick={() => setShowAddModal(true)}
-            className="flex-1 sm:flex-none h-9 lg:h-10 px-3 lg:px-4 rounded-xl bg-primary text-white text-[10px] lg:text-xs font-bold flex items-center justify-center gap-2 shadow-cta hover:scale-105 transition-all"
+            className="flex-1 sm:flex-none h-9 lg:h-10 px-3 lg:px-4 rounded-xl bg-warm-gradient text-white text-[10px] lg:text-xs font-bold flex items-center justify-center gap-2 shadow-cta hover:scale-105 transition-all"
           >
             <Plus className="size-3.5 lg:size-4" /> Add yours
           </button>
@@ -262,7 +257,7 @@ const DestinationBoard = ({ tripId, isOwner }: { tripId: string, isOwner: boolea
 
       {viewingDest && (
         <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#141416] border border-border rounded-[2.5rem] w-full max-w-xl p-8 shadow-2xl relative">
+          <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-xl p-8 shadow-2xl relative">
             <button 
               onClick={() => setViewingDest(null)}
               className="absolute top-6 right-6 p-2 hover:bg-secondary rounded-xl transition-colors"
@@ -325,7 +320,7 @@ const DestinationCard = ({ dest, onVote, onLock, onDelete, onView, isOwner, user
   return (
     <motion.div 
       layout
-      className="group rounded-2xl bg-[#141416] border border-border overflow-hidden relative"
+      className="group rounded-2xl bg-card border border-border overflow-hidden relative"
       style={{ border: dest.status === 'locked' ? `2px solid ${COLORS.teal}` : undefined }}
     >
       {/* Header Image */}

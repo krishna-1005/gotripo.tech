@@ -46,5 +46,6 @@ if (process.env.MONGO_URI) {
 
 // Bind to 0.0.0.0 to ensure the service is reachable on Render/Cloud environments
 server.listen(PORT, "0.0.0.0", () => {
+  // Nodemon watch trigger
   console.log(`🚀 GoTripo backend running on port ${PORT}`);
 });
