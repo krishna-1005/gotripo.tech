@@ -63,6 +63,9 @@ export function Footer() {
               <li><Link to="/cart" className="text-slate-500 hover:text-accent transition">My Cart</Link></li>
               <li><Link to="/orders" className="text-slate-500 hover:text-accent transition">Order History</Link></li>
               <li><a href="#voices" className="text-slate-500 hover:text-accent transition">User Testimonials</a></li>
+              <li><Link to="/feedback" className="text-slate-500 hover:text-accent transition flex items-center gap-2">
+                Feedback <span className="px-1.5 py-0.5 rounded-md bg-accent/10 text-accent text-[8px] font-black uppercase">New</span>
+              </Link></li>
             </ul>
           </div>
 

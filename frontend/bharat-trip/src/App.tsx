@@ -20,6 +20,7 @@ const Terms = lazy(() => import("./routes/terms"));
 const Cookies = lazy(() => import("./routes/cookies"));
 const About = lazy(() => import("./routes/about"));
 const Careers = lazy(() => import("./routes/careers"));
+const Feedback = lazy(() => import("./routes/feedback"));
 const TripDetails = lazy(() => import("./routes/trip-details"));
 const TripType = lazy(() => import("./routes/trip-type"));
 const Trips = lazy(() => import("./routes/trips"));
@@ -40,6 +41,7 @@ const AdminNotificationsPage = lazy(() => import("./routes/admin/notifications")
 const AdminConfigPage = lazy(() => import("./routes/admin/config"));
 const AdminJobApplicationsPage = lazy(() => import("./routes/admin/job-applications"));
 const AdminChatbotPage = lazy(() => import("./routes/admin/chatbot"));
+const AdminFeedbackPage = lazy(() => import("./routes/admin/feedback"));
 const AdminFrontendAgentPage = lazy(() => import("./routes/admin/ai/frontend-agent"));
 const AdminBackendAgentPage = lazy(() => import("./routes/admin/ai/backend-agent"));
 const AdminMarketingAgentPage = lazy(() => import("./routes/admin/ai/marketing-agent"));
@@ -102,6 +104,7 @@ export default function App() {
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/about" element={<About />} />
           <Route path="/careers" element={<Careers />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/planner-multi" element={<PlannerMulti />} />
           <Route path="/planner-single" element={<PlannerSingle />} />
           <Route path="/weekend-trips" element={<WeekendTrips />} />
@@ -140,6 +143,7 @@ export default function App() {
             <Route path="polls" element={<AdminPollsPage />} />
             <Route path="notifications" element={<AdminNotificationsPage />} />
             <Route path="chatbot" element={<AdminChatbotPage />} />
+            <Route path="feedback" element={<AdminFeedbackPage />} />
             <Route path="config" element={<AdminConfigPage />} />
             <Route path="ai">
               <Route path="frontend-agent" element={<AdminFrontendAgentPage />} />

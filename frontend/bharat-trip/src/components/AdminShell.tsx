@@ -18,7 +18,8 @@ import {
   TestTube,
   Library,
   Cpu,
-  Sparkles
+  Sparkles,
+  Heart
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -35,6 +36,7 @@ const adminNav = [
   { to: "/admin/polls", label: "Polls", icon: BarChart3 },
   { to: "/admin/notifications", label: "Announcements", icon: Bell },
   { to: "/admin/chatbot", label: "Chatbot AI", icon: MessageSquare },
+  { to: "/admin/feedback", label: "User Feedback", icon: Heart },
   { to: "/admin/config", label: "System Config", icon: Settings },
 ];
 

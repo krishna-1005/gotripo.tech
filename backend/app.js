@@ -40,6 +40,7 @@ const yatraKitRoutes = require("./routes/yatraKit");
 const cartRoutes = require("./routes/cart");
 const orderRoutes = require("./routes/orders");
 const availabilityRoutes = require("./routes/availabilityRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
 
 const app = express();
 const maintenanceMode = require("./middleware/maintenance");
@@ -186,6 +187,7 @@ app.use("/api/polls", pollRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/group-chat", groupChatRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 /* ── 4. ERROR HANDLING ── */
 

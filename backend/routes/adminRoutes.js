@@ -759,4 +759,64 @@ router.get("/chatbot-stats", protect, verifyAdminEmail, async (req, res) => {
   }
 });
 
+/* FEEDBACK MANAGEMENT */
+const Feedback = require("../models/Feedback");
+
+router.get("/feedback", protect, verifyAdminEmail, async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find().sort({ createdAt: -1 });
+    res.json(feedbacks);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching feedback" });
+  }
+});
+
+router.get("/feedback/stats", protect, verifyAdminEmail, async (req, res) => {
+  try {
+    const total = await Feedback.countDocuments();
+    const avgRating = await Feedback.aggregate([
+      { $group: { _id: null, avg: { $avg: "$overallRating" } } }
+    ]);
+    
+    const usefulBreakdown = await Feedback.aggregate([
+      { $group: { _id: "$isUseful", count: { $sum: 1 } } }
+    ]);
+    
+    const recommendBreakdown = await Feedback.aggregate([
+      { $group: { _id: "$willRecommend", count: { $sum: 1 } } }
+    ]);
+
+    const ratingDistribution = await Feedback.aggregate([
+      { $group: { _id: "$overallRating", count: { $sum: 1 } } },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const topFeatures = await Feedback.aggregate([
+      { $match: { favoriteFeature: { $ne: "" } } },
+      { $group: { _id: "$favoriteFeature", count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({
+      total,
+      averageRating: avgRating[0]?.avg?.toFixed(1) || 0,
+      usefulBreakdown,
+      recommendBreakdown,
+      ratingDistribution,
+      topFeatures
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching feedback stats" });
+  }
+});
+
+router.delete("/feedback/:id", protect, verifyAdminEmail, async (req, res) => {
+  try {
+    await Feedback.findByIdAndDelete(req.params.id);
+    res.json({ message: "Feedback deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Error deleting feedback" });
+  }
+});
+
 module.exports = router;
