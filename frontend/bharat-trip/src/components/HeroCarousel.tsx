@@ -68,7 +68,7 @@ export function HeroCarousel() {
   const active = slides[index];
 
   return (
-    <section className="relative h-screen w-full overflow-hidden text-white bg-background group">
+    <section className="relative h-dvh w-full overflow-hidden text-white bg-background group">
       {/* Images — overlapping crossfade */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <AnimatePresence initial={false}>
@@ -95,13 +95,13 @@ export function HeroCarousel() {
       {/* Gradients — Refined for depth without muddiness */}
       <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-64 z-20 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none" />
-      <div className="relative z-30 max-w-7xl mx-auto px-6 lg:px-10 h-full flex flex-col justify-end pb-28 sm:pb-32 md:pb-48">
+      <div className="relative z-30 max-w-7xl mx-auto px-6 lg:px-10 h-full flex flex-col justify-end pb-[15vh] sm:pb-28 md:pb-48">
         <div className="max-w-5xl">
           <motion.div
             key={`meta-${index}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2.5 backdrop-blur-md bg-white/15 border border-white/20 rounded-full px-5 py-2 text-xs md:text-sm font-bold tracking-[0.15em] uppercase mb-5 md:mb-10 text-white"
+            className="inline-flex items-center gap-2.5 backdrop-blur-md bg-white/15 border border-white/20 rounded-full px-4 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-xs md:text-sm font-bold tracking-[0.15em] uppercase mb-3 sm:mb-5 md:mb-10 text-white"
           >
             <MapPin className="size-3.5 text-[#10b981]" /> {active.region}
           </motion.div>
@@ -111,7 +111,7 @@ export function HeroCarousel() {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.8 }}
-            className="font-display font-medium text-5xl sm:text-7xl md:text-8xl lg:text-[8rem] leading-[1.1] md:leading-[0.9] tracking-tighter text-white mb-5"
+            className="font-display font-medium text-4xl sm:text-7xl md:text-8xl lg:text-[8rem] leading-[1.05] sm:leading-[1.1] md:leading-[0.9] tracking-tighter text-white mb-2 sm:mb-5"
           >
             {active.heading}
           </motion.h1>
@@ -121,21 +121,21 @@ export function HeroCarousel() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.8 }}
-            className="mt-3 text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl font-medium leading-relaxed"
+            className="mt-1 sm:mt-3 text-base sm:text-xl md:text-2xl text-white/90 max-w-2xl font-medium leading-relaxed"
           >
             {active.subheading}
           </motion.p>
  
-          <div className="mt-8 md:mt-14 flex flex-col items-start sm:flex-row sm:items-center gap-3.5 sm:gap-4 md:gap-5 w-full">
+          <div className="mt-6 sm:mt-8 md:mt-14 flex flex-row flex-wrap items-center gap-2.5 sm:gap-4 md:gap-5 w-full">
             <Link
               to="/explore-india"
-              className="group/btn inline-flex items-center justify-center gap-2 h-12 sm:h-12 md:h-14 px-7 sm:px-8 md:px-10 rounded-full backdrop-blur-xl bg-black/75 hover:bg-black/90 border border-white/20 font-bold text-white transition-all shadow-xl text-base sm:text-base md:text-lg"
+              className="group/btn inline-flex items-center justify-center gap-2 h-11 sm:h-12 md:h-14 px-5 sm:px-8 md:px-10 rounded-full backdrop-blur-xl bg-black/75 hover:bg-black/90 border border-white/20 font-bold text-white transition-all shadow-xl text-sm sm:text-base md:text-lg"
             >
               Explore Now <ArrowRight className="size-4 md:size-5 group-hover/btn:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/trip-type"
-              className="inline-flex items-center justify-center gap-2 h-12 sm:h-12 md:h-14 px-8 sm:px-8 md:px-10 rounded-full bg-[#10b981] text-white font-bold text-base sm:text-base md:text-xl shadow-[0_10px_20px_-5px_rgba(16,185,129,0.3)] hover:bg-[#0da673] transition-all"
+              className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 md:h-14 px-5 sm:px-8 md:px-10 rounded-full bg-[#10b981] text-white font-bold text-sm sm:text-base md:text-xl shadow-[0_10px_20px_-5px_rgba(16,185,129,0.3)] hover:bg-[#0da673] transition-all"
             >
               Plan My Trip
             </Link>
@@ -144,7 +144,7 @@ export function HeroCarousel() {
                 const btn = document.querySelector('button[aria-label="Toggle chatbot"]') as HTMLButtonElement;
                 if (btn) btn.click();
               }}
-              className="inline-flex items-center justify-center gap-2 h-12 sm:h-12 md:h-14 px-7 sm:px-8 md:px-10 rounded-full backdrop-blur-xl bg-black/75 hover:bg-black/90 border border-white/20 font-bold transition-all text-white shadow-xl text-base sm:text-base md:text-lg"
+              className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 md:h-14 px-5 sm:px-8 md:px-10 rounded-full backdrop-blur-xl bg-black/75 hover:bg-black/90 border border-white/20 font-bold transition-all text-white shadow-xl text-sm sm:text-base md:text-lg"
             >
               Ask AI Co-pilot <Sparkles className="size-4 md:size-5" />
             </button>
@@ -152,7 +152,7 @@ export function HeroCarousel() {
         </div>
 
         {/* Progress Timer Indicators - Repositioned for justify-end layout */}
-        <div className="absolute bottom-12 md:bottom-20 left-6 right-6 lg:left-10 lg:right-auto flex items-center gap-3 md:gap-4 lg:w-full max-w-2xl">
+        <div className="mt-5 sm:mt-0 sm:absolute sm:bottom-12 md:bottom-20 left-6 right-6 lg:left-10 lg:right-auto flex items-center gap-3 md:gap-4 lg:w-full max-w-2xl">
           {slides.map((_, i) => {
             const isActive = i === index;
             return (

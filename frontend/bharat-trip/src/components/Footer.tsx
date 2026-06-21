@@ -75,7 +75,7 @@ export function Footer() {
               <li><Link to="/cookies" className="text-slate-500 hover:text-accent transition">Cookie Policy</Link></li>
             </ul>
             <div className="mt-8 flex items-center gap-3">
-              <a href="#" className="size-8 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
+              <a href="https://www.instagram.com/gotripo.tech/" target="_blank" rel="noopener noreferrer" className="size-8 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
                 <Instagram className="size-4" />
               </a>
               <a href="#" className="size-8 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
