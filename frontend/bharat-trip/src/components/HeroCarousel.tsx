@@ -141,8 +141,7 @@ export function HeroCarousel() {
             </Link>
             <button
               onClick={() => {
-                const btn = document.querySelector('button[aria-label="Toggle chatbot"]') as HTMLButtonElement;
-                if (btn) btn.click();
+                window.dispatchEvent(new CustomEvent('open-chatbot'));
               }}
               className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 md:h-14 px-5 sm:px-8 md:px-10 rounded-full backdrop-blur-xl bg-black/75 hover:bg-black/90 border border-white/20 font-bold transition-all text-white shadow-xl text-sm sm:text-base md:text-lg"
             >

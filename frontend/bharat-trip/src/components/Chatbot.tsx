@@ -177,6 +177,13 @@ export function Chatbot() {
     }
   }, [location.pathname]);
 
+  // Listen for external "open-chatbot" events
+  useEffect(() => {
+    const handleOpenChatbot = () => setIsOpen(true);
+    window.addEventListener('open-chatbot', handleOpenChatbot);
+    return () => window.removeEventListener('open-chatbot', handleOpenChatbot);
+  }, []);
+
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([greeting]);
