@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarketingNav } from "@/components/MarketingNav";
 import { Footer } from "@/components/Footer";
@@ -218,6 +218,17 @@ export default function FeedbackPage() {
     favoriteFeature: "",
   });
 
+  // Sync user values if loaded asynchronously
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || user.displayName || "",
+        email: prev.email || user.email || "",
+      }));
+    }
+  }, [user]);
+
   const getInitials = (nameStr: string) => {
     if (!nameStr) return "U";
     return nameStr.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
@@ -332,14 +343,14 @@ export default function FeedbackPage() {
                 {/* Profile Header */}
                 <div className="flex items-center gap-3">
                   <div className="size-10 rounded-full bg-gradient-to-tr from-accent to-emerald-400 text-white font-bold text-sm flex items-center justify-center shadow-inner">
-                    {getInitials(form.name)}
+                    {getInitials(form.name || user?.displayName || "Anonymous")}
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-800 leading-none">
-                      {form.name || "Your Name"}
+                      {form.name || user?.displayName || "Anonymous"}
                     </h4>
                     <span className="text-[10px] text-slate-400 mt-1 block">
-                      {form.email || "your.email@example.com"}
+                      {form.email || user?.email || "your.email@example.com"}
                     </span>
                   </div>
                 </div>
