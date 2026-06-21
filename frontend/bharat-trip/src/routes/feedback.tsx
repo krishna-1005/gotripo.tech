@@ -71,7 +71,7 @@ const STYLE_INJECTION = `
     background: rgba(255, 255, 255, 0.42) !important;
     backdrop-filter: blur(24px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    border: 1.5px solid #94a3b8 !important;
     box-shadow: 
       0 12px 40px 0 rgba(31, 38, 135, 0.04) !important,
       inset 0 1px 1px 0 rgba(255, 255, 255, 0.95) !important;
@@ -81,12 +81,12 @@ const STYLE_INJECTION = `
   .glass-track {
     background: rgba(15, 23, 42, 0.05) !important;
     backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1.5px solid #cbd5e1 !important;
   }
 
   .glass-pill {
     background: rgba(255, 255, 255, 0.85) !important;
-    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    border: 1.5px solid #94a3b8 !important;
     box-shadow: 
       0 4px 12px 0 rgba(15, 23, 42, 0.04) !important,
       inset 0 1px 0 0 rgba(255, 255, 255, 1) !important;
@@ -95,19 +95,19 @@ const STYLE_INJECTION = `
   .glass-feature-btn {
     background: rgba(255, 255, 255, 0.25) !important;
     backdrop-filter: blur(4px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1.5px solid #cbd5e1 !important;
     color: #475569 !important;
     transition: all 0.2s ease !important;
   }
 
   .glass-feature-btn:hover {
     background: rgba(255, 255, 255, 0.45) !important;
-    border-color: rgba(255, 255, 255, 0.9) !important;
+    border-color: #94a3b8 !important;
   }
 
   .glass-feature-selected {
     background: rgba(16, 185, 129, 0.12) !important;
-    border: 1.5px solid rgba(16, 185, 129, 0.6) !important;
+    border: 2px solid #10b981 !important;
     color: #047857 !important;
     box-shadow: inset 0 2px 4px 0 rgba(16, 185, 129, 0.05) !important;
   }
@@ -115,7 +115,7 @@ const STYLE_INJECTION = `
   .glass-input {
     background: rgba(255, 255, 255, 0.25) !important;
     backdrop-filter: blur(4px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1.5px solid #cbd5e1 !important;
     color: #1e293b !important;
     outline: none !important;
     transition: all 0.2s ease !important;
