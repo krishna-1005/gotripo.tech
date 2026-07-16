@@ -9,7 +9,7 @@ import { FadeUp, StaggerGroup, StaggerItem, HoverLift, dur, ease } from "@/compo
 import {
   Sparkles, Users, Wallet, Star, ArrowRight, Plane, X, MapPin, Clock, Calendar, CheckCircle2, Bookmark, Loader2,
   Mountain, Palmtree, Landmark, Building, Wind, Building2, Castle, Sun, Music, Trees, Coffee, Waves, CloudSun,
-  ShieldCheck, Lock, Eye, Server
+  ShieldCheck, Lock, Eye, Server, Plus, Check
 } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";
 import heroImg from "@/assets/hero-jaipur.jpg";
@@ -517,9 +517,9 @@ function MoodSlider({ label, value, onChange }: { label: [string, string], value
 }
 
 const features = [
-  { icon: Sparkles, title: "AI Itinerary", desc: "A senior travel planner in your pocket. Day-by-day plans tuned to your style in seconds." },
-  { icon: Users, title: "Group Polls", desc: "Decide destinations, dates and stays together. No more 47-message threads." },
-  { icon: Wallet, title: "Budget Control", desc: "See exactly where every rupee goes — flights, stays, food, and experiences." },
+  { id: "itinerary" as const, icon: Sparkles, title: "AI Itinerary", desc: "A senior travel planner in your pocket. Day-by-day plans tuned to your style in seconds." },
+  { id: "polls" as const, icon: Users, title: "Group Polls", desc: "Decide destinations, dates and stays together. No more 47-message threads." },
+  { id: "budget" as const, icon: Wallet, title: "Budget Control", desc: "See exactly where every rupee goes — flights, stays, food, and experiences." },
 ];
 
 function DestinationCard({ d, onShowDetails, isVisited }: { d: any, onShowDetails: (d: any) => void, isVisited: boolean }) {
@@ -608,9 +608,193 @@ function DestinationCard({ d, onShowDetails, isVisited }: { d: any, onShowDetail
   );
 }
 
+const renderMockup = (tab: "itinerary" | "polls" | "budget") => {
+  switch (tab) {
+    case "itinerary":
+      return (
+        <div className="space-y-6 text-left">
+          <div className="flex items-center justify-between border-b border-border/40 pb-4">
+            <div>
+              <h4 className="font-display font-bold text-lg text-foreground">Jaipur Cultural Tour</h4>
+              <p className="text-[11px] text-muted-foreground">3 Days · 4 Travelers</p>
+            </div>
+            <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-accent/10 text-accent rounded-full border border-accent/20">
+              AI Optimized
+            </span>
+          </div>
+
+          <div className="relative border-l border-border pl-6 space-y-8">
+            <div className="relative">
+              <span className="absolute -left-[31px] top-1 size-2.5 rounded-full bg-accent border-[2px] border-[#0b0f19] shadow-sm animate-pulse" />
+              <div className="text-[10px] font-bold text-accent uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                <Clock className="size-3" /> 10:00 AM · Day 1
+              </div>
+              <h5 className="font-bold text-sm text-foreground mb-1">Amer Palace Expedition</h5>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Explore the magnificent red sandstone & marble fort. 
+                <span className="block mt-1.5 text-[10px] text-amber-500 font-semibold bg-amber-500/5 px-2 py-1 rounded border border-amber-500/10 w-fit">
+                  💡 Tip: Hire a government-approved guide at the entry gate.
+                </span>
+              </p>
+            </div>
+
+            <div className="relative">
+              <span className="absolute -left-[31px] top-1 size-2.5 rounded-full bg-slate-300 dark:bg-slate-700 border-[2px] border-[#0b0f19] shadow-sm" />
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                <Clock className="size-3" /> 04:30 PM · Day 1
+              </div>
+              <h5 className="font-bold text-sm text-foreground mb-1">Nahargarh Fort Sunset View</h5>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Watch the sunset over the entire Pink City. 
+                <span className="block mt-1.5 text-[10px] text-accent font-semibold bg-accent/5 px-2 py-1 rounded border border-accent/10 w-fit">
+                  🕒 Optimal golden-hour timing calculated by AI.
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    case "polls":
+      return (
+        <div className="space-y-6 text-left">
+          <div className="flex items-center justify-between border-b border-border/40 pb-4">
+            <div>
+              <h4 className="font-display font-bold text-lg text-foreground">Goa Accommodation Poll</h4>
+              <p className="text-[11px] text-muted-foreground">Collaborative Selection · 5 Votes Cast</p>
+            </div>
+            <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-500 rounded-full border border-indigo-500/20">
+              Active
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Option 1 */}
+            <div className="p-4 rounded-2xl border border-accent/20 bg-accent/5 relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-2 relative z-10">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h5 className="font-bold text-sm text-foreground">Arambol Beachside Villa</h5>
+                    <span className="text-[9px] font-bold bg-accent text-white px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                      <CheckCircle2 className="size-2.5" /> Winning
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Private pool, direct beach access, splits to ₹2,400/night</p>
+                </div>
+                <span className="text-xs font-bold text-accent shrink-0 ml-2">3 votes</span>
+              </div>
+              {/* Progress bar */}
+              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden relative z-10">
+                <div className="h-full bg-accent rounded-full w-[60%]" />
+              </div>
+              {/* Voter Avatars */}
+              <div className="flex items-center gap-1.5 mt-3 relative z-10">
+                <div className="flex -space-x-2">
+                  <img src="https://i.pravatar.cc/100?img=11" className="size-6 rounded-full border border-[#0b0f19]" />
+                  <img src="https://i.pravatar.cc/100?img=12" className="size-6 rounded-full border border-[#0b0f19]" />
+                  <img src="https://i.pravatar.cc/100?img=13" className="size-6 rounded-full border border-[#0b0f19]" />
+                </div>
+                <span className="text-[10px] text-muted-foreground">Karan, Kabir, and Maya voted for this</span>
+              </div>
+            </div>
+
+            {/* Option 2 */}
+            <div className="p-4 rounded-2xl border border-border bg-card/50 relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-2 relative z-10">
+                <div>
+                  <h5 className="font-bold text-sm text-foreground">Anjuna Boutique Hostel</h5>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Social hostel, community cafe, splits to ₹800/night</p>
+                </div>
+                <span className="text-xs font-bold text-muted-foreground shrink-0 ml-2">2 votes</span>
+              </div>
+              {/* Progress bar */}
+              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden relative z-10">
+                <div className="h-full bg-slate-400 dark:bg-slate-600 rounded-full w-[40%]" />
+              </div>
+              {/* Voter Avatars */}
+              <div className="flex items-center gap-1.5 mt-3 relative z-10">
+                <div className="flex -space-x-2">
+                  <img src="https://i.pravatar.cc/100?img=14" className="size-6 rounded-full border border-[#0b0f19]" />
+                  <img src="https://i.pravatar.cc/100?img=15" className="size-6 rounded-full border border-[#0b0f19]" />
+                </div>
+                <span className="text-[10px] text-muted-foreground">Ananya and Dev voted for this</span>
+              </div>
+            </div>
+
+            {/* Suggest Option Button */}
+            <div className="border border-dashed border-border hover:border-accent/40 rounded-2xl p-3 text-center text-xs text-muted-foreground hover:text-foreground cursor-pointer transition flex items-center justify-center gap-2">
+              <Plus className="size-4 text-muted-foreground" /> Suggest another stay option...
+            </div>
+          </div>
+        </div>
+      );
+    case "budget":
+      return (
+        <div className="space-y-6 text-left">
+          <div className="flex items-center justify-between border-b border-border/40 pb-4">
+            <div>
+              <h4 className="font-display font-bold text-lg text-foreground">Goa Trip Expense Ledger</h4>
+              <p className="text-[11px] text-muted-foreground">Real-time Budget Sync</p>
+            </div>
+            <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 rounded-full border border-amber-500/20">
+              ₹25,000 Cap
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-secondary/40 border border-border/50 rounded-2xl p-4">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Spent Total</span>
+              <div className="text-xl font-display font-bold mt-1 text-foreground">₹18,400</div>
+              <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mt-3">
+                <div className="h-full bg-accent rounded-full w-[73%]" />
+              </div>
+            </div>
+            <div className="bg-secondary/40 border border-border/50 rounded-2xl p-4">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Remaining</span>
+              <div className="text-xl font-display font-bold mt-1 text-accent">₹6,600</div>
+              <div className="text-[10px] text-muted-foreground mt-3">Under budget by 27%</div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Split Activity Log</div>
+            
+            <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border/50 text-xs">
+              <div className="flex items-center gap-3">
+                <img src="https://i.pravatar.cc/100?img=11" className="size-8 rounded-full border border-border" />
+                <div>
+                  <div className="font-bold text-foreground">Karan paid for Dinner</div>
+                  <div className="text-[10px] text-muted-foreground">Split equally between 4 people</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-foreground">₹3,600</div>
+                <div className="text-[9px] text-accent font-medium">You owe ₹900</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border/50 text-xs">
+              <div className="flex items-center gap-3">
+                <img src="https://i.pravatar.cc/100?img=12" className="size-8 rounded-full border border-border" />
+                <div>
+                  <div className="font-bold text-foreground">Kabir booked Flights</div>
+                  <div className="text-[10px] text-muted-foreground">Added to shared trip ledger</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-foreground">₹14,800</div>
+                <div className="text-[9px] text-accent font-medium">You owe ₹3,700</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+  }
+};
+
 function Landing() {
   const [selectedDest, setSelectedDest] = useState<any>(null);
   const [visited, setVisited] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<"itinerary" | "polls" | "budget">("itinerary");
 
   useEffect(() => {
     const saved = localStorage.getItem("visited_destinations");
@@ -658,19 +842,70 @@ function Landing() {
       {/* FEATURES */}
       <section id="features" className="max-w-7xl mx-auto px-6 lg:px-10 py-32">
         <div className="grid lg:grid-cols-12 gap-16 items-center">
-          <div className="lg:col-span-5">
-            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-accent/5 border border-accent/10 mb-6">
-              <span className="size-2 rounded-full bg-accent animate-pulse" />
-              <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">The GoTripo Edge</span>
+          {/* Left Column: Heading and Tab selectors */}
+          <div className="lg:col-span-5 space-y-10">
+            <div>
+              <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-accent/5 border border-accent/10 mb-6">
+                <span className="size-2 rounded-full bg-accent animate-pulse" />
+                <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">The GoTripo Edge</span>
+              </div>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl tracking-tighter text-balance mb-6">
+                The travel agent that <br />
+                <span className="italic text-slate-500 dark:text-slate-400 font-serif">fits in your pocket.</span>
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed text-balance">
+                We've replaced the stress of planning with the joy of discovery. Experience three quiet superpowers that make every trip feel handcrafted.
+              </p>
             </div>
-            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl tracking-tighter text-balance mb-6">
-              The travel agent that <br />
-              <span className="italic text-slate-500 dark:text-slate-400">fits in your pocket.</span>
-            </h2>
-            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed text-balance mb-10">
-              We've replaced the stress of planning with the joy of discovery. Experience three quiet superpowers that make every trip feel handcrafted.
-            </p>
-            <div className="flex items-center gap-6">
+
+            {/* Tab Selectors */}
+            <div className="space-y-4">
+              {features.map((f) => {
+                const active = activeTab === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setActiveTab(f.id)}
+                    className={cn(
+                      "w-full text-left p-6 rounded-[24px] border transition-all duration-300 relative overflow-hidden flex items-start gap-5 cursor-pointer outline-none group",
+                      active
+                        ? "border-accent/20 bg-accent/5 shadow-[0_8px_30px_rgba(5,150,105,0.04)]"
+                        : "border-border bg-card/30 hover:border-accent/20 hover:bg-card/70"
+                    )}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="activeFeatureIndicator"
+                        className="absolute inset-0 bg-accent/5 border border-accent/20 rounded-[24px] -z-10"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    
+                    <div className={cn(
+                      "shrink-0 size-12 rounded-xl flex items-center justify-center transition-all duration-300",
+                      active
+                        ? "bg-accent text-white"
+                        : "bg-secondary text-muted-foreground group-hover:bg-accent/10 group-hover:text-accent"
+                    )}>
+                      <f.icon className="size-5.5" />
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className={cn(
+                        "font-display font-bold text-lg mb-1.5 transition-colors",
+                        active ? "text-accent" : "text-foreground"
+                      )}>
+                        {f.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Footer avatars */}
+            <div className="flex items-center gap-6 pt-4 border-t border-border/40">
                <div className="flex -space-x-3">
                  {[1,2,3,4].map(i => (
                    <div key={i} className="size-10 rounded-full border-2 border-background bg-secondary grid place-items-center overflow-hidden">
@@ -684,30 +919,37 @@ function Landing() {
             </div>
           </div>
  
-          <div className="lg:col-span-7 grid gap-6">
-            {features.map((f, idx) => (
-              <motion.div 
-                key={f.title}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="group relative p-8 rounded-[32px] border border-border bg-card hover:border-accent/30 hover:shadow-pop transition-all duration-500 overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <f.icon className="size-24" />
+          {/* Right Column: High-Fidelity UI Mockup Window */}
+          <div className="lg:col-span-7">
+            <div className="relative w-full rounded-[32px] border border-border bg-[#0b0f19]/80 shadow-pop overflow-hidden backdrop-blur-md">
+              {/* Window Title Bar */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border/40 bg-secondary/20">
+                <div className="flex items-center gap-2">
+                  <span className="size-3 rounded-full bg-[#ff5f56]" />
+                  <span className="size-3 rounded-full bg-[#ffbd2e]" />
+                  <span className="size-3 rounded-full bg-[#27c93f]" />
                 </div>
-                <div className="flex items-start gap-8">
-                  <div className="shrink-0 size-16 rounded-2xl bg-secondary group-hover:bg-warm-gradient text-muted-foreground group-hover:text-white flex items-center justify-center transition-all duration-500 shadow-inner">
-                    <f.icon className="size-7" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-display font-bold text-2xl mb-2 group-hover:text-accent transition-colors">{f.title}</h3>
-                    <p className="text-muted-foreground text-lg leading-relaxed">{f.desc}</p>
-                  </div>
+                <div className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">
+                  gotripo.app/planner
                 </div>
-              </motion.div>
-            ))}
+                <div className="w-14" /> {/* Spacer to align title */}
+              </div>
+
+              {/* Window Content */}
+              <div className="p-6 md:p-8 min-h-[380px] flex flex-col justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {renderMockup(activeTab)}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -879,74 +1121,6 @@ function Landing() {
         </StaggerGroup>
       </section>
 
-      {/* CTA */}
-      <section className="px-6 lg:px-10 pb-32">
-        <div className="max-w-7xl mx-auto relative group">
-          {/* Background Glows */}
-          <div className="absolute -top-12 -left-12 size-64 bg-accent/20 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          <div className="absolute -bottom-12 -right-12 size-64 bg-primary/20 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-
-          <FadeUp className="relative rounded-[48px] bg-slate-900 border border-white/10 p-12 md:p-24 overflow-hidden shadow-2xl">
-            {/* Mesh & Grain */}
-            <div className="absolute inset-0 bg-mesh opacity-30 mix-blend-overlay" />
-            <div className="absolute inset-0 bg-black/40" />
-            
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
-               <Plane className="size-64 text-white" />
-            </div>
-
-            <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8">
-                <Sparkles className="size-4 text-accent" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Join the future of travel</span>
-              </div>
-              
-              <h2 className="font-display font-bold text-4xl sm:text-5xl md:text-7xl tracking-tighter text-white mb-8 leading-[0.9]">
-                Your next trip is <br />
-                <span className="bg-warm-gradient bg-clip-text text-transparent italic">one prompt away.</span>
-              </h2>
-              
-              <p className="text-white/60 text-lg md:text-xl mb-12 text-balance leading-relaxed">
-                Start for free. Plan in minutes. Travel like you finally have the time to see the world properly.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                <motion.div whileHover={{ y: -4, scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to="/trip-type" className="flex items-center gap-3 h-16 px-10 rounded-2xl bg-warm-gradient text-white font-bold text-lg shadow-[0_20px_40px_-15px_rgba(245,158,11,0.5)] group/btn">
-                    <Plane className="size-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> 
-                    Start Planning Now
-                  </Link>
-                </motion.div>
-                
-                <Link to="/auth" className="flex items-center gap-2 h-16 px-10 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-lg backdrop-blur-md border border-white/10 transition-all">
-                  Create Account
-                </Link>
-              </div>
-
-              <div className="mt-16 pt-12 border-t border-white/10 w-full grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">AI Concierge</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">100%</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Free to Start</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">15k+</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Happy Travellers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">0</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Hidden Fees</div>
-                </div>
-              </div>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
-
       <ReviewSection />
       <Footer />
     </div>
@@ -958,7 +1132,7 @@ function StatItem({ icon, label, value }: { icon: React.ReactNode, label: string
     <div className="space-y-1">
       <div className="flex items-center gap-2 text-primary">
         <div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center">
-          {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement, { className: "size-4" }) : icon}
+          {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { className: "size-4" }) : icon}
         </div>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
       </div>
