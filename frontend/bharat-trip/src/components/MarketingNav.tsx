@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Sparkles, Menu, X, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Sparkles, Menu, X, ArrowRight, User } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
@@ -8,6 +8,14 @@ import { Logo } from "./Logo";
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleProfileClickForGuest = () => {
+    const confirmLogin = window.confirm("You are not logged in. Would you like to log in to view your profile?");
+    if (confirmLogin) {
+      navigate("/auth");
+    }
+  };
 
   return (
     <header className="fixed top-6 left-0 right-0 z-50 px-4 md:px-6 lg:px-12">
@@ -63,6 +71,25 @@ export function MarketingNav() {
         </div>
 
         <div className="flex items-center gap-3 md:hidden">
+          {!loading && (
+            user ? (
+              <Link
+                to="/profile"
+                className="size-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-bold text-xs text-white hover:bg-white/20 transition-all shadow-sm"
+                title="My Profile"
+              >
+                {(user.displayName as string | undefined)?.charAt(0) || user.email?.charAt(0).toUpperCase() || "K"}
+              </Link>
+            ) : (
+              <button
+                onClick={handleProfileClickForGuest}
+                className="size-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-sm"
+                title="Log In"
+              >
+                <User className="size-4" />
+              </button>
+            )
+          )}
           <ThemeToggle className="!bg-white/10 !border-white/10 text-white hover:!bg-white/20 scale-90" />
           <button
             onClick={() => setOpen(!open)}

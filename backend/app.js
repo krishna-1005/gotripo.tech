@@ -80,7 +80,7 @@ app.use(
         return false;
       });
 
-      if (isAllowed) {
+      if (isAllowed || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       } else {
         return callback(new Error("Not allowed by CORS"));

@@ -130,6 +130,29 @@ const STYLE_INJECTION = `
   .glass-input::placeholder {
     color: #94a3b8 !important;
   }
+
+  /* Override footer classes to force light mode styles on feedback page */
+  footer {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+  
+  footer * {
+    color: #475569 !important;
+    border-color: #e2e8f0 !important;
+  }
+  
+  footer h4 {
+    color: #0f172a !important;
+  }
+  
+  footer a:hover {
+    color: #10b981 !important;
+  }
+  
+  footer .bg-white {
+    background-color: #ffffff !important;
+  }
 `;
 
 const usefulOptions = [
@@ -203,7 +226,7 @@ function SegmentedControl({
 }
 
 export default function FeedbackPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -270,22 +293,32 @@ export default function FeedbackPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen font-sans-modern relative overflow-hidden flex flex-col justify-between liquid-glass-wrapper">
-      <style>{STYLE_INJECTION}</style>
-      <MarketingNav />
-
-      {/* Floating background liquid color blobs (Bright Light-themed) */}
-      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-        {/* Blob 1: Emerald Green */}
-        <div className="absolute top-[10%] left-[10%] size-[500px] rounded-full bg-emerald-400/20 blur-[100px] animate-liquid-1" />
-        {/* Blob 2: Sky Blue */}
-        <div className="absolute bottom-[20%] right-[10%] size-[550px] rounded-full bg-sky-400/20 blur-[120px] animate-liquid-2" />
-        {/* Blob 3: Lavender */}
-        <div className="absolute top-[40%] right-[20%] size-[400px] rounded-full bg-violet-400/20 blur-[100px] animate-liquid-3" />
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden liquid-glass-wrapper">
+        <style>{STYLE_INJECTION}</style>
+        <div className="size-10 rounded-full border-2 border-accent border-t-transparent animate-spin" />
       </div>
+    );
+  }
 
-      <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative z-10 w-full">
+  return (
+    <>
+      <MarketingNav />
+      <div className="min-h-screen font-sans-modern relative overflow-hidden flex flex-col justify-between liquid-glass-wrapper">
+        <style>{STYLE_INJECTION}</style>
+
+        {/* Floating background liquid color blobs (Bright Light-themed) */}
+        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+          {/* Blob 1: Emerald Green */}
+          <div className="absolute top-[10%] left-[10%] size-[500px] rounded-full bg-emerald-400/20 blur-[100px] animate-liquid-1" />
+          {/* Blob 2: Sky Blue */}
+          <div className="absolute bottom-[20%] right-[10%] size-[550px] rounded-full bg-sky-400/20 blur-[120px] animate-liquid-2" />
+          {/* Blob 3: Lavender */}
+          <div className="absolute top-[40%] right-[20%] size-[400px] rounded-full bg-violet-400/20 blur-[100px] animate-liquid-3" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 pt-44 md:pt-48 pb-24 relative z-10 w-full">
         
         {/* Header Block */}
         <div className="text-center max-w-2xl mx-auto mb-16">
@@ -602,5 +635,6 @@ export default function FeedbackPage() {
       </div>
       <Footer />
     </div>
+    </>
   );
 }
