@@ -108,7 +108,7 @@ export function ReviewSection() {
                         layout
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative p-6 sm:p-8 rounded-3xl sm:rounded-[40px] bg-card/40 backdrop-blur-md border border-border/50 shadow-soft group hover:shadow-card hover:bg-card/60 hover:border-accent/30 transition-all duration-500 overflow-hidden"
+                        className="relative p-6 sm:p-8 rounded-3xl sm:rounded-[40px] bg-white/60 dark:bg-white/[0.02] backdrop-blur-md border border-slate-200 dark:border-white/10 shadow-soft group hover:shadow-card hover:bg-white/85 dark:hover:bg-white/[0.05] hover:border-accent/35 transition-all duration-500 overflow-hidden"
                       >
                         {/* Quote mark as subtle watermark */}
                         <Quote className="absolute -bottom-6 -right-6 size-32 text-accent/5 -z-0 group-hover:text-accent/10 group-hover:rotate-12 transition-all duration-700" />
@@ -167,7 +167,7 @@ export function ReviewSection() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="p-6 sm:p-10 md:p-12 rounded-3xl sm:rounded-[48px] border border-border shadow-pop bg-card relative overflow-hidden"
+              className="p-6 sm:p-10 md:p-12 rounded-3xl sm:rounded-[48px] border border-slate-200 dark:border-white/10 shadow-pop bg-white/60 dark:bg-white/[0.03] backdrop-blur-lg relative overflow-hidden"
             >
               {/* Decorative Glow */}
               <div className="absolute -top-24 -right-24 size-64 bg-accent/10 blur-[80px] rounded-full" />

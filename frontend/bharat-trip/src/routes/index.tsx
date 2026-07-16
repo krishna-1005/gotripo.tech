@@ -840,7 +840,11 @@ function Landing() {
       </div>
 
       {/* FEATURES */}
-      <section id="features" className="max-w-7xl mx-auto px-6 lg:px-10 py-32">
+      <section id="features" className="max-w-7xl mx-auto px-6 lg:px-10 py-32 relative overflow-hidden">
+        {/* Floating animated blobs for Liquid Glassmorphism */}
+        <div className="absolute top-1/4 left-0 w-80 h-80 bg-accent/15 blur-[120px] rounded-full -z-10 pointer-events-none animate-pulse" />
+        <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-primary/10 blur-[120px] rounded-full -z-10 pointer-events-none animate-pulse" style={{ animationDelay: '2s' }} />
+
         <div className="grid lg:grid-cols-12 gap-16 items-center">
           {/* Left Column: Heading and Tab selectors */}
           <div className="lg:col-span-5 space-y-10">
@@ -869,14 +873,14 @@ function Landing() {
                     className={cn(
                       "w-full text-left p-6 rounded-[24px] border transition-all duration-300 relative overflow-hidden flex items-start gap-5 cursor-pointer outline-none group",
                       active
-                        ? "border-accent/20 bg-accent/5 shadow-[0_8px_30px_rgba(5,150,105,0.04)]"
-                        : "border-border bg-card/30 hover:border-accent/20 hover:bg-card/70"
+                        ? "border-accent/30 bg-accent/[0.04] dark:bg-white/[0.06] backdrop-blur-md shadow-[0_8px_32px_rgba(5,150,105,0.06)]"
+                        : "border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.02] backdrop-blur-md hover:border-accent/25 hover:bg-white/80 dark:hover:bg-white/[0.04]"
                     )}
                   >
                     {active && (
                       <motion.div
                         layoutId="activeFeatureIndicator"
-                        className="absolute inset-0 bg-accent/5 border border-accent/20 rounded-[24px] -z-10"
+                        className="absolute inset-0 bg-accent/10 border border-accent/30 rounded-[24px] -z-10"
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
                     )}

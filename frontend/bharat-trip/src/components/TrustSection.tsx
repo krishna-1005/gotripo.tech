@@ -133,7 +133,7 @@ function SpotlightCard({ point }: { point: typeof trustPoints[0] }) {
   return (
     <div 
       onMouseMove={handleMouseMove}
-      className="group relative h-full p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-accent/30 transition-colors duration-500 overflow-hidden shadow-soft dark:shadow-none"
+      className="group relative h-full p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-white/60 dark:bg-white/[0.02] backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-accent/35 transition-all duration-500 overflow-hidden shadow-soft hover:shadow-card"
     >
       {/* Spotlight Effect */}
       <motion.div

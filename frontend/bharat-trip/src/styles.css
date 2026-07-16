@@ -111,25 +111,25 @@
 
 .dark {
   /* GoTripo — Human-crafted Premium Dark: Warm Deep Obsidian + Elegant Emerald Brand Accent */
-  --background: #090d16; /* Deep charcoal navy, very soft on eyes */
-  --foreground: #f8fafc;
-  --surface: #111827; /* Rich dark slate for cards and surfaces */
-  --surface-elevated: #1f2937; /* Lighter slate for dropdowns and elevated items */
+  --background: #060708; /* Deep warm obsidian black */
+  --foreground: #f1f3f5; /* Soft off-white */
+  --surface: #0f1114; /* Sophisticated dark carbon */
+  --surface-elevated: #181b21; /* Lighter carbon for elevation */
 
-  --card: #111827;
-  --card-foreground: #f8fafc;
-  --popover: #111827;
-  --popover-foreground: #f8fafc;
+  --card: #0f1114;
+  --card-foreground: #f1f3f5;
+  --popover: #0f1114;
+  --popover-foreground: #f1f3f5;
 
-  --primary: #f8fafc; /* Sleek dark-mode primary: clean white background buttons */
-  --primary-foreground: #0f172a; /* Slate-900 text on primary buttons */
-  --primary-soft: #1f2937;
+  --primary: #f1f3f5; /* Sleek dark-mode primary: clean white background buttons */
+  --primary-foreground: #060708; /* Dark text on primary buttons */
+  --primary-soft: #181b21;
 
-  --secondary: #1f2937;
-  --secondary-foreground: #f8fafc;
+  --secondary: #181b21;
+  --secondary-foreground: #f1f3f5;
 
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af; /* Soft gray for secondary text */
+  --muted: #181b21;
+  --muted-foreground: #8892b0; /* Steel gray/slate for muted labels */
 
   --accent: #10b981; /* Premium Emerald/Mint for active states, badges and ticks */
   --accent-foreground: #ffffff;
@@ -140,17 +140,17 @@
   --success: #10b981;
   --success-foreground: #ffffff;
 
-  --border: #1f2937; /* Minimalist subtle border */
-  --input: #1f2937;
+  --border: #1d212a; /* Custom dark-grey border */
+  --input: #1d212a;
   --ring: #10b981; /* Green focus ring instead of blue */
 
-  --sidebar: #090d16;
-  --sidebar-foreground: #f8fafc;
+  --sidebar: #060708;
+  --sidebar-foreground: #f1f3f5;
   --sidebar-primary: #10b981;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #111827;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1f2937;
+  --sidebar-accent: #0f1114;
+  --sidebar-accent-foreground: #f1f3f5;
+  --sidebar-border: #1d212a;
   --sidebar-ring: #10b981;
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 24px rgba(0, 0, 0, 0.45);
