@@ -1,8 +1,12 @@
-const CACHE_NAME = 'gotripo-v2';
+const CACHE_NAME = 'gotripo-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/manifest.webmanifest'
+  '/manifest.webmanifest',
+  '/favicon.png',
+  '/favicon.ico',
+  '/apple-touch-icon.png',
+  '/go-tripo-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
