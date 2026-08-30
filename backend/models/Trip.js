@@ -48,7 +48,23 @@ const daySchema = new mongoose.Schema({
       type: String,
       default: 'activity'
     },
-    order: Number
+    order: Number,
+    isVisited: {
+      type: Boolean,
+      default: false
+    },
+    visitedBy: {
+      userId: String,
+      name: String,
+      visitedAt: Date
+    },
+    guideNotes: [{
+      authorId: String,
+      authorName: String,
+      text: String,
+      rating: Number,
+      createdAt: { type: Date, default: Date.now }
+    }]
   }],
   estimatedHours: Number,
   estimatedCost: Number,
@@ -174,6 +190,7 @@ const tripSchema = new mongoose.Schema({
   checklist: [{
     text: { type: String, required: true },
     isCompleted: { type: Boolean, default: false },
+    category: { type: String, default: "General" },
     assignedTo: {
       userId: String,
       userName: String

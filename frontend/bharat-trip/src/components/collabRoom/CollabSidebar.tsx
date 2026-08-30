@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useSocket } from '@/context/SocketContext';
 import { useAuth } from '@/components/AuthProvider';
-import { Send, Loader2, MessageSquare } from 'lucide-react';
+import { Send, Loader2, MessageSquare, Compass } from 'lucide-react';
 
 const COLORS = {
   cardBg: '#161b22',
@@ -173,6 +173,35 @@ const CollabSidebar = ({ trip, onlineUsers, polls, setActiveTab }: any) => {
           ) : (
             <div style={{ fontSize: '13px', color: COLORS.textMuted, fontStyle: 'italic' }}>No active polls</div>
           )}
+        </div>
+
+        {/* Section 3: GUIDE ME SHORTCUT */}
+        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${COLORS.border}`, backgroundColor: 'rgba(29, 158, 117, 0.05)' }}>
+          <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', color: COLORS.accent, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Compass size={14} /> Guide Me Mode
+            </div>
+          </div>
+          <p style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '12px', lineHeight: '1.4' }}>
+            Step-by-step live guidance & spot reviews for crew members.
+          </p>
+          <button
+            onClick={() => setActiveTab && setActiveTab('guideme')}
+            style={{
+              width: '100%',
+              backgroundColor: COLORS.accent,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(29, 158, 117, 0.3)'
+            }}
+          >
+            Launch Guide Assistant
+          </button>
         </div>
       </div>
 

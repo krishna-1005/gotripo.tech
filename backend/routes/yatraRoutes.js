@@ -83,14 +83,11 @@ router.post("/generate-itinerary", async (req, res) => {
     // --- TRY GEMINI FIRST ---
     if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your_gemini_api_key_here") {
       try {
-        console.log(`🔮 [Yatra] Attempting Gemini (gemini-1.5-flash)...`);
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        // Try multiple model names for compatibility
-        const modelNames = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"];
+        const modelNames = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"];
         
         for (const modelName of modelNames) {
           try {
-            console.log(`   Trying ${modelName}...`);
             const model = genAI.getGenerativeModel({ model: modelName });
             const result = await model.generateContent(prompt);
             text = result.response.text();
@@ -99,20 +96,20 @@ router.post("/generate-itinerary", async (req, res) => {
               break;
             }
           } catch (mErr) {
-            console.warn(`   ⚠️ ${modelName} failed:`, mErr.message);
+            // Silently try next model
           }
         }
       } catch (gemErr) {
-        console.error("❌ [Yatra] Gemini provider failed completely.");
+        // Silently fall through to Groq
       }
     }
 
-    // --- FALLBACK TO GROQ (Which we know works in this project) ---
+    // --- FALLBACK TO GROQ ---
     if (!success && process.env.GROQ_API_KEY) {
       try {
-        console.log(`🚀 [Yatra] Falling back to Groq (llama-3.3-70b)...`);
+        const { createGroqCompletion } = require("../utils/groqClient");
         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-        const chatCompletion = await groq.chat.completions.create({
+        const chatCompletion = await createGroqCompletion(groq, {
           messages: [
             { role: "system", content: "You are a professional travel assistant. Return JSON only." },
             { role: "user", content: prompt }

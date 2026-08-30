@@ -79,7 +79,9 @@ JSON Structure:
 }
 `;
 
-    const chatCompletion = await groq.chat.completions.create({
+const { createGroqCompletion } = require("../utils/groqClient");
+
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [
         { role: "system", content: "You are a professional travel planning assistant. Return JSON object only with a 'days' key." },
         { role: "user", content: systemPrompt }
@@ -147,7 +149,7 @@ router.post("/swap", protect, async (req, res) => {
       }
     `;
 
-    const chatCompletion = await groq.chat.completions.create({
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [
         { role: "system", content: "You are a professional travel assistant. Return JSON only." },
         { role: "user", content: prompt }

@@ -49,3 +49,14 @@ server.listen(PORT, "0.0.0.0", () => {
   // Nodemon watch trigger
   console.log(`🚀 GoTripo backend running on port ${PORT}`);
 });
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`❌ Port ${PORT} is already in use!`);
+    console.error(`👉 Another instance of the backend is already running or port ${PORT} is occupied by another process.`);
+    console.error(`💡 Check your active terminal windows or kill the process using port ${PORT}.`);
+    process.exit(1);
+  } else {
+    console.error("❌ Server initialization error:", err);
+  }
+});

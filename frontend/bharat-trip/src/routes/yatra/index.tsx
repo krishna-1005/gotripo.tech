@@ -1,12 +1,5 @@
-import { MarketingNav } from "@/components/MarketingNav";
-import { Footer } from "@/components/Footer";
-import { Hero } from "@/components/yatra/Hero";
-import { StatsBar } from "@/components/yatra/StatsBar";
-import { PopularYatras } from "@/components/yatra/PopularYatras";
-import { HowItWorks } from "@/components/yatra/HowItWorks";
-import { FeaturedSpotlight } from "@/components/yatra/FeaturedSpotlight";
-import { Testimonials } from "@/components/yatra/Testimonials";
-import { FooterCTA } from "@/components/yatra/FooterCTA";
+import { MarketingNav, Footer } from "@/components";
+import { Hero, StatsBar, PopularYatras, HowItWorks, FeaturedSpotlight, Testimonials, FooterCTA } from "@/components/yatra";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 

@@ -423,7 +423,7 @@ router.post("/:id/join", protect, async (req, res) => {
 /* CHECKLIST: ADD ITEM */
 router.post("/:id/checklist", protect, async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, category, assignedTo } = req.body;
     if (!text) return res.status(400).json({ error: "Item text is required" });
 
     const trip = await Trip.findById(req.params.id);
@@ -434,8 +434,16 @@ router.post("/:id/checklist", protect, async (req, res) => {
     const isMember = trip.members.some(m => m.userId === (req.user.firebaseUid || req.user._id.toString()));
     if (!isOwner && !isMember) return res.status(403).json({ error: "Not authorized" });
 
-    trip.checklist.push({ text });
+    trip.checklist.push({
+      text,
+      category: category || "General",
+      assignedTo: assignedTo || undefined
+    });
     await trip.save();
+
+    const io = req.app.get("io");
+    if (io) io.to(req.params.id).emit("checklist:updated", trip.checklist);
+
     res.status(201).json(trip.checklist);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
@@ -1049,6 +1057,97 @@ router.put("/:tripId/itinerary/day/:dayIndex/reorder", protect, async (req, res)
 
     res.json(trip.itinerary[dayIndex].activities);
   } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* SHARED ITINERARY: TOGGLE VISITED ACTIVITY */
+router.patch("/:tripId/itinerary/day/:dayIndex/activity/:activityId/visited", protect, async (req, res) => {
+  try {
+    const { tripId, dayIndex, activityId } = req.params;
+    const { isVisited } = req.body;
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) return res.status(404).json({ error: "Trip not found" });
+
+    const day = trip.itinerary[dayIndex];
+    if (!day) return res.status(404).json({ error: "Day not found" });
+
+    const activity = day.activities.id(activityId);
+    if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+    activity.isVisited = typeof isVisited === "boolean" ? isVisited : !activity.isVisited;
+    if (activity.isVisited) {
+      activity.visitedBy = {
+        userId: req.user._id.toString(),
+        name: req.user.name || "Traveller",
+        visitedAt: new Date()
+      };
+    } else {
+      activity.visitedBy = undefined;
+    }
+
+    trip.markModified("itinerary");
+    await trip.save();
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(tripId).emit("activity:visited", { tripId, dayIndex, activityId, isVisited: activity.isVisited, visitedBy: activity.visitedBy });
+      io.to(tripId).emit("itinerary:updated", trip.itinerary);
+    }
+
+    res.json({
+      activityId,
+      isVisited: activity.isVisited,
+      visitedBy: activity.visitedBy,
+      itinerary: trip.itinerary
+    });
+  } catch (error) {
+    console.error("Toggle Visited Error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* SHARED ITINERARY: ADD GUIDE NOTE / REVIEW */
+router.post("/:tripId/itinerary/day/:dayIndex/activity/:activityId/guide-notes", protect, async (req, res) => {
+  try {
+    const { tripId, dayIndex, activityId } = req.params;
+    const { text, rating } = req.body;
+
+    if (!text) return res.status(400).json({ error: "Note text is required" });
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) return res.status(404).json({ error: "Trip not found" });
+
+    const day = trip.itinerary[dayIndex];
+    if (!day) return res.status(404).json({ error: "Day not found" });
+
+    const activity = day.activities.id(activityId);
+    if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+    const note = {
+      authorId: req.user._id.toString(),
+      authorName: req.user.name || "Traveller",
+      text,
+      rating: rating || 5,
+      createdAt: new Date()
+    };
+
+    if (!activity.guideNotes) activity.guideNotes = [];
+    activity.guideNotes.push(note);
+
+    trip.markModified("itinerary");
+    await trip.save();
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(tripId).emit("guideme:note", { tripId, dayIndex, activityId, note });
+      io.to(tripId).emit("itinerary:updated", trip.itinerary);
+    }
+
+    res.status(201).json(note);
+  } catch (error) {
+    console.error("Add Guide Note Error:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

@@ -131,12 +131,13 @@ MANDATORY: If you say "I've crafted a plan" or "Check it out below", you MUST in
       });
 
     } catch (geminiError) {
-      console.warn("Gemini Error, falling back to Groq:", geminiError.message);
+      // Silently fall back to Groq — Gemini model may be unavailable
       
       // 2. TRY GROQ IF GEMINI FAILS
       if (groq) {
         try {
-          const chatCompletion = await groq.chat.completions.create({
+          const { createGroqCompletion } = require("../utils/groqClient");
+          const chatCompletion = await createGroqCompletion(groq, {
             messages: [
               { role: "system", content: systemInstruction },
               ...formattedHistory.map(h => ({ role: h.role === "model" ? "assistant" : "user", content: h.parts[0].text })),
@@ -157,7 +158,7 @@ MANDATORY: If you say "I've crafted a plan" or "Check it out below", you MUST in
           });
 
         } catch (groqError) {
-          console.error("Groq Error:", groqError.message);
+          // Silently trigger rule-based fallback
           throw new Error("All AI services failed"); // Trigger rule-based fallback
         }
       } else {
@@ -218,7 +219,7 @@ MANDATORY: If you say "I've crafted a plan" or "Check it out below", you MUST in
     return res.json({ type: "chat", reply: replyText });
 
   } catch (error) {
-    console.error("Gemini Agent Error:", error.message);
+    // Rule-based fallback (no AI needed)
     
     // SMART INTERACTIVE FALLBACK (No API needed)
     const msg = message.toLowerCase();

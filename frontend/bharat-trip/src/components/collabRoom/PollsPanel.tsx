@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loader2, Plus, CheckCircle, Clock } from 'lucide-react';
 import { useSocket } from '@/context/SocketContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 import CreatePollModal from '@/components/collabRoom/modals/CreatePollModal';
 
 const COLORS = {

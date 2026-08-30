@@ -202,6 +202,16 @@ module.exports = (io) => {
       io.to(tripId).emit("poll:updated", poll);
     });
 
+    socket.on("activity:visitedToggle", ({ tripId, dayIndex, activityId, isVisited, visitedBy }) => {
+      if (socket.tripId !== tripId) return;
+      io.to(tripId).emit("activity:visited", { dayIndex, activityId, isVisited, visitedBy });
+    });
+
+    socket.on("guideme:note", ({ tripId, dayIndex, activityId, note }) => {
+      if (socket.tripId !== tripId) return;
+      io.to(tripId).emit("guideme:note", { dayIndex, activityId, note });
+    });
+
     socket.on("disconnect", () => {
       if (socket.tripId && socket.userId) {
         if (onlineUsers.has(socket.tripId)) {

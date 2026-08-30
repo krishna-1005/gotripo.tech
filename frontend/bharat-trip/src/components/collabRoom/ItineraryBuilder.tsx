@@ -3,7 +3,7 @@ import api from '@/lib/api';
 import { 
   Loader2, Plus, Sparkles, Calendar as CalendarIcon, Clock, 
   Trash2, GripVertical, Utensils, MapPin, 
-  Navigation, Bed, Flag, Coffee, ChevronDown, ChevronRight
+  Navigation, Bed, Flag, Coffee, ChevronDown, ChevronRight, CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { useSocket } from '@/context/SocketContext';
@@ -342,6 +342,8 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(activity.title);
   const [time, setTime] = useState(activity.time);
+  const [isVisited, setIsVisited] = useState(!!activity.isVisited);
+  const socket = useSocket();
 
   const activityId = activity._id || activity.id;
 
@@ -353,6 +355,30 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
       setIsEditing(false);
     } catch (err) {
       toast.error('Failed to update');
+    }
+  };
+
+  const handleToggleVisited = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const nextVisited = !isVisited;
+      setIsVisited(nextVisited);
+      const res = await api.patch(
+        `/trips/${tripId}/itinerary/day/${dayIndex}/activity/${activityId}/visited`,
+        { isVisited: nextVisited }
+      );
+      if (socket) {
+        socket.emit("activity:visitedToggle", {
+          tripId,
+          dayIndex,
+          activityId,
+          isVisited: nextVisited,
+          visitedBy: res.data.visitedBy
+        });
+      }
+      toast.success(nextVisited ? "Spot marked as Visited! 🎉" : "Marked as unvisited");
+    } catch (err) {
+      toast.error("Failed to update visited status");
     }
   };
 
@@ -368,8 +394,16 @@ const ActivityItem = ({ activity, dayIndex, tripId, onDelete }: { activity: any,
 
   return (
     <div 
-      className={`group flex items-center gap-4 p-4 bg-secondary/20 border border-border rounded-2xl hover:bg-secondary/40 hover:border-border transition-all relative ${activity.isAiGenerated ? 'border-l-4 border-l-purple-500' : ''}`}
+      className={`group flex items-center gap-4 p-4 ${isVisited ? 'bg-[#1d9e75]/10 border-[#1d9e75]/40' : 'bg-secondary/20 border-border'} border rounded-2xl hover:bg-secondary/40 transition-all relative ${activity.isAiGenerated ? 'border-l-4 border-l-purple-500' : ''}`}
     >
+      <button
+        onClick={handleToggleVisited}
+        className={`size-7 rounded-lg border grid place-items-center transition-all ${isVisited ? 'bg-[#1d9e75] text-white border-[#1d9e75]' : 'border-border text-muted-foreground hover:border-[#1d9e75]'}`}
+        title={isVisited ? "Visited" : "Mark Visited"}
+      >
+        <CheckCircle2 size={16} />
+      </button>
+
       <div className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground">
         <GripVertical size={16} />
       </div>

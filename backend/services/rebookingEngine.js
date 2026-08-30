@@ -50,7 +50,8 @@ ${JSON.stringify(trip.itinerary.map(d => ({
 }
 `;
 
-    const chatCompletion = await groq.chat.completions.create({
+    const { createGroqCompletion } = require("../utils/groqClient");
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [{ role: "user", content: prompt }],
       model: "llama-3.3-70b-versatile",
       response_format: { type: "json_object" }

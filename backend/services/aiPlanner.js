@@ -161,6 +161,7 @@ ${candidatesContext}`;
       content = response.choices[0].message.content;
     } else {
       const Groq = require("groq-sdk");
+      const { createGroqCompletion } = require("../utils/groqClient");
       if (!process.env.GROQ_API_KEY) {
         console.warn("⚠️ GROQ_API_KEY missing. Falling back to local logic.");
         return getFallbackPlan();
@@ -168,7 +169,7 @@ ${candidatesContext}`;
 
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-      const chatCompletion = await groq.chat.completions.create({
+      const chatCompletion = await createGroqCompletion(groq, {
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -230,7 +231,7 @@ ${candidatesContext}`;
     return getFallbackPlan();
 
   } catch (err) {
-    console.warn("⚠️ AI Planner Refinement Error (falling back):", err.message);
+    // AI Planner silently falling back to local logic
     return getFallbackPlan();
   }
 }
@@ -273,7 +274,8 @@ Return a JSON object with a "suggestions" key containing an array of 3 objects.
 Each object: { "name": "...", "region": "...", "icon": "one of [mountain, palmtree, landmark, building, wind, city, castle, sun, music, trees]", "vibe": "catchy vibe desc" }
 `;
 
-    const chatCompletion = await groq.chat.completions.create({
+    const { createGroqCompletion } = require("../utils/groqClient");
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [{ role: "user", content: prompt }],
       model: "llama-3.3-70b-versatile",
       response_format: { type: "json_object" }
@@ -294,7 +296,7 @@ Each object: { "name": "...", "region": "...", "icon": "one of [mountain, palmtr
     return getLocalSuggestions({ adventure, modern, social }, fallbacks);
 
   } catch (err) {
-    console.warn("⚠️ Vibe AI Error (falling back):", err.message);
+    // Vibe AI silently falling back to local suggestions
     return getLocalSuggestions({ adventure, modern, social }, fallbacks);
   }
 }
@@ -350,7 +352,8 @@ Return ONLY valid JSON in this structure:
 }
 `;
 
-    const chatCompletion = await groq.chat.completions.create({
+    const { createGroqCompletion } = require("../utils/groqClient");
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: promptText }

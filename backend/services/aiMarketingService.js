@@ -49,7 +49,8 @@ Do not include markdown formatting like \`\`\`json. Return pure JSON.
 `;
 
   try {
-    const chatCompletion = await groq.chat.completions.create({
+    const { createGroqCompletion } = require("../utils/groqClient");
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Generate marketing content for: ${prompt}` }

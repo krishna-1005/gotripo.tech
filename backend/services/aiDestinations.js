@@ -24,7 +24,8 @@ Return JSON ONLY as an array of 3 objects:
 `;
 
   try {
-    const chatCompletion = await groq.chat.completions.create({
+    const { createGroqCompletion } = require("../utils/groqClient");
+    const chatCompletion = await createGroqCompletion(groq, {
       messages: [{ role: "user", content: systemPrompt }],
       model: "llama-3.3-70b-versatile",
       response_format: { type: "json_object" }

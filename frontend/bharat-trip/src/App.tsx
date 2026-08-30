@@ -1,34 +1,34 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop";
-import Home from "./routes/index";
-import AuthPage from "./routes/auth";
+import { ScrollToTop } from "@/components";
+import Home from "./routes/public/index";
+import AuthPage from "./routes/auth/auth";
 
 // Asynchronous route imports using React.lazy
-const Collaborate = lazy(() => import("./routes/collaborate"));
-const Dashboard = lazy(() => import("./routes/dashboard"));
-const Explore = lazy(() => import("./routes/explore"));
-const PlannerMulti = lazy(() => import("./routes/planner-multi"));
-const PlannerSingle = lazy(() => import("./routes/planner-single"));
-const WeekendTrips = lazy(() => import("./routes/weekend-trips"));
-const Profile = lazy(() => import("./routes/profile"));
-const SettingsPage = lazy(() => import("./routes/settings"));
-const Results = lazy(() => import("./routes/results"));
-const Pricing = lazy(() => import("./routes/pricing"));
-const Privacy = lazy(() => import("./routes/privacy"));
-const Terms = lazy(() => import("./routes/terms"));
-const Cookies = lazy(() => import("./routes/cookies"));
-const About = lazy(() => import("./routes/about"));
-const Careers = lazy(() => import("./routes/careers"));
-const Feedback = lazy(() => import("./routes/feedback"));
-const TripDetails = lazy(() => import("./routes/trip-details"));
-const TripType = lazy(() => import("./routes/trip-type"));
-const Trips = lazy(() => import("./routes/trips"));
-const CollaborativeTrip = lazy(() => import("./routes/collaborative-trip"));
-const JoinTrip = lazy(() => import("./routes/join-trip"));
+const Collaborate = lazy(() => import("./routes/trips/collaborate"));
+const Dashboard = lazy(() => import("./routes/user/dashboard"));
+const Explore = lazy(() => import("./routes/explore/explore"));
+const PlannerMulti = lazy(() => import("./routes/planner/planner-multi"));
+const PlannerSingle = lazy(() => import("./routes/planner/planner-single"));
+const WeekendTrips = lazy(() => import("./routes/planner/weekend-trips"));
+const Profile = lazy(() => import("./routes/user/profile"));
+const SettingsPage = lazy(() => import("./routes/user/settings"));
+const Results = lazy(() => import("./routes/planner/results"));
+const Pricing = lazy(() => import("./routes/public/pricing"));
+const Privacy = lazy(() => import("./routes/public/privacy"));
+const Terms = lazy(() => import("./routes/public/terms"));
+const Cookies = lazy(() => import("./routes/public/cookies"));
+const About = lazy(() => import("./routes/public/about"));
+const Careers = lazy(() => import("./routes/public/careers"));
+const Feedback = lazy(() => import("./routes/public/feedback"));
+const TripDetails = lazy(() => import("./routes/trips/trip-details"));
+const TripType = lazy(() => import("./routes/trips/trip-type"));
+const Trips = lazy(() => import("./routes/trips/trips"));
+const CollaborativeTrip = lazy(() => import("./routes/trips/collaborative-trip"));
+const JoinTrip = lazy(() => import("./routes/trips/join-trip"));
 const CollabRoom = lazy(() => import("@/components/collabRoom/CollabRoom"));
-const PublicGallery = lazy(() => import("./components/PublicGallery"));
-const PassportPage = lazy(() => import("./routes/passport"));
+const PublicGallery = lazy(() => import("./components/social/gallery/PublicGallery"));
+const PassportPage = lazy(() => import("./routes/user/passport"));
 
 // Admin Routes
 const AdminDashboardPage = lazy(() => import("./routes/admin/index"));
@@ -57,13 +57,12 @@ const YatraKit = lazy(() => import("./routes/yatra/kit"));
 const YatraShop = lazy(() => import("./routes/yatra/shop"));
 
 // Commerce Routes
-const CartPage = lazy(() => import("./routes/cart"));
-const CheckoutPage = lazy(() => import("./routes/checkout"));
+const CartPage = lazy(() => import("./routes/commerce/cart"));
+const CheckoutPage = lazy(() => import("./routes/commerce/checkout"));
 const OrdersPage = lazy(() => import("./routes/orders/index"));
 const OrderDetailPage = lazy(() => import("./routes/orders/detail"));
 
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { Chatbot } from "./components/Chatbot";
+import { ProtectedRoute, Chatbot } from "@/components";
 import { useTracking } from "./hooks/useTracking";
 import { CartProvider } from "./context/CartContext";
 import { AutoSEO } from "./seo";

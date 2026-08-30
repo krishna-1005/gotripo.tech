@@ -24,9 +24,7 @@ async function generateReviews(placeName, category, city = "India") {
     const text = result.response.text().replace(/```json|```/g, "").trim();
     return JSON.parse(text);
   } catch (error) {
-    // This is where the "API key expired" error is caught
-    // We log it but return the mock reviews so the UI stays functional
-    console.log(`Note: Using fallback reviews for ${placeName} (AI Key issue: ${error.message.substring(0, 50)}...)`);
+    // Fallback to stable mock reviews cleanly without cluttering server logs
     return getMockReviews(placeName, city);
   }
 }
